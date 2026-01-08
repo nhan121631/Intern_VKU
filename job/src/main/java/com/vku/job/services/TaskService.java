@@ -156,4 +156,45 @@ public class TaskService {
                 tasks.hasPrevious());
         return response;
     }
+
+    // get tasks by user id and title with pagination
+    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndTitle(Long userId, String title, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Task> tasks = taskRepository.findByAssignedUserIdAndTitleContainingIgnoreCase(userId, title, pageable);
+        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+                tasks.map(this::convertToDto).getContent(),
+                tasks.getNumber(),
+                tasks.getSize(),
+                tasks.getTotalElements(),
+                tasks.getTotalPages(),
+                tasks.hasNext(),
+                tasks.hasPrevious());
+        return response;
+    }
+
+    // get tasks by user id and status with pagination
+    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndStatus(Long userId, String status, int page,
+            int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        TaskStatus taskStatus;
+        try {
+            taskStatus = TaskStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid task status");
+        }
+        Page<Task> sourcePage = taskRepository.findByAssignedUserId(userId, pageable);
+        List<Task> filtered = sourcePage.stream()
+                .filter(task -> task.getStatus() == taskStatus)
+                .collect(Collectors.toList());
+        Page<Task> tasks = new PageImpl<>(filtered, pageable, filtered.size());
+        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+                tasks.map(this::convertToDto).getContent(),
+                tasks.getNumber(),
+                tasks.getSize(),
+                tasks.getTotalElements(),
+                tasks.getTotalPages(),
+                tasks.hasNext(),
+                tasks.hasPrevious());
+        return response;
+    }
 }

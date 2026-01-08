@@ -62,6 +62,26 @@ public class TaskController {
         return ResponseEntity.ok(tasksByUser);
     }
 
+    @GetMapping("/by-user/search-title")
+    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndTitle(
+            @RequestParam("userId") Long userId,
+            @RequestParam("title") String title,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        PaginatedResponseDto<TaskResponseDto> tasksByUserAndTitle = taskService.getTasksByUserAndTitle(userId, title, page, size);
+        return ResponseEntity.ok(tasksByUserAndTitle);
+    }
+
+    @GetMapping("/by-user/filter-status")
+    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndStatus
+            (@RequestParam("userId") Long userId,
+            @RequestParam("status") String status,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(userId, status, page, size);
+        return ResponseEntity.ok(tasksByUserAndStatus);
+    }
+
     @GetMapping("/search-by-title")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> searchTasksByTitle(
             @RequestParam("title") String title,
