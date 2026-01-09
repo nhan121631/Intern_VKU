@@ -1,0 +1,63 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import Notification from "../components/Notification";
+import RegisterForm from "../components/RegisterForm";
+import { register } from "../service/AuthService";
+
+export default function RegisterPage() {
+  const navigate = useNavigate();
+  const [notif, setNotif] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
+  async function handleRegister(creds: {
+    fullName: string;
+    username: string;
+    password: string;
+  }) {
+    try {
+      await register(creds);
+      Promise.resolve().then(() =>
+        setNotif({ message: "Register successful", type: "success" })
+      );
+      setTimeout(() => navigate("/login"), 700);
+    } catch (error: any) {
+      Promise.resolve().then(() => {
+        let errorMessage = "Register failed";
+        if (
+          error.message &&
+          Array.isArray(error.message) &&
+          error.message.length > 0
+        ) {
+          errorMessage = error.message[0];
+        } else if (error.message && typeof error.message === "string") {
+          errorMessage = error.message;
+        } else if (typeof error === "string") {
+          errorMessage = error;
+        }
+
+        setNotif({ message: errorMessage, type: "error" });
+      });
+    }
+  }
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white">
+      <div className="w-[420px] p-7 bg-white rounded-xl shadow-lg border border-gray-100">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+          Register
+        </h2>
+        <RegisterForm onSubmit={handleRegister} />
+      </div>
+      {notif && (
+        <Notification
+          message={notif.message}
+          type={notif.type}
+          onClose={() => setNotif(null)}
+        />
+      )}
+    </div>
+  );
+}
