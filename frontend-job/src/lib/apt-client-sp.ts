@@ -46,7 +46,6 @@ apiClient.interceptors.response.use(
       // Pass parsed error data for login errors
       return Promise.reject(errorData || error);
     }
-
     if (error.response?.status === 401 || error.response?.status === 403) {
       console.error('Authentication failed, redirecting to login');
       localStorage.removeItem('auth-storage');

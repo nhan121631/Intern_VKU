@@ -14,7 +14,9 @@ export const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { loggedInUser, logOut } = useAuthStore((state) => state);
   const userRoles: string[] =
-    loggedInUser?.roles?.map((role: any) => role.code?.toLowerCase()) || [];
+    loggedInUser?.roles?.map((role: any) =>
+      typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase()
+    ) || [];
   const handleLogout = () => {
     logOut();
     window.location.href = "/login";
@@ -74,12 +76,17 @@ export const NavBar = () => {
             }
             const routeRoles: string[] =
               route.roles?.map((role: string) => role?.toLowerCase()) || [];
-            const hasAccess = userRoles.some((role: string) => {
-              return (
-                role === "administrators" ||
-                routeRoles.includes(role?.toLowerCase())
-              );
-            });
+
+            // If route is public or has no role requirements, allow access
+            const hasAccess =
+              route.isPublic ||
+              routeRoles.length === 0 ||
+              userRoles.some((role: string) => {
+                return (
+                  role === "administrators" ||
+                  routeRoles.includes(role?.toLowerCase())
+                );
+              });
             if (!hasAccess) {
               return null; // Skip routes that the user does not have access to
             }
@@ -108,12 +115,12 @@ export const NavBar = () => {
           {loggedInUser ? (
             <div>
               <span className="mr-4">Hello, {loggedInUser.fullName}</span>
-            <button
-              onClick={handleLogout}
-              className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
-            >
-              Log Out
-            </button>
+              <button
+                onClick={handleLogout}
+                className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
+              >
+                Log Out
+              </button>
             </div>
           ) : (
             <button

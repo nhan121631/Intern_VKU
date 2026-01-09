@@ -56,8 +56,8 @@ export const useAuthStore = create<AuthState>()(
 
               set(
                 {
-                  access_token: response.access_token,
-                  refresh_token: response.refresh_token,
+                  access_token: response.accessToken,
+                  refresh_token: response.refreshToken,
                   loggedInUser: response.loggedInUser,
                   loading: false,
                   error: null,
@@ -91,8 +91,8 @@ export const useAuthStore = create<AuthState>()(
 
               set(
                 {
-                  access_token: response.access_token,
-                  refresh_token: response.refresh_token,
+                  access_token: response.accessToken,
+                  refresh_token: response.refreshToken,
                   loggedInUser: response.loggedInUser,
                   loading: false,
                   error: null,

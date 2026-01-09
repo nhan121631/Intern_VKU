@@ -94,11 +94,7 @@ export default function LoginForm({ onSubmit, loginWithGoogle }: Props) {
         </button>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID || ""}>
           <div className="mt-6 ">
-            <GoogleLogin
-              onSuccess={handleSuccess}
-              onError={handleError}
-              useOneTap
-            />
+            <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
           </div>
         </GoogleOAuthProvider>
       </div>

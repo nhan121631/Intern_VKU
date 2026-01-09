@@ -1,5 +1,3 @@
-import { Link } from "react-router";
-
 export default function HomePage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-200">
@@ -16,12 +14,6 @@ export default function HomePage() {
           alt="To-Do"
           className="mx-auto mb-8 w-32 h-32"
         />
-        <Link
-          to="/assignee-me"
-          className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow transition"
-        >
-          Go to My Tasks
-        </Link>
       </div>
     </div>
   );

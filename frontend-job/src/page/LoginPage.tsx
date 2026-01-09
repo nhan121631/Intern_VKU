@@ -56,7 +56,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white">
-      <div className="w-[420px] p-7 bg-white rounded-xl shadow-lg border border-gray-100 relative">
+      <div className="w-105  p-7 bg-white rounded-xl shadow-lg border border-gray-100 relative">
         {loading && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl z-10">
             <div className="flex flex-col items-center gap-2">

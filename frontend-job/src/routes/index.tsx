@@ -1,5 +1,6 @@
 import HomePage from "../page/HomePage";
 import LoginPage from "../page/LoginPage";
+import OurTaskPage from "../page/OurTaskPage";
 import RegisterPage from "../page/RegisterPage";
 
 const routes = [
@@ -29,6 +30,15 @@ const routes = [
     index: true,
     element: <HomePage />,
     roles: [],
+  },
+  {
+    path: "/our-task",
+    showOnMenu: true,
+    isPublic: false,
+    name: "Our Task",
+    index: true,
+    element: <OurTaskPage />,
+    roles: ["administrators"],
   },
 ];
 

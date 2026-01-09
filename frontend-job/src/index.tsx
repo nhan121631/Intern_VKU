@@ -10,8 +10,9 @@ export default function TaskWithZustand() {
   const { loggedInUser } = useAuthStore((state) => state);
 
   const userRoles: string[] =
-    loggedInUser?.roles?.map((role: any) => role.code?.toLowerCase()) || [];
-  console.log("userRoles", userRoles);
+    loggedInUser?.roles?.map((role: any) =>
+      typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase()
+    ) || [];
   const generatedRoutes: any[] = routes
     .map((route) => {
       const routeRoles: string[] =
