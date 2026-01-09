@@ -15,6 +15,9 @@ interface TaskListProps {
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
   onDelete: (taskId: number) => void;
+  onFilters: (status: string) => void;
+  onSearch: (query: string) => void;
+  onEdit: (taskId: number) => void;
   onRetry: () => void;
 }
 
@@ -30,8 +33,14 @@ export const TaskList: React.FC<TaskListProps> = ({
   onDelete,
   onPageChange,
   onSizeChange,
+  onFilters,
+  onEdit,
+  onSearch,
   onRetry,
 }) => {
+  const [dataSearch, setDataSearch] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+
   function parseToDate(s?: string) {
     if (!s) return null;
     const m = s.match(/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z)?/);
@@ -66,25 +75,73 @@ export const TaskList: React.FC<TaskListProps> = ({
     setDeleteTarget(null);
   };
 
+  const handleSearch = () => {
+    onSearch(dataSearch);
+    setFilterStatus("all");
+  };
+
+  const handleFilters = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const status = e.target.value;
+    setFilterStatus(status);
+    onFilters(status);
+    setDataSearch("");
+  };
+
+  const handleEdit = (taskId: number) => {
+    onEdit(taskId);
+  };
+
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold">Tasks</h2>
-        <div className="flex items-center space-x-2">
-          <label>Page size:</label>
-          <select
-            value={size}
-            onChange={(e) => {
-              onSizeChange(Number(e.target.value));
-              onPageChange(0);
-            }}
-            className="border rounded px-2 py-1"
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-          </select>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={dataSearch}
+              onChange={(e) => setDataSearch(e.target.value)}
+              className="border rounded px-2 py-1"
+            />
+            <button
+              className="px-3 py-1 bg-blue-500 text-white rounded"
+              onClick={handleSearch}
+            >
+              Search
+            </button>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <label>Filters:</label>
+            <select
+              className="border rounded px-2 py-1"
+              value={filterStatus}
+              onChange={handleFilters}
+            >
+              <option value="all">All</option>
+              <option value="OPEN">OPEN</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="DONE">DONE</option>
+              <option value="CANCELED">CANCELED</option>
+            </select>
+          </div>
+          <div className="flex items-center space-x-2">
+            <label>Page size:</label>
+            <select
+              value={size}
+              onChange={(e) => {
+                onSizeChange(Number(e.target.value));
+                onPageChange(0);
+              }}
+              className="border rounded px-2 py-1"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -209,6 +266,9 @@ export const TaskList: React.FC<TaskListProps> = ({
                   Status
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Descripton
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Deadline
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -237,9 +297,24 @@ export const TaskList: React.FC<TaskListProps> = ({
                     {t.assignedFullName}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                        t.status === "OPEN"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : t.status === "IN_PROGRESS"
+                          ? "bg-blue-100 text-blue-800"
+                          : t.status === "DONE"
+                          ? "bg-green-100 text-green-800"
+                          : t.status === "CANCELED"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {t.status}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700 truncate">
+                    {t.description}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {formatDate(t.deadline)}
@@ -247,7 +322,13 @@ export const TaskList: React.FC<TaskListProps> = ({
                   <td className="px-4 py-3 text-sm text-gray-600">
                     {formatDate(t.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="px-4 py-3 text-sm flex space-x-2">
+                    <button
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition"
+                      onClick={() => handleEdit(t.id)}
+                    >
+                      Edit
+                    </button>
                     <button
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition"
                       onClick={() => handleDelete(t.id)}

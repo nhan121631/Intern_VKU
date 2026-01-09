@@ -37,6 +37,6 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDto request) throws Exception {
         userService.register(request);
         return ResponseEntity.ok("User registered successfully");
-    }
+    } 
 
 }

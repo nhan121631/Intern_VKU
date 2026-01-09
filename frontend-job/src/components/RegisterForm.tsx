@@ -6,6 +6,7 @@ interface IRegister {
   fullName: string;
   username: string;
   password: string;
+  repeatPassword: string;
 }
 
 type Props = {
@@ -26,6 +27,10 @@ const schema = yup.object({
     .string()
     .min(8, "Password must be at least 8 characters")
     .required("Password is required"),
+  repeatPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
 });
 
 export default function RegisterForm({ onSubmit }: Props) {
@@ -90,12 +95,29 @@ export default function RegisterForm({ onSubmit }: Props) {
           <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
         )}
       </div>
+
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-semibold text-gray-900">
+          Confirm Password
+        </label>
+        <input
+          type="password"
+          {...register("repeatPassword")}
+          placeholder="Enter password again"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.repeatPassword && (
+          <p className="text-red-500 text-sm mt-1">
+            {errors.repeatPassword.message}
+          </p>
+        )}
+      </div>
       <div className="flex justify-center">
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 w-1/2"
         >
-          Login
+          Register
         </button>
       </div>
 

@@ -118,6 +118,13 @@ public class TaskService {
         return response;
     }
 
+    // get task by id
+    public TaskResponseDto getTaskById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+        return convertToDto(task);
+    }
+
     // search tasks by title with pagination
     public PaginatedResponseDto<TaskResponseDto> searchTasksByTitle(String title, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);

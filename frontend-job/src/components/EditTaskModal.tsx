@@ -1,0 +1,284 @@
+import { useEffect, useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { getUserFullName } from "../service/UserService";
+import type { UpdateTaskData, UserFullName } from "../types/type";
+
+type TaskStatus = "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELED" | string;
+
+export interface Task {
+  id: number;
+  title: string;
+  description?: string;
+  assignedFullName?: string;
+  assignedUserId?: number;
+  status?: TaskStatus;
+  deadline?: string | null;
+  createdAt?: string;
+}
+type Props = {
+  isOpen: boolean;
+  task?: Task | null;
+  saving?: boolean;
+  onClose: () => void;
+  onSave: (data: UpdateTaskData) => Promise<void> | void;
+};
+
+export default function EditTaskModal({
+  isOpen,
+  task,
+  saving,
+  onClose,
+  onSave,
+}: Props) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateTaskData>({
+    defaultValues: {
+      title: "",
+      description: "",
+      assignedUserId: 0,
+      status: "OPEN",
+      deadline: "",
+    },
+  });
+
+  const [userFullNames, setUserFullNames] = useState<UserFullName[]>([]);
+
+  useEffect(() => {
+    if (task) {
+      reset({
+        title: task.title ?? "",
+        description: task.description ?? "",
+        assignedUserId: task.assignedUserId ?? 0,
+        status: (task.status as TaskStatus) ?? "OPEN",
+        deadline: task.deadline ? String(task.deadline).slice(0, 10) : "",
+      });
+    } else {
+      reset({
+        title: "",
+        description: "",
+        assignedUserId: 0,
+        status: "OPEN",
+        deadline: "",
+      });
+    }
+  }, [task, reset]);
+
+  const submit: SubmitHandler<UpdateTaskData> = async (data) => {
+    if (!task) return;
+
+    // Tìm fullName của user được chọn từ dropdown
+    const selectedUser = userFullNames.find(
+      (user) => user.id === Number(data.assignedUserId)
+    );
+
+    await onSave({
+      ...data,
+      id: task.id,
+      assignedFullName: selectedUser?.fullName,
+    });
+  };
+
+  useEffect(() => {
+    const fetchUserFullNames = async () => {
+      try {
+        const res = await getUserFullName();
+        setUserFullNames(Array.isArray(res) ? res : []);
+        console.log("Fetched user full names:", res);
+      } catch (error) {
+        console.error("Error fetching user full names:", error);
+        setUserFullNames([]);
+      }
+    };
+    fetchUserFullNames();
+  }, []);
+
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        onClick={() => {
+          if (!saving) onClose();
+        }}
+      />
+
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <form onSubmit={handleSubmit(submit)} className="p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-gray-800">Edit Task</h3>
+            <button
+              type="button"
+              onClick={() => {
+                if (!saving) onClose();
+              }}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Title <span className="text-red-500">*</span>
+            </label>
+            <input
+              {...register("title", { required: "Title is required" })}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Enter task title"
+            />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {errors.title.message}
+              </p>
+            )}
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea
+              {...register("description")}
+              rows={4}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+              placeholder="Enter task description (optional)"
+            />
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Assigned To
+            </label>
+            <select
+              {...register("assignedUserId")}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+            >
+              <option value="">Select assignee...</option>
+              {(userFullNames || []).map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.fullName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                {...register("status")}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+              >
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="DONE">Done</option>
+                <option value="CANCELED">Canceled</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Deadline
+              </label>
+              <input
+                type="date"
+                {...register("deadline")}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              onClick={() => {
+                if (!saving) onClose();
+              }}
+              disabled={saving}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-6 py-2.5 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -41,11 +41,18 @@ public class TaskController {
 
     }
 
+    @GetMapping("/get-by-id")
+    public ResponseEntity<TaskResponseDto> getTaskById(@RequestParam("id") Long id) {
+        TaskResponseDto task = taskService.getTaskById(id);
+        return ResponseEntity.ok(task);
+    }
+
     @DeleteMapping
     public ResponseEntity<Void> deleteTask(@RequestParam("id") Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+
 
     @PatchMapping
     public ResponseEntity<TaskResponseDto> updateTask(@RequestBody @Valid UpdateTaskRequestDto updateTaskRequestDto) {

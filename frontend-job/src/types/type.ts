@@ -10,6 +10,22 @@ export interface Task {
     title: string;
 }
 
+export interface UserFullName{
+    id: number;
+    fullName: string;
+}
+
+export interface UpdateTaskData 
+    {
+    id: number;
+    title: string;
+    description: string;
+    deadline: string;
+    status: string;
+    assignedUserId: number;
+    assignedFullName?: string;
+}
+
 export interface PaginatedResponse<T> {
     data: T[]
     hasNext: boolean,

@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.vku.job.dtos.User.FullNameUserResponse;
 import com.vku.job.dtos.auth.GoogleLoginRequestDto;
 import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
@@ -19,6 +20,7 @@ import com.vku.job.entities.User;
 import com.vku.job.exceptions.HttpException;
 import com.vku.job.repositories.RoleJpaRepository;
 import com.vku.job.repositories.UserJpaRepository;
+import com.vku.job.repositories.projection.FullNameUserProjection;
 import com.vku.job.services.auth.JwtService;
 
 @Service
@@ -150,6 +152,18 @@ public class UserService {
                 newUser.setFullName(request.getFullName());
                 userJpaRepository.save(newUser);
 
+        }
+
+        // get Fullname all users
+        public List<FullNameUserResponse> getAllFullNameUsers() {
+                List<FullNameUserProjection> projections = userJpaRepository.getAllFullNameUser();
+
+                return projections.stream().map(proj -> {
+                        FullNameUserResponse response = new FullNameUserResponse();
+                        response.setId(proj.getId());
+                        response.setFullName(proj.getFullName());
+                        return response;
+                }).toList();
         }
 
 }
