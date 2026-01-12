@@ -72,22 +72,22 @@ const UserTable: React.FC<Props> = ({
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ID
               </th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Username
               </th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Full name
               </th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Created At
               </th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Active
               </th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Action
               </th>
             </tr>
