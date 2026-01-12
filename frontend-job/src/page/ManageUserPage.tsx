@@ -79,12 +79,10 @@ export default function ManageUserPage() {
   }, [page, size]);
 
   const handleChangeStatus = async (userId: number, isActive: number) => {
-    // Show confirmation modal when deactivating (isActive = 0 means currently active, will change to 1)
     if (isActive === 0) {
       setConfirmModal({ userId, isActive });
       return;
     }
-    // If activating, proceed directly
     await performStatusChange(userId, isActive);
   };
 
@@ -97,23 +95,15 @@ export default function ManageUserPage() {
         isActive
       );
 
-      // Set loading state for this specific user
       setChangingStatusId(userId);
-
-      // Determine new status (toggle): 0 = active, 1 = inactive
       const newStatus = isActive === 0 ? 1 : 0;
 
-      // Call API to change status
       await changeUserStatus(userId, newStatus);
-
-      // Update local state on success
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
           user.id === userId ? { ...user, isActive: newStatus } : user
         )
       );
-
-      // Show success notification
       setNotification({
         type: "success",
         message: `User ${
@@ -140,7 +130,6 @@ export default function ManageUserPage() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">User Management</h1>
 
-      {/* Notification */}
       {notification && (
         <Notification
           message={notification.message}
@@ -150,7 +139,6 @@ export default function ManageUserPage() {
         />
       )}
 
-      {/* Confirmation Modal */}
       {confirmModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">

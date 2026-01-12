@@ -93,64 +93,75 @@ const UserTable: React.FC<Props> = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-100">
-            {users.map((u) => (
-              <tr key={u.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm text-gray-700">{u.id}</td>
-                <td className="px-4 py-3 text-sm text-gray-800">
-                  {u.username}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-700">
-                  {u.fullName}
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  {formatDate(u.createdAt)}
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  {u.isActive === 0 ? (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                      Active
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">
-                      Inactive
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  {u.isActive === 0 ? (
-                    <button
-                      type="button"
-                      className="px-2 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                      aria-label={`Deactivate user ${u.username}`}
-                      onClick={() =>
-                        onChangeStatus && onChangeStatus(u.id, u.isActive)
-                      }
-                      disabled={changingStatusId === u.id}
-                    >
-                      {changingStatusId === u.id && (
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      )}
-                      Deactivate
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                      aria-label={`Activate user ${u.username}`}
-                      onClick={() =>
-                        onChangeStatus && onChangeStatus(u.id, u.isActive)
-                      }
-                      disabled={changingStatusId === u.id}
-                    >
-                      {changingStatusId === u.id && (
-                        <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      )}
-                      Activate
-                    </button>
-                  )}
+            {users.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-6 text-center text-sm text-gray-500"
+                >
+                  No users found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              users.map((u) => (
+                <tr key={u.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-700">{u.id}</td>
+                  <td className="px-4 py-3 text-sm text-gray-800">
+                    {u.username}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {u.fullName}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {formatDate(u.createdAt)}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {u.isActive === 0 ? (
+                      <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    {u.isActive === 0 ? (
+                      <button
+                        type="button"
+                        className="px-2 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                        aria-label={`Deactivate user ${u.username}`}
+                        onClick={() =>
+                          onChangeStatus && onChangeStatus(u.id, u.isActive)
+                        }
+                        disabled={changingStatusId === u.id}
+                      >
+                        {changingStatusId === u.id && (
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        )}
+                        Deactivate
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                        aria-label={`Activate user ${u.username}`}
+                        onClick={() =>
+                          onChangeStatus && onChangeStatus(u.id, u.isActive)
+                        }
+                        disabled={changingStatusId === u.id}
+                      >
+                        {changingStatusId === u.id && (
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        )}
+                        Activate
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
