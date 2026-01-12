@@ -32,7 +32,6 @@ export async function getUsersPaginated(page: number, size: number) {
 // change user status
 export async function changeUserStatus(userId: number, isActive: number) {
   try {
-    // send params as query parameters (axios: use third arg config)
     const res = await apiClient.patch(`/users/change-status`, null, {
       params: {
         userId,
