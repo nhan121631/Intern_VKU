@@ -1,5 +1,5 @@
 import apiClient from "../lib/apt-client-sp";
-import type { UpdateTaskData } from "../types/type";
+import type { CreateTaskData, UpdateTaskData } from "../types/type";
 
 // get all task
 export async function getTasks(page: number = 0, size: number = 10) {
@@ -70,8 +70,8 @@ export async function updateTask(taskData: UpdateTaskData) {
   }
 }
 
-// create task
-export async function createTask(taskData: Omit<UpdateTaskData, 'id' | 'assignedFullName'>) {
+// create task Omit<UpdateTaskData, 'id' | 'assignedFullName'>
+export async function createTask(taskData: CreateTaskData) {
   try {
     const res = await apiClient.post(`/tasks`, taskData);
     return res;
