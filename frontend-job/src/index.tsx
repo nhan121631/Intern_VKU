@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 import { AccessDeniedPage } from "./page/AccessDeniedPage";
 import { MainLayout } from "./page/MainLayout";
 import routes from "./routes";
@@ -45,7 +45,10 @@ export default function TaskWithZustand() {
     {
       path: "/",
       element: <MainLayout />,
-      children: generatedRoutes,
+      children: [
+        { index: true, element: <Navigate to="/home" replace /> },
+        ...generatedRoutes,
+      ],
     },
     {
       path: "*",

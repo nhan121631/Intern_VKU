@@ -10,6 +10,6 @@ export async function register(creds: {
     return res;
   } catch (e) {
     console.error("Create register error:", e);
-    throw e; // Re-throw to let caller handle the error
+    throw e; 
   }
 }

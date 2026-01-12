@@ -268,11 +268,12 @@ export const TaskList: React.FC<TaskListProps> = ({
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Descripton
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Deadline
-                </th>
+
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created At
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Deadline
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -313,14 +314,16 @@ export const TaskList: React.FC<TaskListProps> = ({
                       {t.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700 truncate">
+                  {/* line-clamp-3 */}
+                  <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
                     {t.description}
+                  </td>
+
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {formatDate(t.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {formatDate(t.deadline)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatDate(t.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-sm flex space-x-2">
                     <button
@@ -355,7 +358,7 @@ export const TaskList: React.FC<TaskListProps> = ({
 
       <div className="flex items-center justify-between mt-4">
         <div>
-          Page {page + 1} of {totalPages || 1}
+          Page {Math.min(page + 1, totalPages || 1)} of {totalPages || 1}
         </div>
         <div className="space-x-2">
           <button

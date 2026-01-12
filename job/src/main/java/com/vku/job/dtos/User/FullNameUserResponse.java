@@ -1,4 +1,4 @@
-package com.vku.job.dtos.User;
+package com.vku.job.dtos.user;
 
 import lombok.Data;
 

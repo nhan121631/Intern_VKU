@@ -4,17 +4,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.vku.job.dtos.User.FullNameUserResponse;
+import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.auth.GoogleLoginRequestDto;
 import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
 import com.vku.job.dtos.auth.RegisterRequestDto;
+import com.vku.job.dtos.user.FullNameUserResponse;
+import com.vku.job.dtos.user.UserResponse;
 import com.vku.job.entities.Role;
 import com.vku.job.entities.User;
 import com.vku.job.exceptions.HttpException;
@@ -38,6 +43,17 @@ public class UserService {
         private RoleJpaRepository roleJpaRepository;
 
         private final RestTemplate restTemplate = new RestTemplate();
+
+        // conver User entity to UserResponse dto
+        private UserResponse convertToDto(User user) {
+                UserResponse dto = new UserResponse();
+                dto.setId(user.getId());
+                dto.setUsername(user.getUsername());
+                dto.setFullName(user.getFullName());
+                dto.setCreatedAt(user.getCreatedAt());
+                dto.setIsActive(user.getIsActive());
+                return dto;
+        }
 
         // login with username and password
         public LoginResponseDto login(LoginRequestDto request) throws Exception {
@@ -164,6 +180,33 @@ public class UserService {
                         response.setFullName(proj.getFullName());
                         return response;
                 }).toList();
+        }
+
+        // get all users panigated
+        public PaginatedResponseDto<UserResponse> getAllUsersPaginated(int page,
+                        int size) {
+                Pageable pageable = PageRequest.of(page, size);
+                Page<User> users = userJpaRepository.findAll(pageable);
+                PaginatedResponseDto<UserResponse> response = new PaginatedResponseDto<>(
+                                users.map(this::convertToDto).getContent(),
+                                users.getNumber(),
+                                users.getSize(),
+                                users.getTotalElements(),
+                                users.getTotalPages(),
+                                users.hasNext(),
+                                users.hasPrevious());
+                return response;
+        }
+
+        // change user status
+        public void changeUserStatus(Long userId, int isActive) {
+                User user = userJpaRepository.findById(userId)
+                                .orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
+                if (isActive != 0 && isActive != 1) {
+                        throw new HttpException("Invalid status value", HttpStatus.BAD_REQUEST);
+                }
+                user.setIsActive(isActive);
+                userJpaRepository.save(user);
         }
 
 }

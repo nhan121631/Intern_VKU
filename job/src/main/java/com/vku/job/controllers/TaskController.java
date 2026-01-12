@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.task.CreateTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
+import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
 import com.vku.job.services.TaskService;
 
@@ -53,7 +54,6 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
-
     @PatchMapping
     public ResponseEntity<TaskResponseDto> updateTask(@RequestBody @Valid UpdateTaskRequestDto updateTaskRequestDto) {
         TaskResponseDto updatedTask = taskService.updateTask(updateTaskRequestDto);
@@ -69,23 +69,32 @@ public class TaskController {
         return ResponseEntity.ok(tasksByUser);
     }
 
+    @PatchMapping("/by-user/update")
+    public ResponseEntity<TaskResponseDto> updateTaskByUser(
+            @RequestBody @Valid UpdateTaskByUserRequestDto  updateTaskRequestDto) {
+        TaskResponseDto updatedTask = taskService.updateTaskByUser(updateTaskRequestDto);
+        return ResponseEntity.ok(updatedTask);
+    }
+
     @GetMapping("/by-user/search-title")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndTitle(
             @RequestParam("userId") Long userId,
             @RequestParam("title") String title,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseDto<TaskResponseDto> tasksByUserAndTitle = taskService.getTasksByUserAndTitle(userId, title, page, size);
+        PaginatedResponseDto<TaskResponseDto> tasksByUserAndTitle = taskService.getTasksByUserAndTitle(userId, title,
+                page, size);
         return ResponseEntity.ok(tasksByUserAndTitle);
     }
 
     @GetMapping("/by-user/filter-status")
-    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndStatus
-            (@RequestParam("userId") Long userId,
+    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndStatus(
+            @RequestParam("userId") Long userId,
             @RequestParam("status") String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(userId, status, page, size);
+        PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(userId, status,
+                page, size);
         return ResponseEntity.ok(tasksByUserAndStatus);
     }
 

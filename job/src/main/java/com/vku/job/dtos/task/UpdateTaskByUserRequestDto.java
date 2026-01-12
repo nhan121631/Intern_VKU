@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class UpdateTaskRequestDto {
+public class UpdateTaskByUserRequestDto {
     private Long id;
 
     @NotBlank(message = "Title is required")
@@ -23,8 +23,4 @@ public class UpdateTaskRequestDto {
     @NotBlank(message = "Status is required")
     @Pattern(regexp = "^(OPEN|IN_PROGRESS|DONE|CANCELED)$", message = "Status must be one of: OPEN, IN_PROGRESS, DONE, CANCELED")
     private String status;
-
-    @NotNull(message = "Assigned user ID is required")
-    private Long assignedUserId;
-
 }

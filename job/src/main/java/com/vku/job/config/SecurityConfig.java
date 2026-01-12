@@ -45,10 +45,19 @@ public class SecurityConfig {
                                                 .accessDeniedHandler(this.customAccessDeniedHandler))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**").permitAll()
-                                                .requestMatchers(HttpMethod.POST, "/api/tasks/**")
+                                                .requestMatchers(HttpMethod.POST, "/api/tasks")
                                                 .hasAllRoles("Administrators")
-                                                .requestMatchers(HttpMethod.GET, "/api/tasks/**")
+                                                .requestMatchers(HttpMethod.GET, "/api/tasks")
                                                 .hasAllRoles("Administrators")
+                                                .requestMatchers(HttpMethod.PATCH, "/api/tasks")
+                                                .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/tasks/search-by-title")
+                                                .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/tasks/filter-by-status")
+                                                .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/users/**")
+                                                .hasAnyRole("Administrators")
+
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();

@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import {
-  deleteTask,
-  getTasks,
-  getTaskStatus,
-  searchTasks,
-  getTaskById,
-  updateTask,
-} from "../service/TaskService";
+
+import { deleteTask, getTaskById } from "../service/TaskService";
+import { useAuthStore } from "../stores/useAuthorStore";
 import type { Task } from "../types/type";
-import TaskList from "./TaskList";
 import EditTaskModal from "./EditTaskModal";
 import Notification from "./Notification";
+import TaskList from "./TaskList";
+import {
+  getMyTasks,
+  getMyTaskStatus,
+  searchMyTasks,
+  updateTaskByUser,
+} from "../service/MyTaskService";
 
-const TaskListContainer = () => {
+const MyTaskListContainer = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [page, setPage] = useState<number>(0);
   const [size, setSize] = useState<number>(10);
@@ -29,8 +30,12 @@ const TaskListContainer = () => {
   const [saving, setSaving] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
 
+  const loggedInUser = useAuthStore((state) => state.loggedInUser);
+  const userId = Number(loggedInUser?.id ?? NaN);
   const fetchTasks = async () => {
-    // kept for compatibility but actual loading now handled by `loadPage`
+    // don't attempt to fetch until we have a logged in user id
+    if (!userId) return;
+    // compatibility wrapper - actual loading done by `loadPage`
     await loadPage();
   };
 
@@ -39,16 +44,17 @@ const TaskListContainer = () => {
   const [lastStatus, setLastStatus] = useState<string>("");
 
   const loadPage = async () => {
+    if (!userId) return;
     setLoading(true);
     setLoadError(null);
     try {
       let res: any;
       if (mode === "search") {
-        res = await searchTasks(page, size, lastQuery);
+        res = await searchMyTasks(page, size, lastQuery, userId);
       } else if (mode === "filter") {
-        res = await getTaskStatus(page, size, lastStatus);
+        res = await getMyTaskStatus(page, size, lastStatus, userId);
       } else {
-        res = await getTasks(page, size);
+        res = await getMyTasks(page, size, userId);
       }
       console.log("Load page response:", { mode, page, size, res });
 
@@ -79,7 +85,7 @@ const TaskListContainer = () => {
     // load appropriate page based on current mode (list/search/filter)
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, mode, lastQuery, lastStatus]);
+  }, [page, size, mode, lastQuery, lastStatus, loggedInUser?.id]);
 
   const handledDelete = async (taskId: number) => {
     try {
@@ -94,7 +100,7 @@ const TaskListContainer = () => {
     }
   };
   const handleSearch = async (query: string) => {
-    // set search mode and query, reset to first page; useEffect will load
+    // set search mode and query, reset to first page; effect will load
     setLastQuery(query);
     setMode("search");
     setPage(0);
@@ -107,7 +113,7 @@ const TaskListContainer = () => {
       setPage(0);
       return;
     }
-    // set filter mode and status, reset to first page; useEffect will load
+    // set filter mode and status, reset to first page; effect will load
     setLastStatus(status);
     setMode("filter");
     setPage(0);
@@ -135,12 +141,13 @@ const TaskListContainer = () => {
     setSaving(true);
     console.log("Saving updated task:", updated);
     try {
-      const res: any = await updateTask(updated);
+      const res: any = await updateTaskByUser(updated);
       if (res && (res.errors || res.error)) {
         const msg = Array.isArray(res.errors)
           ? res.errors.join(", ")
           : res.error || res.message || "Error saving task";
         console.error("Validation error updating task:", res);
+        // Show validation errors as a toast, not as a TaskList load error
         setErrorMessage(msg);
         return;
       }
@@ -173,13 +180,13 @@ const TaskListContainer = () => {
       <Notification
         message={errorMessage ?? ""}
         type="error"
-        duration={3000}
+        duration={5000}
         onClose={() => setErrorMessage(null)}
       />
       <Notification
         message={successMessage}
         type="success"
-        duration={2000}
+        duration={3000}
         onClose={() => setSuccessMessage("")}
       />
       <TaskList
@@ -203,6 +210,7 @@ const TaskListContainer = () => {
         isOpen={isEditOpen}
         task={selectedTask}
         saving={saving}
+        userId={userId}
         onClose={handleCloseEdit}
         onSave={handleSaveEdit}
       />
@@ -210,4 +218,4 @@ const TaskListContainer = () => {
   );
 };
 
-export default TaskListContainer;
+export default MyTaskListContainer;

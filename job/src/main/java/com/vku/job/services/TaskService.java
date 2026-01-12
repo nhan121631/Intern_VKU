@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.PageImpl;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.task.CreateTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
+import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
 import com.vku.job.entities.Task;
 import com.vku.job.entities.User;
@@ -48,7 +46,7 @@ public class TaskService {
         task.setTitle(createTastRequestDto.getTitle());
         task.setDescription(createTastRequestDto.getDescription());
         task.setDeadline(createTastRequestDto.getDeadline());
-        // task.setStatus(TaskStatus.valueOf(createTastRequestDto.getStatus()));
+        task.setStatus(TaskStatus.valueOf(createTastRequestDto.getStatus()));
         if (createTastRequestDto.getAssignedUserId() != null) {
             User user = userRepository.findById(createTastRequestDto.getAssignedUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -90,6 +88,10 @@ public class TaskService {
         task.setDeadline(updateTaskRequestDto.getDeadline());
         if (updateTaskRequestDto.getStatus() != null) {
             task.setStatus(TaskStatus.valueOf(updateTaskRequestDto.getStatus()));
+        }
+        if (updateTaskRequestDto.getDeadline() != null &&
+                updateTaskRequestDto.getDeadline().isBefore(task.getCreatedAt().toLocalDate())) {
+            throw new RuntimeException("Deadline cannot be before created date");
         }
         if (updateTaskRequestDto.getAssignedUserId() != null) {
             User user = userRepository.findById(updateTaskRequestDto.getAssignedUserId())
@@ -149,11 +151,7 @@ public class TaskService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid task status");
         }
-        Page<Task> sourcePage = taskRepository.findAll(pageable);
-        List<Task> filtered = sourcePage.stream()
-                .filter(task -> task.getStatus() == taskStatus)
-                .collect(Collectors.toList());
-        Page<Task> tasks = new PageImpl<>(filtered, pageable, filtered.size());
+        Page<Task> tasks = taskRepository.findByStatus(taskStatus, pageable);
         PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
@@ -190,11 +188,7 @@ public class TaskService {
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid task status");
         }
-        Page<Task> sourcePage = taskRepository.findByAssignedUserId(userId, pageable);
-        List<Task> filtered = sourcePage.stream()
-                .filter(task -> task.getStatus() == taskStatus)
-                .collect(Collectors.toList());
-        Page<Task> tasks = new PageImpl<>(filtered, pageable, filtered.size());
+        Page<Task> tasks = taskRepository.findByAssignedUserIdAndStatus(userId, taskStatus, pageable);
         PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
@@ -204,5 +198,24 @@ public class TaskService {
                 tasks.hasNext(),
                 tasks.hasPrevious());
         return response;
+    }
+
+    // user update task by id
+    public TaskResponseDto updateTaskByUser(UpdateTaskByUserRequestDto updateTaskRequestDto) {
+        Task task = taskRepository.findById(updateTaskRequestDto.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        task.setTitle(updateTaskRequestDto.getTitle());
+        task.setDescription(updateTaskRequestDto.getDescription());
+        task.setDeadline(updateTaskRequestDto.getDeadline());
+        if (updateTaskRequestDto.getStatus() != null) {
+            task.setStatus(TaskStatus.valueOf(updateTaskRequestDto.getStatus()));
+        }
+        if (updateTaskRequestDto.getDeadline() != null &&
+                updateTaskRequestDto.getDeadline().isBefore(task.getCreatedAt().toLocalDate())) {
+            throw new RuntimeException("Deadline cannot be before created date");
+        }
+        Task updatedTask = taskRepository.save(task);
+        return convertToDto(updatedTask);
     }
 }

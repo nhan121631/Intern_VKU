@@ -3,6 +3,8 @@ package com.vku.job.repositories;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,5 +21,8 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.id as id, u.fullName as fullName FROM User u")
     List<FullNameUserProjection> getAllFullNameUser();
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'Users'")
+    Page<User> findAll(Pageable pageable);
 
 }

@@ -4,8 +4,6 @@ import type { UpdateTaskData } from "../types/type";
 // get all task
 export async function getTasks(page: number = 0, size: number = 10) {
   try {
-    // Use GET for listing tasks. POST /tasks is typically the create endpoint
-    // and requires a request body which caused `Required request body is missing` errors.
     const res = await apiClient.get(`/tasks?page=${page}&size=${size}`);
     return res;
   } catch (e) {
@@ -30,7 +28,7 @@ export async function deleteTask(taskId: number) {
 export async function searchTasks(page: number = 0, size: number = 10, query: string) {
   try {
     const res = await apiClient.get(`/tasks/search-by-title?title=${encodeURIComponent(query)}&page=${page}&size=${size}`);
-    return res;
+    return res; 
   } catch (e) {
     console.error(`Error searching tasks with query "${query}":`, e);
     throw e;
@@ -68,6 +66,17 @@ export async function updateTask(taskData: UpdateTaskData) {
   }
   catch (e) {
     console.error(`Error updating task:`, e);
+    throw e;
+  }
+}
+
+// create task
+export async function createTask(taskData: Omit<UpdateTaskData, 'id' | 'assignedFullName'>) {
+  try {
+    const res = await apiClient.post(`/tasks`, taskData);
+    return res;
+  } catch (e) {
+    console.error(`Error creating task:`, e);
     throw e;
   }
 }

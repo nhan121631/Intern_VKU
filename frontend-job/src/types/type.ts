@@ -26,6 +26,23 @@ export interface UpdateTaskData
     assignedFullName?: string;
 }
 
+export interface CreateTaskData 
+    {
+    title: string;
+    description: string;
+    deadline: string;
+    assignedUserId: number;
+    assignedFullName?: string;
+}
+
+export interface User {
+    id: number;
+    username: string;
+    fullName: string;
+    createdAt?: string | null;
+    isActive: number;
+}
+
 export interface PaginatedResponse<T> {
     data: T[]
     hasNext: boolean,
