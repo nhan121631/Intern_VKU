@@ -121,10 +121,10 @@ export const TaskList: React.FC<TaskListProps> = ({
               onChange={handleFilters}
             >
               <option value="all">All</option>
-              <option value="OPEN">OPEN</option>
-              <option value="IN_PROGRESS">IN_PROGRESS</option>
-              <option value="DONE">DONE</option>
-              <option value="CANCELED">CANCELED</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="DONE">Done</option>
+              <option value="CANCELED">Canceled</option>
             </select>
           </div>
           <div className="flex items-center space-x-2">
@@ -311,7 +311,15 @@ export const TaskList: React.FC<TaskListProps> = ({
                           : "bg-gray-100 text-gray-800"
                       }`}
                     >
-                      {t.status}
+                      {t.status === "OPEN"
+                        ? "Open"
+                        : t.status === "IN_PROGRESS"
+                        ? "In Progress"
+                        : t.status === "DONE"
+                        ? "Done"
+                        : t.status === "CANCELED"
+                        ? "Canceled"
+                        : t.status}
                     </span>
                   </td>
                   {/* line-clamp-3 */}
