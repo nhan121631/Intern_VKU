@@ -76,14 +76,12 @@ const TaskListContainer = () => {
   };
 
   useEffect(() => {
-    // load appropriate page based on current mode (list/search/filter)
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, size, mode, lastQuery, lastStatus]);
 
   const handledDelete = async (taskId: number) => {
     try {
-      // Call delete API
       await deleteTask(taskId);
       setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
       setSuccessMessage("Task deleted successfully!");

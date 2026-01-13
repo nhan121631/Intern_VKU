@@ -48,6 +48,7 @@ export default function LoginPage() {
   }
 
   function handleLoginWithGoogle(credential: string) {
+    console.log("Google Credential:", credential);
     loginWithGoogle({
       credential,
       navigate,

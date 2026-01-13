@@ -4,12 +4,6 @@ import { NavLink } from "react-router";
 import routes from "../../routes";
 import { useAuthStore } from "../../stores/useAuthorStore";
 
-const menuItems = [
-  { label: "Our Tasks", path: "/tasks" },
-  { label: "My Tasks", path: "/assignee-me" },
-  { label: "Create Task", path: "/create-task" },
-];
-
 export const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { loggedInUser, logOut } = useAuthStore((state) => state);
@@ -77,7 +71,6 @@ export const NavBar = () => {
             const routeRoles: string[] =
               route.roles?.map((role: string) => role?.toLowerCase()) || [];
 
-            // If route is public or has no role requirements, allow access
             const hasAccess =
               route.isPublic ||
               routeRoles.length === 0 ||
@@ -88,7 +81,7 @@ export const NavBar = () => {
                 );
               });
             if (!hasAccess) {
-              return null; // Skip routes that the user does not have access to
+              return null;
             }
             return (
               <li key={route.path}>
@@ -136,7 +129,7 @@ export const NavBar = () => {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="mt-4 md:hidden space-y-2">
-          {menuItems.map((item) => (
+          {/* {menuItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
@@ -152,7 +145,46 @@ export const NavBar = () => {
             >
               {item.label}
             </NavLink>
-          ))}
+          ))} */}
+          <ul className="md:flex space-x-6">
+            {routes.map((route) => {
+              if (route.showOnMenu === false) {
+                return null;
+              }
+              const routeRoles: string[] =
+                route.roles?.map((role: string) => role?.toLowerCase()) || [];
+
+              const hasAccess =
+                route.isPublic ||
+                routeRoles.length === 0 ||
+                userRoles.some((role: string) => {
+                  return (
+                    role === "administrators" ||
+                    routeRoles.includes(role?.toLowerCase())
+                  );
+                });
+              if (!hasAccess) {
+                return null;
+              }
+              return (
+                <li key={route.path}>
+                  <NavLink
+                    to={route.path}
+                    className={({ isActive }) =>
+                      `block px-4 py-2 rounded-full text-base font-medium transition-all duration-300
+                   ${
+                     isActive
+                       ? "bg-white text-[#7f7fd5] shadow-md"
+                       : "hover:bg-white hover:text-[#7f7fd5] hover:shadow"
+                   }`
+                    }
+                  >
+                    {route.name}
+                  </NavLink>
+                </li>
+              );
+            })}
+          </ul>
           {/* Auth Buttons - Mobile */}
           {loggedInUser ? (
             <button
