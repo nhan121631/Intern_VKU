@@ -11,6 +11,8 @@ import com.vku.job.dtos.auth.GoogleLoginRequestDto;
 import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
 import com.vku.job.dtos.auth.RegisterRequestDto;
+import com.vku.job.dtos.auth.RegisterResponseDto;
+import com.vku.job.dtos.auth.VerifyEmailRequestDto;
 import com.vku.job.services.UserService;
 
 import jakarta.validation.Valid;
@@ -34,9 +36,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequestDto request) throws Exception {
-        userService.register(request);
-        return ResponseEntity.ok("User registered successfully");
-    } 
+    public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterRequestDto request)
+            throws Exception {
+        RegisterResponseDto result = userService.register(request);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@RequestBody @Valid VerifyEmailRequestDto request) {
+        userService.verifyEmail(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok().build();
+    }
 
 }

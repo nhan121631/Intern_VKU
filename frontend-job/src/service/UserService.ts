@@ -1,4 +1,5 @@
 import apiClient from "../lib/apt-client-sp";
+import type { NameUserResponse } from "../types/type";
 
 // get task by id
 export async function getUserFullName() {
@@ -42,6 +43,18 @@ export async function changeUserStatus(userId: number, isActive: number) {
   }
   catch (e) {
     console.error(`Error changing user status:`, e);
+    throw e;
+  }
+}
+
+// get name user
+// get name user
+export async function getNameUser(): Promise<NameUserResponse> {
+  try {
+    const res = await apiClient.get<NameUserResponse>("/users/get-name-by-id");
+    return res.data || res;
+  } catch (e) {
+    console.error("Error fetching name user:", e);
     throw e;
   }
 }

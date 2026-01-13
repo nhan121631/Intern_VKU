@@ -43,6 +43,19 @@ export interface User {
     isActive: number;
 }
 
+// name user 
+export interface NameUserResponse {
+    fullName: string | null;
+}
+
+// register response
+export interface RegisterResponse {
+    message: string;
+    email: string;
+    success: boolean;
+}
+
+// paginated response
 export interface PaginatedResponse<T> {
     data: T[]
     hasNext: boolean,

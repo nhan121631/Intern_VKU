@@ -55,6 +55,8 @@ public class SecurityConfig {
                                                 .hasAnyRole("Administrators")
                                                 .requestMatchers("/api/tasks/filter-by-status")
                                                 .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/users/get-name-by-id")
+                                                .hasAnyRole("Administrators", "Users")
                                                 .requestMatchers("/api/users/**")
                                                 .hasAnyRole("Administrators")
                                                 .anyRequest().authenticated())

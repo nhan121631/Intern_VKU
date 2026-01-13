@@ -5,6 +5,7 @@ import * as yup from "yup";
 interface IRegister {
   fullName: string;
   username: string;
+  email: string;
   password: string;
   repeatPassword: string;
 }
@@ -23,9 +24,18 @@ const schema = yup.object({
     .string()
     .min(5, "Username must be at least 5 characters")
     .required("Username is required"),
+  email: yup
+    .string()
+    .email("Invalid email format")
+    .required("Email is required"),
   password: yup
     .string()
     .min(8, "Password must be at least 8 characters")
+    // at least one uppercase letter, one lowercase letter, one number, and one special character
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    )
     .required("Password is required"),
   repeatPassword: yup
     .string()
@@ -64,6 +74,20 @@ export default function RegisterForm({ onSubmit }: Props) {
         />
         {errors.fullName && (
           <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
+        )}
+      </div>
+      <div className="mb-4">
+        <label className="block mb-2 text-sm font-semibold text-gray-900">
+          Email
+        </label>
+        <input
+          type="email"
+          {...register("email")}
+          placeholder="Enter email"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
         )}
       </div>
       <div className="mb-4">

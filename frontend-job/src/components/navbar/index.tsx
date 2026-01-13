@@ -1,16 +1,37 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import routes from "../../routes";
 import { useAuthStore } from "../../stores/useAuthorStore";
+import { getNameUser } from "../../service/UserService";
+import type { NameUserResponse } from "../../types/type";
 
 export const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { loggedInUser, logOut } = useAuthStore((state) => state);
+  const loggedInUser = useAuthStore((state) => state.loggedInUser);
+  const logOut = useAuthStore((state) => state.logOut);
+  const [fullName, setFullName] = useState<string>("");
   const userRoles: string[] =
     loggedInUser?.roles?.map((role: any) =>
       typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase()
     ) || [];
+
+  useEffect(() => {
+    if (!loggedInUser) return;
+
+    const fetchFullName = async () => {
+      try {
+        const response = (await getNameUser()) as NameUserResponse;
+        console.log("Name user response:", response);
+        if (response) setFullName(response.fullName || "");
+        console.log("Fetched user full name:", response.fullName);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchFullName();
+  }, [loggedInUser]);
+
   const handleLogout = () => {
     setTimeout(() => {
       logOut();
@@ -109,7 +130,7 @@ export const NavBar = () => {
         <div className="hidden md:block">
           {loggedInUser ? (
             <div>
-              <span className="mr-4">Hello, {loggedInUser.fullName}</span>
+              <span className="mr-4">Hello, {fullName}</span>
               <button
                 onClick={handleLogout}
                 className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"

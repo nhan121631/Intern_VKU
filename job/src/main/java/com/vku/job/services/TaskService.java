@@ -33,7 +33,7 @@ public class TaskService {
                 .description(task.getDescription())
                 .deadline(task.getDeadline())
                 .status(task.getStatus().name())
-                .assignedFullName(task.getAssignedUser() != null ? task.getAssignedUser().getFullName() : null)
+                .assignedFullName(task.getAssignedUser() != null ? task.getAssignedUser().getProfile().getFullName() : null)
                 .assignedUserId(task.getAssignedUser() != null ? task.getAssignedUser().getId() : null)
                 .createdAt(task.getCreatedAt())
                 .build();

@@ -3,7 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import Notification from "../components/Notification";
 import RegisterForm from "../components/RegisterForm";
-import { register } from "../service/AuthService";
+import InputOTPModal from "../components/InputOTPModal";
+import { register, verifyEmail } from "../service/AuthService";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -15,14 +16,14 @@ export default function RegisterPage() {
   async function handleRegister(creds: {
     fullName: string;
     username: string;
+    email: string;
     password: string;
   }) {
     try {
       await register(creds);
-      Promise.resolve().then(() =>
-        setNotif({ message: "Register successful", type: "success" })
-      );
-      setTimeout(() => navigate("/login"), 700);
+      // show OTP modal and keep email for verification
+      setPendingEmail(creds.email);
+      setShowOtp(true);
     } catch (error: any) {
       Promise.resolve().then(() => {
         let errorMessage = "Register failed";
@@ -43,9 +44,30 @@ export default function RegisterPage() {
     }
   }
 
+  const [showOtp, setShowOtp] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  const handleVerify = async (code: string) => {
+    if (!pendingEmail) return;
+    console.log(pendingEmail, code);
+
+    try {
+      await verifyEmail({ email: pendingEmail, otp: code });
+      setShowOtp(false);
+      setNotif({ message: "Email verified. Please login.", type: "success" });
+      setTimeout(() => navigate("/login"), 700);
+    } catch (e: any) {
+      console.log("Verify email error:", e);
+      setNotif({
+        message: e.message || e.errors?.[0] || "Verification failed",
+        type: "error",
+      });
+    }
+  };
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white">
-      <div className="w-[420px] p-7 bg-white rounded-xl shadow-lg border border-gray-100">
+      <div className="w-105 p-7 bg-white rounded-xl shadow-lg border border-gray-100">
         <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">
           Register
         </h2>
@@ -58,6 +80,11 @@ export default function RegisterPage() {
           onClose={() => setNotif(null)}
         />
       )}
+      <InputOTPModal
+        open={showOtp}
+        onClose={() => setShowOtp(false)}
+        onSubmit={handleVerify}
+      />
     </div>
   );
 }

@@ -17,9 +17,15 @@ public interface UserJpaRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    boolean existsByUsername(String username);
+    boolean existsByEmailAndEmailVerifiedTrue(String email);
 
-    @Query("SELECT u.id as id, u.fullName as fullName FROM User u")
+    boolean existsByEmailAndEmailVerifiedTrueAndPasswordIsNotNull(String email);
+
+    Optional<User> findByEmail(String email);
+
+    boolean existsByUsernameAndEmailVerifiedTrue(String username);
+
+    @Query("SELECT u.id as id, u.profile.fullName as fullName FROM User u ")
     List<FullNameUserProjection> getAllFullNameUser();
 
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'Users'")
