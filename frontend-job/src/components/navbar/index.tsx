@@ -12,8 +12,10 @@ export const NavBar = () => {
       typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase()
     ) || [];
   const handleLogout = () => {
-    logOut();
-    window.location.href = "/login";
+    setTimeout(() => {
+      logOut();
+      window.location.href = "/login";
+    }, 900);
   };
 
   return (
