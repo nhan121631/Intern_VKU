@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import com.vku.job.dtos.task.TaskResponseDto;
 import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
 import com.vku.job.services.TaskService;
+import com.vku.job.services.auth.JwtService;
 
 import jakarta.validation.Valid;
 
@@ -26,6 +28,9 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping
     public ResponseEntity<TaskResponseDto> createTask(@RequestBody @Valid CreateTaskRequestDto createTaskRequestDto) {
@@ -57,8 +62,11 @@ public class TaskController {
     }
 
     @PatchMapping
-    public ResponseEntity<TaskResponseDto> updateTask(@RequestBody @Valid UpdateTaskRequestDto updateTaskRequestDto) {
-        TaskResponseDto updatedTask = taskService.updateTask(updateTaskRequestDto);
+    public ResponseEntity<TaskResponseDto> updateTask(@RequestBody @Valid UpdateTaskRequestDto updateTaskRequestDto,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserIdFromToken(token);
+        TaskResponseDto updatedTask = taskService.updateTask(updateTaskRequestDto, userId);
         return ResponseEntity.ok(updatedTask);
     }
 
@@ -76,8 +84,11 @@ public class TaskController {
 
     @PatchMapping("/by-user/update")
     public ResponseEntity<TaskResponseDto> updateTaskByUser(
-            @RequestBody @Valid UpdateTaskByUserRequestDto updateTaskRequestDto) {
-        TaskResponseDto updatedTask = taskService.updateTaskByUser(updateTaskRequestDto);
+            @RequestBody @Valid UpdateTaskByUserRequestDto updateTaskRequestDto,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserIdFromToken(token);
+        TaskResponseDto updatedTask = taskService.updateTaskByUser(updateTaskRequestDto, userId);
         return ResponseEntity.ok(updatedTask);
     }
 

@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import type { Task, UserFullName } from "../types/type";
 import ConfirmModal from "./ConfirmModal";
-import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
+import TaskHistoryModal from "./TaskHistoryModal";
+import { ArrowDown, ArrowUp, ChevronsUpDown, HistoryIcon } from "lucide-react";
 import { getUserFullName } from "../service/UserService";
 
 interface TaskListProps {
@@ -50,6 +51,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [dataSearch, setDataSearch] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterUserId, setFilterUserId] = useState<number | null>(null);
+  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [historyData, setHistoryData] = useState<any[]>([]);
 
   function parseToDate(s?: string) {
     if (!s) return null;
@@ -505,6 +508,30 @@ export const TaskList: React.FC<TaskListProps> = ({
                     >
                       Delete
                     </button>
+                    {isOurTask && (
+                      <button
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer"
+                        title="View History Update"
+                        onClick={() => {
+                          // use fake data for now (no API call)
+                          setHistoryData([
+                            {
+                              id: 3,
+                              updateBy: "Admin",
+                              updatedAt: "2026-01-14T16:27:50.716439",
+                            },
+                            {
+                              id: 5,
+                              updateBy: "Admin",
+                              updatedAt: "2026-01-14T16:58:26.680155",
+                            },
+                          ]);
+                          setHistoryOpen(true);
+                        }}
+                      >
+                        <HistoryIcon size={16} />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -521,6 +548,12 @@ export const TaskList: React.FC<TaskListProps> = ({
         cancelLabel="Cancel"
         onConfirm={doConfirmDelete}
         onCancel={cancelConfirmDelete}
+      />
+
+      <TaskHistoryModal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        history={historyData}
       />
 
       <div className="flex items-center justify-between mt-4">

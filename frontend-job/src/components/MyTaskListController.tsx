@@ -167,7 +167,6 @@ const MyTaskListContainer = () => {
           ? res.errors.join(", ")
           : res.error || res.message || "Error saving task";
         console.error("Validation error updating task:", res);
-        // Show validation errors as a toast, not as a TaskList load error
         setErrorMessage(msg);
         return;
       }

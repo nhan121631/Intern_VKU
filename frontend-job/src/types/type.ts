@@ -22,6 +22,7 @@ export interface UpdateTaskData
     title: string;
     description: string;
     deadline: string;
+    allowUserUpdate: boolean;
     status: string;
     assignedUserId: number;
     assignedFullName?: string;
@@ -66,4 +67,10 @@ export interface PaginatedResponse<T> {
     size: number,
     totalElements: number,
     totalPages: number
+}
+
+export interface TaskHistoryResponse{
+        id: number;
+        updateBy: string;
+        updatedAt: string;
 }

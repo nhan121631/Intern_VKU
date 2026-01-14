@@ -7,14 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.task.CreateTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
 import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
+import com.vku.job.dtos.task_history.UpdateTaskHistoryResponseDto;
 import com.vku.job.entities.Task;
+import com.vku.job.entities.TaskHistory;
 import com.vku.job.entities.User;
 import com.vku.job.enums.TaskStatus;
+import com.vku.job.repositories.TaskHistoryJpaRepository;
 import com.vku.job.repositories.TaskJpaRepository;
 import com.vku.job.repositories.UserJpaRepository;
 
@@ -26,6 +31,12 @@ public class TaskService {
 
     @Autowired
     private UserJpaRepository userRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private TaskHistoryJpaRepository taskHistoryRepository;
 
     private TaskResponseDto convertToDto(Task task) {
         return TaskResponseDto.builder()
@@ -39,6 +50,21 @@ public class TaskService {
                         task.getAssignedUser() != null ? task.getAssignedUser().getProfile().getFullName() : null)
                 .assignedUserId(task.getAssignedUser() != null ? task.getAssignedUser().getId() : null)
                 .createdAt(task.getCreatedAt())
+                .build();
+    }
+
+    private UpdateTaskHistoryResponseDto toTaskHistoryDto(Task task) {
+        return UpdateTaskHistoryResponseDto.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .status(task.getStatus())
+                .deadline(task.getDeadline())
+                .allowUserUpdate(task.isAllowUserUpdate())
+                .assignedUserId(
+                        task.getAssignedUser() != null
+                                ? task.getAssignedUser().getId()
+                                : null)
                 .build();
     }
 
@@ -96,21 +122,31 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    // update task by id
-    public TaskResponseDto updateTask(UpdateTaskRequestDto updateTaskRequestDto) {
+    // update task
+    public TaskResponseDto updateTask(UpdateTaskRequestDto updateTaskRequestDto, Long currentUserId) {
         Task task = taskRepository.findById(updateTaskRequestDto.getId())
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
+        String oldData;
+        try {
+            oldData = objectMapper.writeValueAsString(toTaskHistoryDto(task));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot serialize old task data");
+        }
+
         task.setTitle(updateTaskRequestDto.getTitle());
         task.setDescription(updateTaskRequestDto.getDescription());
+        task.setAllowUserUpdate(updateTaskRequestDto.isAllowUserUpdate());
         task.setDeadline(updateTaskRequestDto.getDeadline());
         if (updateTaskRequestDto.getStatus() != null) {
             task.setStatus(TaskStatus.valueOf(updateTaskRequestDto.getStatus()));
         }
+
         if (updateTaskRequestDto.getDeadline() != null &&
                 updateTaskRequestDto.getDeadline().isBefore(task.getCreatedAt().toLocalDate())) {
             throw new RuntimeException("Deadline cannot be before created date");
         }
+
         if (updateTaskRequestDto.getAssignedUserId() != null) {
             User user = userRepository.findById(updateTaskRequestDto.getAssignedUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -120,6 +156,24 @@ public class TaskService {
         }
 
         Task updatedTask = taskRepository.save(task);
+
+        String newData;
+        try {
+            newData = objectMapper.writeValueAsString(toTaskHistoryDto(updatedTask));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot serialize new task data");
+        }
+        User updatedBy = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        TaskHistory history = TaskHistory.builder()
+                .task(updatedTask)
+                .updatedBy(updatedBy)
+                .oldData(oldData)
+                .newData(newData)
+                .build();
+
+        taskHistoryRepository.save(history);
         return convertToDto(updatedTask);
     }
 
@@ -198,12 +252,10 @@ public class TaskService {
             int size,
             String sortBy,
             String order) {
-        // 1️⃣ Validate input
         if (userId == null && (status == null || status.isBlank())) {
             throw new RuntimeException("userId or status is required");
         }
 
-        // 2️⃣ Parse status (nếu có)
         TaskStatus taskStatus = null;
         if (status != null && !status.isBlank()) {
             try {
@@ -213,7 +265,6 @@ public class TaskService {
             }
         }
 
-        // 3️⃣ Sort
         sortBy = switch (sortBy) {
             case "id", "title", "createdAt", "deadline" -> sortBy;
             default -> "id";
@@ -318,10 +369,19 @@ public class TaskService {
     }
 
     // user update task by id
-    public TaskResponseDto updateTaskByUser(UpdateTaskByUserRequestDto updateTaskRequestDto) {
+    public TaskResponseDto updateTaskByUser(UpdateTaskByUserRequestDto updateTaskRequestDto, Long currentUserId) {
         Task task = taskRepository.findById(updateTaskRequestDto.getId())
                 .orElseThrow(() -> new RuntimeException("Task not found"));
 
+        if (!task.isAllowUserUpdate()) {
+            throw new RuntimeException("User is not allowed to update this task");
+        }
+        String oldData;
+        try {
+            oldData = objectMapper.writeValueAsString(toTaskHistoryDto(task));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot serialize old task data");
+        }
         task.setTitle(updateTaskRequestDto.getTitle());
         task.setDescription(updateTaskRequestDto.getDescription());
         task.setDeadline(updateTaskRequestDto.getDeadline());
@@ -333,6 +393,22 @@ public class TaskService {
             throw new RuntimeException("Deadline cannot be before created date");
         }
         Task updatedTask = taskRepository.save(task);
+
+        String newData;
+        try {
+            newData = objectMapper.writeValueAsString(toTaskHistoryDto(updatedTask));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Cannot serialize new task data");
+        }
+        User updatedBy = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        TaskHistory history = TaskHistory.builder()
+                .task(updatedTask)
+                .updatedBy(updatedBy)
+                .oldData(oldData)
+                .newData(newData)
+                .build();
+        taskHistoryRepository.save(history);
         return convertToDto(updatedTask);
     }
 }

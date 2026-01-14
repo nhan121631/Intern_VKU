@@ -20,6 +20,8 @@ public class UpdateTaskRequestDto {
     // @FutureOrPresent(message = "Deadline must be today or in the future")
     private LocalDate deadline;
 
+    private boolean allowUserUpdate;
+
     @NotBlank(message = "Status is required")
     @Pattern(regexp = "^(OPEN|IN_PROGRESS|DONE|CANCELED)$", message = "Status must be one of: OPEN, IN_PROGRESS, DONE, CANCELED")
     private String status;

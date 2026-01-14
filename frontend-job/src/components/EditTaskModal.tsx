@@ -24,6 +24,7 @@ const schema = yup
       })
       .typeError("Assignee must be a number")
       .required("Assignee is required"),
+    allowUserUpdate: yup.boolean().notRequired(),
     status: yup.string().required(),
     deadline: yup.string().required("Deadline is required"),
   })
@@ -39,6 +40,7 @@ export interface Task {
   description?: string;
   assignedFullName?: string;
   assignedUserId?: number;
+  allowUserUpdate?: boolean;
   status?: TaskStatus;
   deadline?: string | null;
   createdAt?: string;
@@ -71,6 +73,7 @@ export default function EditTaskModal({
       title: "",
       description: "",
       assignedUserId: 0,
+      allowUserUpdate: true,
       status: "OPEN",
       deadline: "",
     },
@@ -95,6 +98,7 @@ export default function EditTaskModal({
         description: task.description ?? "",
         assignedUserId: task.assignedUserId ?? 0,
         status: (task.status as TaskStatus) ?? "OPEN",
+        allowUserUpdate: task.allowUserUpdate ?? true,
         deadline: task.deadline ? String(task.deadline).slice(0, 10) : "",
       });
     } else {
@@ -122,6 +126,7 @@ export default function EditTaskModal({
       description: data.description ?? "",
       deadline: data.deadline,
       status: data.status ?? (task.status as string) ?? "OPEN",
+      allowUserUpdate: data.allowUserUpdate ?? task.allowUserUpdate ?? true,
       assignedUserId: Number(data.assignedUserId),
       assignedFullName: selectedUser?.fullName,
     };
@@ -289,6 +294,20 @@ export default function EditTaskModal({
               />
             </div>
           </div>
+          {!userId && (
+            <div className="mb-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  {...register("allowUserUpdate")}
+                  className="form-checkbox h-5 w-5 text-blue-600"
+                />
+                <span className="ml-2 text-gray-700">
+                  Allow assigned user to update the task
+                </span>
+              </label>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
             <button
