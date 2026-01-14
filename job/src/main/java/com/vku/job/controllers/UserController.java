@@ -48,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    // get name user by id
+    // get name user by id from token
     @GetMapping("/get-name-by-id")
     public ResponseEntity<NameUserResponse> getNameUserById(
             @RequestHeader("Authorization") String authHeader) {

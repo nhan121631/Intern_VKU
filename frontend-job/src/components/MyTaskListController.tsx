@@ -14,6 +14,10 @@ import {
   updateTaskByUser,
 } from "../service/MyTaskService";
 
+type Filters = {
+  status?: string;
+  userId?: number | null;
+};
 const MyTaskListContainer = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [page, setPage] = useState<number>(0);
@@ -42,6 +46,8 @@ const MyTaskListContainer = () => {
   const [mode, setMode] = useState<"list" | "search" | "filter">("list");
   const [lastQuery, setLastQuery] = useState<string>("");
   const [lastStatus, setLastStatus] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   const loadPage = async () => {
     if (!userId) return;
@@ -50,13 +56,19 @@ const MyTaskListContainer = () => {
     try {
       let res: any;
       if (mode === "search") {
-        res = await searchMyTasks(page, size, lastQuery, userId);
+        res = await searchMyTasks(page, size, lastQuery, userId, sortBy, order);
       } else if (mode === "filter") {
-        res = await getMyTaskStatus(page, size, lastStatus, userId);
+        res = await getMyTaskStatus(
+          page,
+          size,
+          lastStatus,
+          userId,
+          sortBy,
+          order
+        );
       } else {
-        res = await getMyTasks(page, size, userId);
+        res = await getMyTasks(page, size, userId, sortBy, order);
       }
-      console.log("Load page response:", { mode, page, size, res });
 
       if (res && Array.isArray(res.data)) {
         setTasks(res.data as Task[]);
@@ -85,7 +97,16 @@ const MyTaskListContainer = () => {
     // load appropriate page based on current mode (list/search/filter)
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, mode, lastQuery, lastStatus, loggedInUser?.id]);
+  }, [
+    page,
+    size,
+    mode,
+    lastQuery,
+    lastStatus,
+    loggedInUser?.id,
+    sortBy,
+    order,
+  ]);
 
   const handledDelete = async (taskId: number) => {
     try {
@@ -100,21 +121,20 @@ const MyTaskListContainer = () => {
     }
   };
   const handleSearch = async (query: string) => {
-    // set search mode and query, reset to first page; effect will load
     setLastQuery(query);
     setMode("search");
     setPage(0);
   };
 
-  const handleFilters = async (status: string) => {
-    if (status === "all") {
+  const handleFilters = async (filters: Filters) => {
+    if (!filters.status || filters.status === "all") {
       setMode("list");
       setLastStatus("");
       setPage(0);
       return;
     }
-    // set filter mode and status, reset to first page; effect will load
-    setLastStatus(status);
+
+    setLastStatus(filters.status);
     setMode("filter");
     setPage(0);
   };
@@ -174,6 +194,10 @@ const MyTaskListContainer = () => {
       setSaving(false);
     }
   };
+  const handleSort = (newSortBy: string, newOrder: "asc" | "desc") => {
+    setSortBy(newSortBy);
+    setOrder(newOrder);
+  };
 
   return (
     <>
@@ -205,6 +229,7 @@ const MyTaskListContainer = () => {
         onEdit={handleEdit}
         onSizeChange={setSize}
         onRetry={fetchTasks}
+        onSort={handleSort}
       />
       <EditTaskModal
         isOpen={isEditOpen}

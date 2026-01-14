@@ -1,4 +1,3 @@
-import CreateTaskPage from "../page/CreateTaskPage";
 import HomePage from "../page/HomePage";
 import LoginPage from "../page/LoginPage";
 import ManageUserPage from "../page/ManageUserPage";
@@ -52,15 +51,15 @@ const routes = [
     element: <MyTaskPage />,
     roles: ["administrators", "users"],
   },
-  {
-    path: "/create-task",
-    showOnMenu: true,
-    isPublic: false,
-    name: "Create Task",
-    index: true,
-    element: <CreateTaskPage />,
-    roles: ["administrators"],
-  },
+  // {
+  //   path: "/create-task",
+  //   showOnMenu: true,
+  //   isPublic: false,
+  //   name: "Create Task",
+  //   index: true,
+  //   element: <CreateTaskPage />,
+  //   roles: ["administrators"],
+  // },
   {
     path: "/manage-user",
     showOnMenu: true,

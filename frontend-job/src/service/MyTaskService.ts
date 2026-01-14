@@ -2,9 +2,9 @@ import apiClient from "../lib/apt-client-sp";
 import type { UpdateTaskData } from "../types/type";
 
 // get all task
-export async function getMyTasks(page: number = 0, size: number = 10, userId: string | number | undefined) {
+export async function getMyTasks(page: number = 0, size: number = 10, userId: string | number | undefined, sortBy: string, order: "asc" | "desc") {
   try {
-    const res = await apiClient.get(`/tasks/by-user?page=${page}&size=${size}&userId=${userId}`);
+    const res = await apiClient.get(`/tasks/by-user?page=${page}&size=${size}&userId=${userId}&sortBy=${sortBy}&order=${order}`);
     return res;
   } catch (e) {
     console.error("Error fetching tasks:", e);
@@ -13,9 +13,9 @@ export async function getMyTasks(page: number = 0, size: number = 10, userId: st
 }
 
 // get filters status
-export async function getMyTaskStatus(page: number = 0, size: number = 10, status: string, userId: string | number | undefined){
+export async function getMyTaskStatus(page: number = 0, size: number = 10, status: string, userId: string | number | undefined, sortBy: string, order: "asc" | "desc"){
   try {
-    const res = await apiClient.get(`/tasks/by-user/filter-status?status=${encodeURIComponent(status)}&page=${page}&size=${size}&userId=${userId}`);
+    const res = await apiClient.get(`/tasks/by-user/filter-status?status=${encodeURIComponent(status)}&page=${page}&size=${size}&userId=${userId}&sortBy=${sortBy}&order=${order}`);
     return res;
   }
   catch (e) {
@@ -24,9 +24,9 @@ export async function getMyTaskStatus(page: number = 0, size: number = 10, statu
   }
 }
 // get search task
-export async function searchMyTasks(page: number = 0, size: number = 10, query: string, userId: string | number | undefined) {
+export async function searchMyTasks(page: number = 0, size: number = 10, query: string, userId: string | number | undefined, sortBy: string, order: "asc" | "desc") {
   try {
-    const res = await apiClient.get(`/tasks/by-user/search-title?title=${encodeURIComponent(query)}&page=${page}&size=${size}&userId=${userId}`);
+    const res = await apiClient.get(`/tasks/by-user/search-title?title=${encodeURIComponent(query)}&page=${page}&size=${size}&userId=${userId}&sortBy=${sortBy}&order=${order}`);
     return res;
   } catch (e) {
     console.error(`Error searching tasks with query "${query}":`, e);

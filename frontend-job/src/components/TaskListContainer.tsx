@@ -13,7 +13,15 @@ import TaskList from "./TaskList";
 import EditTaskModal from "./EditTaskModal";
 import Notification from "./Notification";
 
-const TaskListContainer = () => {
+type Props = {
+  newTask?: Task | null;
+};
+type Filters = {
+  status?: string;
+  userId?: number | null;
+};
+
+const TaskListContainer = ({ newTask }: Props = {}) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [page, setPage] = useState<number>(0);
   const [size, setSize] = useState<number>(10);
@@ -37,6 +45,9 @@ const TaskListContainer = () => {
   const [mode, setMode] = useState<"list" | "search" | "filter">("list");
   const [lastQuery, setLastQuery] = useState<string>("");
   const [lastStatus, setLastStatus] = useState<string>("");
+  const [lastUserId, setLastUserId] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<string>("");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
 
   const loadPage = async () => {
     setLoading(true);
@@ -44,13 +55,19 @@ const TaskListContainer = () => {
     try {
       let res: any;
       if (mode === "search") {
-        res = await searchTasks(page, size, lastQuery);
+        res = await searchTasks(page, size, lastQuery, sortBy, order);
       } else if (mode === "filter") {
-        res = await getTaskStatus(page, size, lastStatus);
+        res = await getTaskStatus(
+          page,
+          size,
+          lastStatus,
+          lastUserId,
+          sortBy,
+          order
+        );
       } else {
-        res = await getTasks(page, size);
+        res = await getTasks(page, size, sortBy, order);
       }
-      console.log("Load page response:", { mode, page, size, res });
 
       if (res && Array.isArray(res.data)) {
         setTasks(res.data as Task[]);
@@ -78,7 +95,16 @@ const TaskListContainer = () => {
   useEffect(() => {
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, mode, lastQuery, lastStatus]);
+  }, [page, size, mode, lastQuery, lastStatus, lastUserId, sortBy, order]);
+
+  // Prepend a newly created task (from parent) without refetching
+  useEffect(() => {
+    if (!newTask) return;
+    setTasks((prev) => {
+      if (prev.some((t) => t.id === newTask.id)) return prev;
+      return [newTask, ...prev];
+    });
+  }, [newTask]);
 
   const handledDelete = async (taskId: number) => {
     try {
@@ -98,17 +124,33 @@ const TaskListContainer = () => {
     setPage(0);
   };
 
-  const handleFilters = async (status: string) => {
-    if (status === "all") {
+  const handleFilters = async (filters: Filters) => {
+    // Không filter gì → list
+    console.log("Filters received in container:", filters);
+    if ((filters.status === "all" || !filters.status) && !filters.userId) {
       setMode("list");
       setLastStatus("");
+      setLastUserId(null); // nếu có state userId
       setPage(0);
       return;
     }
-    // set filter mode and status, reset to first page; useEffect will load
-    setLastStatus(status);
+
+    // Có filter
     setMode("filter");
     setPage(0);
+
+    // Status
+    if (filters.status && filters.status !== "all") {
+      setLastStatus(filters.status);
+    } else {
+      setLastStatus("");
+    }
+    // User
+    if (filters.userId) {
+      setLastUserId(filters.userId);
+    } else {
+      setLastUserId(null);
+    }
   };
 
   const handleEdit = async (taskId: number) => {
@@ -165,6 +207,10 @@ const TaskListContainer = () => {
       setSaving(false);
     }
   };
+  const handleSort = (newSortBy: string, newOrder: "asc" | "desc") => {
+    setSortBy(newSortBy);
+    setOrder(newOrder);
+  };
 
   return (
     <>
@@ -189,6 +235,7 @@ const TaskListContainer = () => {
         error={loadError}
         hasNext={hasNext}
         hasPrevious={hasPrevious}
+        isOurTask={true}
         onDelete={handledDelete}
         onSearch={handleSearch}
         onFilters={handleFilters}
@@ -196,6 +243,7 @@ const TaskListContainer = () => {
         onEdit={handleEdit}
         onSizeChange={setSize}
         onRetry={fetchTasks}
+        onSort={handleSort}
       />
       <EditTaskModal
         isOpen={isEditOpen}

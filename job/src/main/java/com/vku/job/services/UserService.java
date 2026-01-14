@@ -107,6 +107,7 @@ public class UserService {
         }
 
         // login with google
+        @Transactional
         public LoginResponseDto googleLogin(GoogleLoginRequestDto requestDto) {
                 String credential = requestDto.getCredential();
                 String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + credential;
@@ -136,7 +137,7 @@ public class UserService {
                 }
                 // check if user exists
 
-                if (userJpaRepository.existsByEmailAndEmailVerifiedTrueAndPasswordIsNotNull(email) ) {
+                if (userJpaRepository.existsByEmailAndEmailVerifiedTrueAndPasswordIsNotNull(email)) {
                         throw new HttpException(
                                         "Email already registered. Please login with your credentials.",
                                         HttpStatus.FORBIDDEN);

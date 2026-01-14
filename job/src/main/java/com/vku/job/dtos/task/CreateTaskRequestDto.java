@@ -25,4 +25,6 @@ public class CreateTaskRequestDto {
     @NotNull(message = "Assigned user ID is required")
     private Long assignedUserId;
 
+    private boolean allowUserUpdate = true;
+
 }

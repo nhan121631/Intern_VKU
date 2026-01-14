@@ -134,7 +134,6 @@ export default function EditTaskModal({
         try {
           const res = await getUserFullName();
           setUserFullNames(Array.isArray(res) ? res : []);
-          console.log("Fetched user full names:", res);
         } catch (error) {
           console.error("Error fetching user full names:", error);
           setUserFullNames([]);

@@ -22,9 +22,7 @@ export const NavBar = () => {
     const fetchFullName = async () => {
       try {
         const response = (await getNameUser()) as NameUserResponse;
-        console.log("Name user response:", response);
         if (response) setFullName(response.fullName || "");
-        console.log("Fetched user full name:", response.fullName);
       } catch (e) {
         console.error(e);
       }

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
-import type { Task } from "../types/type";
+import React, { useEffect, useState } from "react";
+import type { Task, UserFullName } from "../types/type";
 import ConfirmModal from "./ConfirmModal";
+import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
+import { getUserFullName } from "../service/UserService";
 
 interface TaskListProps {
   tasks: Task[];
@@ -10,17 +12,22 @@ interface TaskListProps {
   totalPages: number;
   loading: boolean;
   error: string | null;
+  isOurTask?: boolean;
   hasNext: boolean;
   hasPrevious: boolean;
   onPageChange: (page: number) => void;
   onSizeChange: (size: number) => void;
   onDelete: (taskId: number) => void;
-  onFilters: (status: string) => void;
+  onFilters: (filters: Filters) => void;
   onSearch: (query: string) => void;
   onEdit: (taskId: number) => void;
   onRetry: () => void;
+  onSort?: (sortBy: string, order: "asc" | "desc") => void;
 }
-
+type Filters = {
+  status?: string;
+  userId?: number | null;
+};
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
   page,
@@ -30,6 +37,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   error,
   hasNext,
   hasPrevious,
+  isOurTask = false,
   onDelete,
   onPageChange,
   onSizeChange,
@@ -37,9 +45,11 @@ export const TaskList: React.FC<TaskListProps> = ({
   onEdit,
   onSearch,
   onRetry,
+  onSort,
 }) => {
   const [dataSearch, setDataSearch] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterUserId, setFilterUserId] = useState<number | null>(null);
 
   function parseToDate(s?: string) {
     if (!s) return null;
@@ -79,17 +89,62 @@ export const TaskList: React.FC<TaskListProps> = ({
     onSearch(dataSearch);
     setFilterStatus("all");
   };
-
   const handleFilters = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const status = e.target.value;
-    setFilterStatus(status);
-    onFilters(status);
+    const { name, value } = e.target;
+
+    let newStatus = filterStatus;
+    let newUserId = filterUserId;
+
+    if (name === "status") {
+      newStatus = value;
+      setFilterStatus(value);
+    }
+
+    if (name === "userId") {
+      newUserId = value ? Number(value) : null;
+      setFilterUserId(newUserId);
+    }
+
     setDataSearch("");
+
+    onFilters({
+      status: newStatus === "all" ? undefined : newStatus,
+      userId: newUserId,
+    });
   };
 
   const handleEdit = (taskId: number) => {
     onEdit(taskId);
   };
+  const [sortBy, setSortBy] = useState<
+    "id" | "title" | "createdAt" | "deadline"
+  >("id");
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const handleSort = (newSortBy: string, newOrder: "asc" | "desc") => {
+    setSortBy(newSortBy as any);
+    setOrder(newOrder);
+    if (onSort) {
+      onSort(newSortBy, newOrder);
+    }
+    console.log("Sorting by:", newSortBy, newOrder);
+  };
+
+  const [userFullNames, setUserFullNames] = useState<UserFullName[]>([]);
+  useEffect(() => {
+    if (isOurTask) {
+      const fetchUserFullNames = async () => {
+        try {
+          const res = await getUserFullName();
+          setUserFullNames(Array.isArray(res) ? res : []);
+        } catch (error) {
+          console.error("Error fetching user full names:", error);
+          setUserFullNames([]);
+        }
+      };
+
+      fetchUserFullNames();
+    }
+  }, [isOurTask]);
 
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
@@ -116,6 +171,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           <div className="flex items-center space-x-2">
             <label>Filters:</label>
             <select
+              name="status"
               className="border rounded px-2 py-1"
               value={filterStatus}
               onChange={handleFilters}
@@ -126,6 +182,22 @@ export const TaskList: React.FC<TaskListProps> = ({
               <option value="DONE">Done</option>
               <option value="CANCELED">Canceled</option>
             </select>
+
+            {isOurTask && (
+              <select
+                name="userId"
+                className="border rounded px-2 py-1"
+                value={filterUserId ?? ""}
+                onChange={handleFilters}
+              >
+                <option value="">All Users</option>
+                {userFullNames.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.fullName}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <label>Page size:</label>
@@ -253,12 +325,53 @@ export const TaskList: React.FC<TaskListProps> = ({
           <table className="min-w-full bg-white divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ID
+                <th
+                  onClick={() => {
+                    if (sortBy !== "id") {
+                      handleSort("id", "asc");
+                    } else {
+                      handleSort("id", order === "asc" ? "desc" : "asc");
+                    }
+                  }}
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    ID
+                    {sortBy === "id" ? (
+                      order === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )
+                    ) : (
+                      <ChevronsUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Title
+                <th
+                  onClick={() => {
+                    if (sortBy !== "title") {
+                      handleSort("title", "asc");
+                    } else {
+                      handleSort("title", order === "asc" ? "desc" : "asc");
+                    }
+                  }}
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    Title
+                    {sortBy === "title" ? (
+                      order === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )
+                    ) : (
+                      <ChevronsUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
+
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Assigned
                 </th>
@@ -269,12 +382,53 @@ export const TaskList: React.FC<TaskListProps> = ({
                   Descripton
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created At
+                <th
+                  onClick={() => {
+                    if (sortBy !== "createdAt") {
+                      handleSort("createdAt", "asc");
+                    } else {
+                      handleSort("createdAt", order === "asc" ? "desc" : "asc");
+                    }
+                  }}
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    Created At
+                    {sortBy === "createdAt" ? (
+                      order === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )
+                    ) : (
+                      <ChevronsUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Deadline
+                <th
+                  onClick={() => {
+                    if (sortBy !== "deadline") {
+                      handleSort("deadline", "asc");
+                    } else {
+                      handleSort("deadline", order === "asc" ? "desc" : "asc");
+                    }
+                  }}
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                >
+                  <div className="flex items-center gap-1">
+                    Deadline
+                    {sortBy === "deadline" ? (
+                      order === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )
+                    ) : (
+                      <ChevronsUpDown size={14} className="opacity-40" />
+                    )}
+                  </div>
                 </th>
+
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -335,13 +489,18 @@ export const TaskList: React.FC<TaskListProps> = ({
                   </td>
                   <td className="px-4 py-3 text-sm flex space-x-2">
                     <button
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition"
+                      className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer ${
+                        !t.allowUserUpdate && !isOurTask
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
                       onClick={() => handleEdit(t.id)}
+                      disabled={!t.allowUserUpdate && !isOurTask}
                     >
                       Edit
                     </button>
                     <button
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition"
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer"
                       onClick={() => handleDelete(t.id)}
                     >
                       Delete

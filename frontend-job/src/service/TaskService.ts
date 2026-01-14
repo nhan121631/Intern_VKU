@@ -2,9 +2,9 @@ import apiClient from "../lib/apt-client-sp";
 import type { CreateTaskData, UpdateTaskData } from "../types/type";
 
 // get all task
-export async function getTasks(page: number = 0, size: number = 10) {
+export async function getTasks(page: number = 0, size: number = 10, sortBy: string = "id", order: string = "asc") {
   try {
-    const res = await apiClient.get(`/tasks?page=${page}&size=${size}`);
+    const res = await apiClient.get(`/tasks?page=${page}&size=${size}&sortBy=${sortBy}&order=${order}`);
     return res;
   } catch (e) {
     console.error("Error fetching tasks:", e);
@@ -25,9 +25,9 @@ export async function deleteTask(taskId: number) {
 }
 
 // get search task
-export async function searchTasks(page: number = 0, size: number = 10, query: string) {
+export async function searchTasks(page: number = 0, size: number = 10, query: string, sortBy: string = "id", order: string = "asc") {
   try {
-    const res = await apiClient.get(`/tasks/search-by-title?title=${encodeURIComponent(query)}&page=${page}&size=${size}`);
+    const res = await apiClient.get(`/tasks/search-by-title?title=${encodeURIComponent(query)}&page=${page}&size=${size}&sortBy=${sortBy}&order=${order}`);
     return res; 
   } catch (e) {
     console.error(`Error searching tasks with query "${query}":`, e);
@@ -35,13 +35,34 @@ export async function searchTasks(page: number = 0, size: number = 10, query: st
   }
 }
 // get filters status
-export async function getTaskStatus(page: number = 0, size: number = 10, status: string){
+export async function getTaskStatus(
+  page: number = 0,
+  size: number = 10,
+  status?: string,
+  userId?: number | null,
+  sortBy: string = "id",
+  order: string = "asc"
+) {
   try {
-    const res = await apiClient.get(`/tasks/filter-by-status?status=${encodeURIComponent(status)}&page=${page}&size=${size}`);
+    const params = new URLSearchParams();
+
+    params.append("page", page.toString());
+    params.append("size", size.toString());
+    params.append("sortBy", sortBy);
+    params.append("order", order);
+    console.log("status" + status);
+    if (status) {
+      params.append("status", status);
+    }
+
+    if (userId !== null && userId !== undefined) {
+      params.append("userId", userId.toString());
+    }
+
+    const res = await apiClient.get(`/tasks/filter-by-status?${params.toString()}`);
     return res;
-  }
-  catch (e) {
-    console.error(`Error filtering tasks with status "${status}":`, e);
+  } catch (e) {
+    console.error("Error filtering tasks:", e);
     throw e;
   }
 }

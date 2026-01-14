@@ -7,7 +7,7 @@ import * as yup from "yup";
 import { createTask } from "../service/TaskService";
 import { getUserFullName } from "../service/UserService";
 import Notification from "./Notification";
-import type { UserFullName } from "../types/type";
+import type { UserFullName, Task } from "../types/type";
 
 const schema = yup
   .object({
@@ -23,6 +23,7 @@ const schema = yup
       .required("Assignee is required"),
     status: yup.string().required("Status is required"),
     createdAt: yup.string().notRequired(),
+    allowUserUpdate: yup.boolean().notRequired(),
     deadline: yup
       .string()
       .required("Deadline is required")
@@ -49,7 +50,13 @@ const schema = yup
 
 type FormValues = yup.InferType<typeof schema>;
 
-export default function CreateTaskForm() {
+export default function CreateTaskForm({
+  onClose,
+  onCreated,
+}: {
+  onClose?: () => void;
+  onCreated?: (task: Task) => void;
+}) {
   const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
   const navigate = useNavigate();
   const [userFullNames, setUserFullNames] = useState<UserFullName[]>([]);
@@ -70,6 +77,7 @@ export default function CreateTaskForm() {
       status: "OPEN",
       createdAt: today,
       deadline: "",
+      allowUserUpdate: true,
     },
   });
 
@@ -95,11 +103,17 @@ export default function CreateTaskForm() {
         deadline: data.deadline,
         status: data.status,
         assignedUserId: Number(data.assignedUserId),
+        allowUserUpdate: !!data.allowUserUpdate,
       };
-      await createTask(payload);
+      const res: any = await createTask(payload);
+      const created: Task = res?.data ?? res;
       setSuccess("Task created successfully");
-      // give the user a moment to see the toast, then navigate
-      setTimeout(() => navigate("/our-task"), 900);
+      // give the user a moment to see the toast, then close modal or navigate
+      setTimeout(() => {
+        if (onCreated) onCreated(created);
+        if (onClose) onClose();
+        else navigate("/our-task");
+      }, 900);
     } catch (e: any) {
       console.error(e);
       setError(
@@ -158,7 +172,7 @@ export default function CreateTaskForm() {
           <textarea
             {...register("description")}
             placeholder="This is a short description of the task (optional)"
-            className="w-full border border-gray-200 rounded-md px-4 py-3 min-h-[120px] bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full border border-gray-200 rounded-md px-4 py-3 min-h-30 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
 
@@ -215,13 +229,25 @@ export default function CreateTaskForm() {
             )}
           </div>
         </div>
+        <div className="mb-4">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              {...register("allowUserUpdate")}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="ml-2 text-gray-700">
+              Allow assigned user to update the task
+            </span>
+          </label>
+        </div>
 
         <hr className="my-4 border-gray-200" />
 
         <div className="flex justify-end items-center space-x-3">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => (onClose ? onClose() : navigate(-1))}
             className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
           >
             Cancel

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.vku.job.dtos.PaginatedResponseDto;
@@ -33,7 +34,9 @@ public class TaskService {
                 .description(task.getDescription())
                 .deadline(task.getDeadline())
                 .status(task.getStatus().name())
-                .assignedFullName(task.getAssignedUser() != null ? task.getAssignedUser().getProfile().getFullName() : null)
+                .allowUserUpdate(task.isAllowUserUpdate())
+                .assignedFullName(
+                        task.getAssignedUser() != null ? task.getAssignedUser().getProfile().getFullName() : null)
                 .assignedUserId(task.getAssignedUser() != null ? task.getAssignedUser().getId() : null)
                 .createdAt(task.getCreatedAt())
                 .build();
@@ -47,6 +50,7 @@ public class TaskService {
         task.setDescription(createTastRequestDto.getDescription());
         task.setDeadline(createTastRequestDto.getDeadline());
         task.setStatus(TaskStatus.valueOf(createTastRequestDto.getStatus()));
+        task.setAllowUserUpdate(createTastRequestDto.isAllowUserUpdate());
         if (createTastRequestDto.getAssignedUserId() != null) {
             User user = userRepository.findById(createTastRequestDto.getAssignedUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
@@ -58,10 +62,25 @@ public class TaskService {
     }
 
     // get all tasks with pagination
-    public PaginatedResponseDto<TaskResponseDto> getAllTasks(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PaginatedResponseDto<TaskResponseDto> getAllTasks(
+            int page,
+            int size,
+            String sortBy,
+            String order) {
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<Task> tasks = taskRepository.findAll(pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -69,7 +88,6 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
     // delete task by id
@@ -106,10 +124,27 @@ public class TaskService {
     }
 
     // get tasks by user id with pagination
-    public PaginatedResponseDto<TaskResponseDto> getTasksByUserId(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PaginatedResponseDto<TaskResponseDto> getTasksByUserId(
+            Long userId,
+            int page,
+            int size,
+            String sortBy,
+            String order) {
+        // 1️⃣ Chỉ cho phép sort theo các field hợp lệ
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<Task> tasks = taskRepository.findByAssignedUserId(userId, pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -117,7 +152,6 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
     // get task by id
@@ -128,10 +162,26 @@ public class TaskService {
     }
 
     // search tasks by title with pagination
-    public PaginatedResponseDto<TaskResponseDto> searchTasksByTitle(String title, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PaginatedResponseDto<TaskResponseDto> searchTasksByTitle(
+            String title,
+            int page,
+            int size,
+            String sortBy,
+            String order) {
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<Task> tasks = taskRepository.findByTitleContainingIgnoreCase(title, pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -139,20 +189,53 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
-    // filter tasks by status with pagination
-    public PaginatedResponseDto<TaskResponseDto> filterTasksByStatus(String status, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        TaskStatus taskStatus;
-        try {
-            taskStatus = TaskStatus.valueOf(status);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid task status");
+    public PaginatedResponseDto<TaskResponseDto> filterTasks(
+            Long userId,
+            String status,
+            int page,
+            int size,
+            String sortBy,
+            String order) {
+        // 1️⃣ Validate input
+        if (userId == null && (status == null || status.isBlank())) {
+            throw new RuntimeException("userId or status is required");
         }
-        Page<Task> tasks = taskRepository.findByStatus(taskStatus, pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+
+        // 2️⃣ Parse status (nếu có)
+        TaskStatus taskStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                taskStatus = TaskStatus.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid task status");
+            }
+        }
+
+        // 3️⃣ Sort
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Task> tasks;
+
+        if (userId != null && taskStatus != null) {
+            tasks = taskRepository.findByAssignedUserIdAndStatus(userId, taskStatus, pageable);
+        } else if (userId != null) {
+            tasks = taskRepository.findByAssignedUserId(userId, pageable);
+        } else {
+            tasks = taskRepository.findByStatus(taskStatus, pageable);
+        }
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -160,14 +243,33 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
     // get tasks by user id and title with pagination
-    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndTitle(Long userId, String title, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Task> tasks = taskRepository.findByAssignedUserIdAndTitleContainingIgnoreCase(userId, title, pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndTitle(
+            Long userId,
+            String title,
+            int page,
+            int size,
+            String sortBy,
+            String order) {
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Task> tasks = taskRepository.findByAssignedUserIdAndTitleContainingIgnoreCase(
+                userId,
+                title,
+                pageable);
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -175,21 +277,37 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
     // get tasks by user id and status with pagination
-    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndStatus(Long userId, String status, int page,
-            int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndStatus(
+            Long userId,
+            String status,
+            int page,
+            int size,
+            String sortBy,
+            String order) {
         TaskStatus taskStatus;
         try {
-            taskStatus = TaskStatus.valueOf(status);
+            taskStatus = TaskStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid task status");
         }
+
+        sortBy = switch (sortBy) {
+            case "id", "title", "createdAt", "deadline" -> sortBy;
+            default -> "id";
+        };
+
+        Sort sort = order.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         Page<Task> tasks = taskRepository.findByAssignedUserIdAndStatus(userId, taskStatus, pageable);
-        PaginatedResponseDto<TaskResponseDto> response = new PaginatedResponseDto<>(
+
+        return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
                 tasks.getNumber(),
                 tasks.getSize(),
@@ -197,7 +315,6 @@ public class TaskService {
                 tasks.getTotalPages(),
                 tasks.hasNext(),
                 tasks.hasPrevious());
-        return response;
     }
 
     // user update task by id

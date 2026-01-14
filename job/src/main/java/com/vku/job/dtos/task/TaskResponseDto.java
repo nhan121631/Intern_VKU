@@ -19,6 +19,7 @@ public class TaskResponseDto {
     private LocalDate deadline;
     private String status;
     private Long assignedUserId;
+    private boolean allowUserUpdate;
     private String assignedFullName;
     private LocalDateTime createdAt;
 }

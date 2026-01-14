@@ -4,6 +4,7 @@ export interface Task {
     createdAt:   string;
     deadline: string;
     assignedFullName: string;
+    allowUserUpdate: boolean;
     description: string;
     id: number;
     status: string;
@@ -33,6 +34,7 @@ export interface CreateTaskData
     deadline: string;
     assignedUserId: number;
     assignedFullName?: string;
+    allowUserUpdate: boolean;
 }
 
 export interface User {

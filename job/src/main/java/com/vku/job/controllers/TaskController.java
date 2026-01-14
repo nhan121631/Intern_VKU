@@ -37,8 +37,10 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasks(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        return ResponseEntity.ok(taskService.getAllTasks(page, size));
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
+        return ResponseEntity.ok(taskService.getAllTasks(page, size, sortBy, order));
 
     }
 
@@ -64,14 +66,17 @@ public class TaskController {
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUser(
             @RequestParam("userId") Long userId,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseDto<TaskResponseDto> tasksByUser = taskService.getTasksByUserId(userId, page, size);
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
+        PaginatedResponseDto<TaskResponseDto> tasksByUser = taskService.getTasksByUserId(userId, page, size, sortBy,
+                order);
         return ResponseEntity.ok(tasksByUser);
     }
 
     @PatchMapping("/by-user/update")
     public ResponseEntity<TaskResponseDto> updateTaskByUser(
-            @RequestBody @Valid UpdateTaskByUserRequestDto  updateTaskRequestDto) {
+            @RequestBody @Valid UpdateTaskByUserRequestDto updateTaskRequestDto) {
         TaskResponseDto updatedTask = taskService.updateTaskByUser(updateTaskRequestDto);
         return ResponseEntity.ok(updatedTask);
     }
@@ -81,9 +86,11 @@ public class TaskController {
             @RequestParam("userId") Long userId,
             @RequestParam("title") String title,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
         PaginatedResponseDto<TaskResponseDto> tasksByUserAndTitle = taskService.getTasksByUserAndTitle(userId, title,
-                page, size);
+                page, size, sortBy, order);
         return ResponseEntity.ok(tasksByUserAndTitle);
     }
 
@@ -92,9 +99,11 @@ public class TaskController {
             @RequestParam("userId") Long userId,
             @RequestParam("status") String status,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
         PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(userId, status,
-                page, size);
+                page, size, sortBy, order);
         return ResponseEntity.ok(tasksByUserAndStatus);
     }
 
@@ -102,17 +111,26 @@ public class TaskController {
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> searchTasksByTitle(
             @RequestParam("title") String title,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseDto<TaskResponseDto> tasks = taskService.searchTasksByTitle(title, page, size);
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
+        PaginatedResponseDto<TaskResponseDto> tasks = taskService.searchTasksByTitle(title, page, size, sortBy, order);
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/filter-by-status")
-    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> filterTasksByStatus(
-            @RequestParam("status") String status,
+    public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> filterTasks(
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "userId", required = false) Long userId,
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size) {
-        PaginatedResponseDto<TaskResponseDto> tasks = taskService.filterTasksByStatus(status, page, size);
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
+            @RequestParam(name = "order", defaultValue = "asc") String order) {
+
+        System.out.println("Filtering tasks with status: " + status + " and userId: " + userId);
+        PaginatedResponseDto<TaskResponseDto> tasks = taskService.filterTasks(userId, status, page, size,
+                sortBy,
+                order);
         return ResponseEntity.ok(tasks);
     }
 
