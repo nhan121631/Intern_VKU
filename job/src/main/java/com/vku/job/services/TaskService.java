@@ -168,6 +168,10 @@ public class TaskService {
         User updatedBy = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (oldData.equals(newData)) {
+            return convertToDto(updatedTask);
+        }
+
         TaskHistory history = TaskHistory.builder()
                 .task(updatedTask)
                 .updatedBy(updatedBy)
@@ -402,8 +406,14 @@ public class TaskService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Cannot serialize new task data");
         }
+
+        if (oldData.equals(newData)) {
+            return convertToDto(updatedTask);
+        }
+
         User updatedBy = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
         TaskHistory history = TaskHistory.builder()
                 .task(updatedTask)
                 .updatedBy(updatedBy)
