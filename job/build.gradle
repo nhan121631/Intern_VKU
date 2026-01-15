@@ -62,7 +62,8 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-
+    // Apache POI (Excel handling)
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
     // Spring Boot Test Slices
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'

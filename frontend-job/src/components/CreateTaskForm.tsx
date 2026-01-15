@@ -8,6 +8,7 @@ import { createTask } from "../service/TaskService";
 import { getUserFullName } from "../service/UserService";
 import Notification from "./Notification";
 import type { UserFullName, Task } from "../types/type";
+import { Check, Loader2 } from "lucide-react";
 
 const schema = yup
   .object({
@@ -257,18 +258,11 @@ export default function CreateTaskForm({
             disabled={loading}
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Check className="w-4 h-4" />
+            )}
             {loading ? "Creating..." : "Create Task"}
           </button>
         </div>

@@ -70,7 +70,11 @@ export interface PaginatedResponse<T> {
 }
 
 export interface TaskHistoryResponse{
-        id: number;
-        updateBy: string;
-        updatedAt: string;
+    id: number;
+    updateBy?: string;
+    updatedByName?: string;
+    updatedAt: string;
+    newData?: string; // JSON string of new data
+    oldData?: string; // JSON string of old data
+    roles?: string[];
 }

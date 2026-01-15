@@ -5,6 +5,7 @@ import routes from "../../routes";
 import { useAuthStore } from "../../stores/useAuthorStore";
 import { getNameUser } from "../../service/UserService";
 import type { NameUserResponse } from "../../types/type";
+import { Menu, X } from "lucide-react";
 
 export const NavBar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,33 +53,9 @@ export const NavBar = () => {
         <div className="md:hidden">
           <button onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <X className="w-6 h-6" />
             ) : (
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+              <Menu className="w-6 h-6" />
             )}
           </button>
         </div>

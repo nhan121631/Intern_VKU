@@ -102,4 +102,28 @@ export async function createTask(taskData: CreateTaskData) {
   }
 }
 
+// export task to excel
+export async function exportTasks() {
+  try {
+    const res = await apiClient.get("/tasks/export", {
+      responseType: "blob",
+    });
+    return res.data || res;
+  } catch (e) {
+    console.error("Error exporting tasks:", e);
+    throw e;
+  }
+}
 
+// export task to excel by user id
+export async function exportTasksByUserId() {
+  try {
+    const res = await apiClient.get(`/tasks/export-by-user`, {
+      responseType: "blob",
+    });
+    return res.data || res;
+  } catch (e) {
+    console.error("Error exporting tasks by user id:", e);
+    throw e;
+  } 
+}

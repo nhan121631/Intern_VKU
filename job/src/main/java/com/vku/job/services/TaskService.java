@@ -1,5 +1,7 @@
 package com.vku.job.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -410,5 +412,17 @@ public class TaskService {
                 .build();
         taskHistoryRepository.save(history);
         return convertToDto(updatedTask);
+    }
+
+    // get all tasks for export
+    public List<TaskResponseDto> getTasksForExport() {
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream().map(this::convertToDto).toList();
+    }
+
+    // get tasks for export by user id
+    public List<TaskResponseDto> getTasksForExportByUserId(Long userId) {
+        List<Task> tasks = taskRepository.findByAssignedUserId(userId);
+        return tasks.stream().map(this::convertToDto).toList();
     }
 }

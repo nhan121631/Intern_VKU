@@ -51,6 +51,8 @@ public class SecurityConfig {
                                                 .hasAllRoles("Administrators")
                                                 .requestMatchers(HttpMethod.PATCH, "/api/tasks")
                                                 .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/tasks/export")
+                                                .hasAnyRole("Administrators")
                                                 .requestMatchers("/api/tasks/search-by-title")
                                                 .hasAnyRole("Administrators")
                                                 .requestMatchers("/api/tasks/filter-by-status")

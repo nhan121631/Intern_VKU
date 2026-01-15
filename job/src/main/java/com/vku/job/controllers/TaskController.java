@@ -1,6 +1,10 @@
 package com.vku.job.controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +21,7 @@ import com.vku.job.dtos.task.CreateTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
 import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
+import com.vku.job.services.TaskExportService;
 import com.vku.job.services.TaskService;
 import com.vku.job.services.auth.JwtService;
 
@@ -28,6 +33,9 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private TaskExportService taskExportService;
 
     @Autowired
     private JwtService jwtService;
@@ -145,4 +153,32 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    // export tasks to excel
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportTasks() {
+        List<TaskResponseDto> tasks = taskService.getTasksForExport();
+
+        byte[] excelStream = taskExportService.exportTasksToExcel(tasks);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tasks.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelStream);
+
+    }
+
+    @GetMapping("/export-by-user")
+    public ResponseEntity<byte[]> exportTasksByUser(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserIdFromToken(token);
+        List<TaskResponseDto> tasks = taskService.getTasksForExportByUserId(userId);
+
+        byte[] excelStream = taskExportService.exportTasksToExcel(tasks);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tasks_by_user.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excelStream);
+
+    }
 }

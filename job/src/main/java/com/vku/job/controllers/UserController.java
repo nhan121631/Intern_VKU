@@ -57,5 +57,4 @@ public class UserController {
         NameUserResponse response = userService.getNameUserById(userId);
         return ResponseEntity.ok(response);
     }
-
 }

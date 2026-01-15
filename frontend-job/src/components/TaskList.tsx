@@ -3,7 +3,14 @@ import React, { useEffect, useState } from "react";
 import type { Task, UserFullName } from "../types/type";
 import ConfirmModal from "./ConfirmModal";
 import TaskHistoryModal from "./TaskHistoryModal";
-import { ArrowDown, ArrowUp, ChevronsUpDown, HistoryIcon } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  Calendar,
+  ChevronsUpDown,
+  HistoryIcon,
+} from "lucide-react";
 import { getUserFullName } from "../service/UserService";
 
 interface TaskListProps {
@@ -52,7 +59,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterUserId, setFilterUserId] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [taskId, setTaskId] = useState<number | null>(null);
 
   function parseToDate(s?: string) {
     if (!s) return null;
@@ -149,6 +156,11 @@ export const TaskList: React.FC<TaskListProps> = ({
     }
   }, [isOurTask]);
 
+  const handleHistoryOpen = (taskId: number) => {
+    setTaskId(taskId);
+    setHistoryOpen(true);
+  };
+
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
     <div>
@@ -235,34 +247,7 @@ export const TaskList: React.FC<TaskListProps> = ({
           <div className="bg-red-50 border border-red-100 text-red-700 px-6 py-4 rounded-lg shadow-sm max-w-xl w-full">
             <div className="flex items-center gap-4">
               <div>
-                <svg
-                  className="w-8 h-8"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 9v4"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M12 17h.01"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="9"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>
+                <AlertCircle className="w-6 h-6" />
               </div>
               <div className="flex-1">
                 <div className="font-semibold">Failed to load tasks</div>
@@ -282,41 +267,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       ) : tasks.length === 0 ? (
         <div className="w-full flex items-center justify-center py-12">
           <div className="text-center text-gray-600">
-            <svg
-              className="mx-auto mb-4 w-16 h-16 text-gray-300"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M3 7h18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M5 7v10a2 2 0 002 2h10a2 2 0 002-2V7"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9 3v4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M15 3v4"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-400" />
             <div className="text-lg font-semibold">No tasks yet</div>
             <div className="text-sm mt-2">
               There are currently no tasks to show.
@@ -512,22 +463,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                       <button
                         className="bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer"
                         title="View History Update"
-                        onClick={() => {
-                          // use fake data for now (no API call)
-                          setHistoryData([
-                            {
-                              id: 3,
-                              updateBy: "Admin",
-                              updatedAt: "2026-01-14T16:27:50.716439",
-                            },
-                            {
-                              id: 5,
-                              updateBy: "Admin",
-                              updatedAt: "2026-01-14T16:58:26.680155",
-                            },
-                          ]);
-                          setHistoryOpen(true);
-                        }}
+                        onClick={() => handleHistoryOpen(t.id)}
                       >
                         <HistoryIcon size={16} />
                       </button>
@@ -553,7 +489,7 @@ export const TaskList: React.FC<TaskListProps> = ({
       <TaskHistoryModal
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
-        history={historyData}
+        taskId={taskId}
       />
 
       <div className="flex items-center justify-between mt-4">

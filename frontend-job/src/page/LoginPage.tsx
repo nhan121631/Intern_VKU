@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import LoginForm from "../components/LoginForm";
 import Notification from "../components/Notification";
@@ -18,17 +19,23 @@ export default function LoginPage() {
   useEffect(() => {
     useAuthStore.setState({ error: null, loading: false });
   }, []);
-
   useEffect(() => {
-    if (loggedInUser) {
-      Promise.resolve().then(() =>
-        setNotif({ message: "Login successful", type: "success" })
+    if (!loggedInUser) return;
+
+    const t = setTimeout(() => {
+      // Handle both string[] and object[] roles
+      const roleNames = loggedInUser.roles.map((r: any) =>
+        typeof r === "string" ? r : r.name
       );
-      const t = setTimeout(() => navigate("/home"), 300);
-      return () => {
-        clearTimeout(t);
-      };
-    }
+
+      if (roleNames.includes("Administrators")) {
+        navigate("/our-task");
+      } else {
+        navigate("/my-task");
+      }
+    }, 300);
+
+    return () => clearTimeout(t);
   }, [loggedInUser, navigate]);
 
   useEffect(() => {
