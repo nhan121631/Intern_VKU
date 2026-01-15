@@ -15,6 +15,8 @@ import com.vku.job.repositories.projection.FullNameUserProjection;
 @Repository
 public interface UserJpaRepository extends JpaRepository<User, Long> {
 
+    Optional<User> findByUsernameAndIsActive(String username, int isActive);
+
     Optional<User> findByUsername(String username);
 
     boolean existsByEmailAndEmailVerifiedTrue(String email);

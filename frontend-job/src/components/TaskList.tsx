@@ -176,7 +176,7 @@ export const TaskList: React.FC<TaskListProps> = ({
               className="border rounded px-2 py-1"
             />
             <button
-              className="px-3 py-1 bg-blue-500 text-white rounded"
+              className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer"
               onClick={handleSearch}
             >
               Search
@@ -500,14 +500,14 @@ export const TaskList: React.FC<TaskListProps> = ({
           <button
             onClick={() => onPageChange(Math.max(0, page - 1))}
             disabled={page === 0 || !hasPrevious}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 cursor-pointer"
           >
             Previous
           </button>
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={!hasNext}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 cursor-pointer"
           >
             Next
           </button>

@@ -130,7 +130,7 @@ const UserTable: React.FC<Props> = ({
                     {u.isActive === 0 ? (
                       <button
                         type="button"
-                        className="px-2 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                        className="px-2 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
                         aria-label={`Deactivate user ${u.username}`}
                         onClick={() =>
                           onChangeStatus && onChangeStatus(u.id, u.isActive)
@@ -145,7 +145,7 @@ const UserTable: React.FC<Props> = ({
                     ) : (
                       <button
                         type="button"
-                        className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                        className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 cursor-pointer"
                         aria-label={`Activate user ${u.username}`}
                         onClick={() =>
                           onChangeStatus && onChangeStatus(u.id, u.isActive)
