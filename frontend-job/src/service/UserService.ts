@@ -48,13 +48,24 @@ export async function changeUserStatus(userId: number, isActive: number) {
 }
 
 // get name user
-// get name user
 export async function getNameUser(): Promise<NameUserResponse> {
   try {
     const res = await apiClient.get<NameUserResponse>("/users/get-name-by-id");
     return res.data || res;
   } catch (e) {
     console.error("Error fetching name user:", e);
+    throw e;
+  }
+}
+
+// change user password
+export async function changeUserPassword(oldPassword: string, newPassword: string) {
+  try {
+    const res = await apiClient.patch(`/users/change-password?oldPassword=${oldPassword}&newPassword=${newPassword}`);
+    return res;
+  }
+  catch (e) {
+    console.error(`Error changing user password:`, e);
     throw e;
   }
 }

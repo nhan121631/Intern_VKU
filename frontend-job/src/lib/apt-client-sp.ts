@@ -1,9 +1,8 @@
 import Axios, { type InternalAxiosRequestConfig } from 'axios';
-
-const URL = 'http://localhost:8080/api';
+import { API_URL } from '../service/Constant';
 
 const apiClient = Axios.create({
-  baseURL: URL,
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },

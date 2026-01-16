@@ -19,12 +19,15 @@ public class TaskHistoryController {
     @Autowired
     private TaskHistoryService taskHistoryService;
 
+    // Get simple task histories by task ID
     @GetMapping("by-task-id")
     public ResponseEntity<List<TaskHistoryResponse>> getTaskHistoriesByTaskId(@RequestParam("taskId") Long taskId) {
         List<TaskHistoryResponse> histories = taskHistoryService.getSimpleTaskHistoriesByTaskId(taskId);
+        System.out.println(histories);
         return ResponseEntity.ok(histories);
     }
 
+    // Get task history detail by its ID
     @GetMapping("detail-by-id")
     public ResponseEntity<TaskHistoryDetailResponseDto> getTaskHistoryDetailById(@RequestParam("id") Long id) {
         TaskHistoryDetailResponseDto historyDetail = taskHistoryService.getTaskHistoriesDetailById(id);

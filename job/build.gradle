@@ -27,13 +27,10 @@ repositories {
 dependencies {
     // Web & MVC
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    // DevTools (Hot Reload, LiveReload)
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     // Validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-
-    
+    // DevTools (Hot Reload, LiveReload)
+    runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     // Security & Auth
     implementation 'org.springframework.boot:spring-boot-starter-security'
     

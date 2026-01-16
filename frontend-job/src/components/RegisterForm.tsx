@@ -60,7 +60,7 @@ export default function RegisterForm({ onSubmit }: Props) {
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
-      className="max-w-[360px] w-full font-sans"
+      className="max-w-90 w-full font-sans"
     >
       <div className="mb-4">
         <label className="block mb-2 text-sm font-semibold text-gray-900">

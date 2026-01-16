@@ -1,4 +1,4 @@
-
+// task type
 export interface Task {
     assignedUserId: number;
     createdAt:   string;
@@ -11,11 +11,13 @@ export interface Task {
     title: string;
 }
 
+// user full name type
 export interface UserFullName{
     id: number;
     fullName: string;
 }
 
+// update task type
 export interface UpdateTaskData 
     {
     id: number;
@@ -28,6 +30,7 @@ export interface UpdateTaskData
     assignedFullName?: string;
 }
 
+// create task type
 export interface CreateTaskData 
     {
     title: string;
@@ -38,6 +41,7 @@ export interface CreateTaskData
     allowUserUpdate: boolean;
 }
 
+// user type
 export interface User {
     id: number;
     username: string;
@@ -69,6 +73,7 @@ export interface PaginatedResponse<T> {
     totalPages: number
 }
 
+// task history response
 export interface TaskHistoryResponse{
     id: number;
     updateBy?: string;
@@ -77,4 +82,22 @@ export interface TaskHistoryResponse{
     newData?: string; // JSON string of new data
     oldData?: string; // JSON string of old data
     roles?: string[];
+}
+
+// user profile type
+export interface UserProfile {
+    id: number;
+    avatarUrl: string;
+    fullName: string;
+    phoneNumber: string;
+    address: string;
+}
+
+// update user profile type
+export interface UpdateUserProfileData {
+    id: number;
+    fullName: string;
+    phoneNumber?: string;
+    address?: string;
+
 }

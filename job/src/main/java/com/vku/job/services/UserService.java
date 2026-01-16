@@ -20,6 +20,7 @@ import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
 import com.vku.job.dtos.auth.RegisterRequestDto;
 import com.vku.job.dtos.auth.RegisterResponseDto;
+import com.vku.job.dtos.auth.VerifyEmailRequestDto;
 import com.vku.job.dtos.user.FullNameUserResponse;
 import com.vku.job.dtos.user.NameUserResponse;
 import com.vku.job.dtos.user.UserResponse;
@@ -296,9 +297,9 @@ public class UserService {
         // change user status
         public void changeUserStatus(Long userId, int isActive) {
                 User user = userJpaRepository.findById(userId)
-                                .orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
                 if (isActive != 0 && isActive != 1) {
-                        throw new HttpException("Invalid status value", HttpStatus.BAD_REQUEST);
+                        throw new IllegalArgumentException("Invalid status value");
                 }
                 user.setIsActive(isActive);
                 userJpaRepository.save(user);
@@ -307,9 +308,93 @@ public class UserService {
         // fetch name user
         public NameUserResponse getNameUserById(Long userId) {
                 User user = userJpaRepository.findById(userId)
-                                .orElseThrow(() -> new HttpException("User not found", HttpStatus.NOT_FOUND));
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
                 NameUserResponse response = new NameUserResponse();
                 response.setFullName(user.getProfile().getFullName());
                 return response;
+        }
+
+        // change password
+        public void changePassword(Long userId, String oldPassword, String newPassword) {
+                User user = userJpaRepository.findById(userId)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                        throw new IllegalArgumentException("Old password is incorrect");
+                }
+                if (newPassword.length() < 8) {
+                        throw new IllegalArgumentException("New password must be at least 8 characters long");
+                }
+                if (!newPassword.matches(
+                                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
+                        throw new IllegalArgumentException(
+                                        "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+                }
+                if (oldPassword.equals(newPassword)) {
+                        throw new IllegalArgumentException("New password must be different from old password");
+                }
+                user.setPassword(passwordEncoder.encode(newPassword));
+                userJpaRepository.save(user);
+        }
+
+        // forget password
+        public void sendResetPasswordOtp(String email) {
+                User user = userJpaRepository.findByEmail(email)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+                String otp = generateOtp();
+                user.setEmailOtpHash(passwordEncoder.encode(otp));
+                user.setEmailOtpExpiry(System.currentTimeMillis() + 10 * 60 * 1000); // 10 minutes expiry
+
+                userJpaRepository.save(user);
+
+                emailService.sendPasswordResetCode(email, otp);
+        }
+
+        // check otp for reset password
+        public void checkResetPasswordOtp(VerifyEmailRequestDto request) {
+                User user = userJpaRepository.findByEmail(request.getEmail())
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                if (!user.isEmailVerified()) {
+                        throw new IllegalArgumentException("Email is not verified");
+                }
+                if (user.getIsActive() == 1) {
+                        throw new IllegalArgumentException("Your account is not active. Please contact support.");
+                }
+                if (user.getPassword() == null) {
+                        throw new IllegalArgumentException("Cannot reset password for Google login users");
+                }
+                if (user.getEmailOtpExpiry() == null || user.getEmailOtpExpiry() < System.currentTimeMillis()) {
+                        throw new IllegalArgumentException("OTP has expired");
+                }
+                if (!passwordEncoder.matches(request.getOtp(), user.getEmailOtpHash())) {
+                        throw new IllegalArgumentException("Invalid OTP");
+                }
+        }
+
+        // reset password
+        public void resetPassword(String email, String otp, String newPassword) {
+                User user = userJpaRepository.findByEmail(email)
+                                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                if (!user.isEmailVerified()) {
+                        throw new IllegalArgumentException("Email is not verified");
+                }
+                if (user.getIsActive() == 1) {
+                        throw new IllegalArgumentException("Your account is not active. Please contact support.");
+                }
+                if (user.getPassword() == null) {
+                        throw new IllegalArgumentException("Cannot reset password for Google login users");
+                }
+                if (user.getEmailOtpExpiry() == null || user.getEmailOtpExpiry() < System.currentTimeMillis()) {
+                        throw new IllegalArgumentException("OTP has expired");
+                }
+
+                if (!passwordEncoder.matches(otp, user.getEmailOtpHash())) {
+                        throw new IllegalArgumentException("Invalid OTP");
+                }
+
+                user.setPassword(passwordEncoder.encode(newPassword));
+                user.setEmailOtpHash(null);
+                user.setEmailOtpExpiry(null);
+                userJpaRepository.save(user);
         }
 }

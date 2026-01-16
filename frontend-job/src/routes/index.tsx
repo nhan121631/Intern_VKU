@@ -3,6 +3,7 @@ import LoginPage from "../page/LoginPage";
 import ManageUserPage from "../page/ManageUserPage";
 import MyTaskPage from "../page/MyTaskPage";
 import OurTaskPage from "../page/OurTaskPage";
+import ProfilePage from "../page/ProfilePage";
 import RegisterPage from "../page/RegisterPage";
 
 const routes = [
@@ -51,15 +52,6 @@ const routes = [
     element: <MyTaskPage />,
     roles: ["administrators", "users"],
   },
-  // {
-  //   path: "/create-task",
-  //   showOnMenu: true,
-  //   isPublic: false,
-  //   name: "Create Task",
-  //   index: true,
-  //   element: <CreateTaskPage />,
-  //   roles: ["administrators"],
-  // },
   {
     path: "/manage-user",
     showOnMenu: true,
@@ -68,6 +60,15 @@ const routes = [
     index: true,
     element: <ManageUserPage />,
     roles: ["administrators"],
+  },
+  {
+    path: "/profile",
+    showOnMenu: true,
+    isPublic: false,
+    name: "Profile",
+    index: true,
+    element: <ProfilePage />,
+    roles: ["administrators", "users"],
   },
 ];
 
