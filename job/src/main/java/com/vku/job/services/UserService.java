@@ -20,6 +20,7 @@ import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
 import com.vku.job.dtos.auth.RegisterRequestDto;
 import com.vku.job.dtos.auth.RegisterResponseDto;
+import com.vku.job.dtos.auth.ResetPasswordRequestDto;
 import com.vku.job.dtos.auth.VerifyEmailRequestDto;
 import com.vku.job.dtos.user.FullNameUserResponse;
 import com.vku.job.dtos.user.NameUserResponse;
@@ -340,6 +341,15 @@ public class UserService {
         public void sendResetPasswordOtp(String email) {
                 User user = userJpaRepository.findByEmail(email)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                if (!user.isEmailVerified()) {
+                        throw new IllegalArgumentException("Email is not verified");
+                }
+                if (user.getIsActive() == 1) {
+                        throw new IllegalArgumentException("Your account is not active. Please contact support.");
+                }
+                if (user.getPassword() == null) {
+                        throw new IllegalArgumentException("Cannot reset password for Google login users");
+                }
 
                 String otp = generateOtp();
                 user.setEmailOtpHash(passwordEncoder.encode(otp));
@@ -372,8 +382,8 @@ public class UserService {
         }
 
         // reset password
-        public void resetPassword(String email, String otp, String newPassword) {
-                User user = userJpaRepository.findByEmail(email)
+        public void resetPassword(ResetPasswordRequestDto request) {
+                User user = userJpaRepository.findByEmail(request.getEmail())
                                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
                 if (!user.isEmailVerified()) {
                         throw new IllegalArgumentException("Email is not verified");
@@ -388,11 +398,11 @@ public class UserService {
                         throw new IllegalArgumentException("OTP has expired");
                 }
 
-                if (!passwordEncoder.matches(otp, user.getEmailOtpHash())) {
+                if (!passwordEncoder.matches(request.getOtp(), user.getEmailOtpHash())) {
                         throw new IllegalArgumentException("Invalid OTP");
                 }
 
-                user.setPassword(passwordEncoder.encode(newPassword));
+                user.setPassword(passwordEncoder.encode(request.getNewPassword()));
                 user.setEmailOtpHash(null);
                 user.setEmailOtpExpiry(null);
                 userJpaRepository.save(user);

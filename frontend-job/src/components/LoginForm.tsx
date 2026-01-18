@@ -2,6 +2,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router";
 import * as yup from "yup";
 
 interface Credentials {
@@ -34,6 +35,8 @@ export default function LoginForm({ onSubmit, loginWithGoogle }: Props) {
     resolver: yupResolver(schema),
   });
 
+  const navigate = useNavigate();
+
   const handleFormSubmit: SubmitHandler<Credentials> = async (data) => {
     if (onSubmit) onSubmit(data);
     else console.log(data);
@@ -54,7 +57,7 @@ export default function LoginForm({ onSubmit, loginWithGoogle }: Props) {
   return (
     <form
       onSubmit={handleSubmit(handleFormSubmit)}
-      className="max-w-[360px] w-full font-sans"
+      className="max-w-90 w-full font-sans"
     >
       <div className="mb-4">
         <label className="block mb-2 text-sm font-semibold text-gray-900">
@@ -101,8 +104,19 @@ export default function LoginForm({ onSubmit, loginWithGoogle }: Props) {
       <div className="mt-4 text-center text-sm text-gray-600">
         <p>
           Don't have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
+          <a
+            onClick={() => navigate("/register")}
+            className="text-blue-600 hover:underline"
+          >
             Register here
+          </a>
+        </p>
+        <p>
+          <a
+            onClick={() => navigate("/forgot-password")}
+            className="text-blue-600 hover:underline"
+          >
+            Forgot Password?
           </a>
         </p>
       </div>

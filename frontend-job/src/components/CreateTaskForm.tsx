@@ -9,6 +9,7 @@ import { getUserFullName } from "../service/UserService";
 import Notification from "./Notification";
 import type { UserFullName, Task } from "../types/type";
 import { Check, Loader2 } from "lucide-react";
+import { createTaskAssignedNotification } from "../service/Notification";
 
 const schema = yup
   .object({
@@ -108,6 +109,11 @@ export default function CreateTaskForm({
       };
       const res: any = await createTask(payload);
       const created: Task = res?.data ?? res;
+      await createTaskAssignedNotification(
+        String(created.assignedUserId),
+        String(created.id),
+        `You have been assigned a new task: ${created.title}`
+      );
       setSuccess("Task created successfully");
       // give the user a moment to see the toast, then close modal or navigate
       setTimeout(() => {

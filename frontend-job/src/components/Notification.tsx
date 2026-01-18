@@ -2,7 +2,7 @@ import { useEffect } from "react";
 
 type Props = {
   message: string;
-  type?: "success" | "error";
+  type?: "success" | "error" | "info";
   duration?: number;
   onClose?: () => void;
 };
@@ -21,7 +21,12 @@ export default function Notification({
 
   if (!message) return null;
 
-  const bg = type === "success" ? "bg-emerald-600" : "bg-rose-600";
+  const bg =
+    type === "success"
+      ? "bg-emerald-600"
+      : type === "error"
+      ? "bg-rose-600"
+      : "bg-blue-600";
 
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">

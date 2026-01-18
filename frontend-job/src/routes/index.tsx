@@ -1,3 +1,4 @@
+import ForgotPasswordPage from "../page/ForgotPasswordPasge";
 import HomePage from "../page/HomePage";
 import LoginPage from "../page/LoginPage";
 import ManageUserPage from "../page/ManageUserPage";
@@ -23,6 +24,15 @@ const routes = [
     name: "Register",
     index: true,
     element: <RegisterPage />,
+    roles: [],
+  },
+  {
+    path: "/forgot-password",
+    showOnMenu: false,
+    isPublic: true,
+    name: "Forgot Password",
+    index: true,
+    element: <ForgotPasswordPage />,
     roles: [],
   },
   {
