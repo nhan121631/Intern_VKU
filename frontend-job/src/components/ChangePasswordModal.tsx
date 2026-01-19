@@ -16,7 +16,7 @@ const schema = yup.object({
     .min(8, "New password must be at least 8 characters")
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     )
     .required("New password is required"),
   confirmNewPassword: yup

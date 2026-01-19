@@ -55,7 +55,7 @@ export default function ProfilePage() {
       setErrorMessage(
         e.message ||
           e.errors[0] ||
-          "Failed to update profile. Please try again."
+          "Failed to update profile. Please try again.",
       );
     } finally {
       setSaving(false);
@@ -72,7 +72,7 @@ export default function ProfilePage() {
       setErrorMessage(
         e.message ||
           e.errors[0] ||
-          "Failed to change password. Please try again."
+          "Failed to change password. Please try again.",
       );
     }
   };
@@ -119,10 +119,10 @@ export default function ProfilePage() {
                   </button>
                   <button
                     onClick={() => setIsChangeOpen(true)}
-                    className="flex items-center px-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    className="flex items-center px-4 gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
                   >
                     <Lock className="w-4 h-4" />
-                    Change Password
+                    Change Pass
                   </button>
                 </div>
               </div>
