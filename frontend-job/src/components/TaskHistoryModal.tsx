@@ -160,7 +160,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           <button
             onClick={handleClose}
             aria-label="Close"
-            className="rounded-md p-2 hover:bg-gray-100 text-gray-600"
+            className="rounded-md p-2 hover:bg-gray-100 text-gray-600 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -257,7 +257,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
                 new Set([
                   ...(oldIsObj ? Object.keys(oldObj) : []),
                   ...(newIsObj ? Object.keys(newObj) : []),
-                ])
+                ]),
               );
 
               return (
@@ -313,13 +313,13 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
         <div className="flex justify-end gap-2 p-4 border-t">
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200"
+            className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
           >
             Close
           </button>
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md cursor-pointer"
           >
             OK
           </button>

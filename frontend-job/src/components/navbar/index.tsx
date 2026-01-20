@@ -59,7 +59,7 @@ export const NavBar = () => {
 
   const userRoles: string[] =
     loggedInUser?.roles?.map((role: any) =>
-      typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase()
+      typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase(),
     ) || [];
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const NavBar = () => {
     const q = query(
       collection(db, "notifications"),
       where("receiverId", "==", String(loggedInUser?.id)),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
     const unsub = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(
@@ -90,7 +90,7 @@ export const NavBar = () => {
           ({
             id: docSnap.id,
             ...docSnap.data(),
-          } as Notification)
+          }) as Notification,
       );
 
       // Only show popup for truly new notifications (not the initial load)
@@ -137,7 +137,7 @@ export const NavBar = () => {
       const nextPage = currentPage + 1;
       const newDisplayedNotifications = notifications.slice(
         0,
-        nextPage * notificationsPerPage
+        nextPage * notificationsPerPage,
       );
       setDisplayedNotifications(newDisplayedNotifications);
       setCurrentPage(nextPage);
@@ -337,7 +337,7 @@ export const NavBar = () => {
                 onClick={() => setNotificationOpen((prev) => !prev)}
                 className="relative focus:outline-none"
               >
-                <Bell className="w-6 h-6 text-white hover:text-blue-200 transition" />
+                <Bell className="w-6 h-6 text-white hover:text-blue-200 transition cursor-pointer" />
 
                 {unreadCount > 0 && (
                   <span
@@ -369,7 +369,7 @@ export const NavBar = () => {
               <span className="mr-4">Hello, {fullName}</span>
               <button
                 onClick={handleLogout}
-                className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
+                className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
               >
                 Log Out
               </button>
@@ -377,7 +377,7 @@ export const NavBar = () => {
           ) : (
             <button
               onClick={() => (window.location.href = "/login")}
-              className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
+              className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
             >
               Log In
             </button>
@@ -449,14 +449,14 @@ export const NavBar = () => {
           {loggedInUser ? (
             <button
               onClick={handleLogout}
-              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
+              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
             >
               Log Out
             </button>
           ) : (
             <button
               onClick={() => (window.location.href = "/login")}
-              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition"
+              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
             >
               Log In
             </button>

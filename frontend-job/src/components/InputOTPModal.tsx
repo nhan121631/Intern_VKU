@@ -35,7 +35,7 @@ export default function InputOTPModal({
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    idx: number
+    idx: number,
   ) => {
     const raw = e.target.value || "";
     const digit = raw.replace(/[^0-9]/g, "");
@@ -79,7 +79,7 @@ export default function InputOTPModal({
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    idx: number
+    idx: number,
   ) => {
     if (e.key === "Backspace") {
       if (values[idx]) {
@@ -143,7 +143,7 @@ export default function InputOTPModal({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer"
           >
             Cancel
           </button>
@@ -152,7 +152,7 @@ export default function InputOTPModal({
             disabled={!valuesFilled()}
             className={`px-3 py-1.5 rounded text-white ${
               valuesFilled()
-                ? "bg-indigo-600 hover:bg-indigo-700"
+                ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                 : "bg-gray-300 cursor-not-allowed"
             }`}
           >

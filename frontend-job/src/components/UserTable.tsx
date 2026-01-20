@@ -25,7 +25,7 @@ interface Props {
 function parseToDate(s?: string | null) {
   if (!s) return null;
   const m = s.match(
-    /^([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.(\d+))?(Z)?/
+    /^([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2})(?:\.(\d+))?(Z)?/,
   );
   if (!m) return new Date(s);
   const base = m[1];
@@ -173,14 +173,14 @@ const UserTable: React.FC<Props> = ({
         <div className="space-x-2">
           <button
             onClick={onPrev}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            className={`px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50  ${!hasPrevious || page === 0 ? "cursor-not-allowed" : "cursor-pointer"}`}
             disabled={page === 0 || !hasPrevious}
           >
             Previous
           </button>
           <button
             onClick={onNext}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50"
+            className={`px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50  ${!hasNext ? "cursor-not-allowed" : "cursor-pointer"}`}
             disabled={!hasNext}
           >
             Next

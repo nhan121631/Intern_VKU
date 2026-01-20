@@ -45,7 +45,7 @@ const schema = yup
             console.error(e);
             return false;
           }
-        }
+        },
       ),
   })
   .required();
@@ -112,7 +112,7 @@ export default function CreateTaskForm({
       await createTaskAssignedNotification(
         String(created.assignedUserId),
         String(created.id),
-        `You have been assigned a new task: ${created.title}`
+        `You have been assigned a new task: ${created.title}`,
       );
       setSuccess("Task created successfully");
       // give the user a moment to see the toast, then close modal or navigate
@@ -124,7 +124,7 @@ export default function CreateTaskForm({
     } catch (e: any) {
       console.error(e);
       setError(
-        e?.message || (e?.errors ? e.errors.join(", ") : "Error creating task")
+        e?.message || (e?.errors ? e.errors.join(", ") : "Error creating task"),
       );
     } finally {
       setLoading(false);
@@ -255,14 +255,14 @@ export default function CreateTaskForm({
           <button
             type="button"
             onClick={() => (onClose ? onClose() : navigate(-1))}
-            className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

@@ -15,7 +15,7 @@ export default function HomePage() {
     const t = setTimeout(() => {
       // Handle both string[] and object[] roles
       const roleNames = loggedInUser.roles.map((r: any) =>
-        typeof r === "string" ? r : r.name
+        typeof r === "string" ? r : r.name,
       );
 
       if (roleNames.includes("Administrators")) {
@@ -53,13 +53,13 @@ export default function HomePage() {
           <div className="flex gap-4 justify-center">
             <a
               onClick={handleGetStarted}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors cursor-pointer"
             >
               Get Started
             </a>
             <a
               onClick={handleViewMyTasks}
-              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition-colors"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
             >
               View My Tasks
             </a>
@@ -128,7 +128,7 @@ export default function HomePage() {
           </p>
           <a
             onClick={() => navigate("/register")}
-            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
           >
             Create Your Account
           </a>

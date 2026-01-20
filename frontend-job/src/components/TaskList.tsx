@@ -411,23 +411,23 @@ export const TaskList: React.FC<TaskListProps> = ({
                         t.status === "OPEN"
                           ? "bg-yellow-100 text-yellow-800"
                           : t.status === "IN_PROGRESS"
-                          ? "bg-blue-100 text-blue-800"
-                          : t.status === "DONE"
-                          ? "bg-green-100 text-green-800"
-                          : t.status === "CANCELED"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
+                            ? "bg-blue-100 text-blue-800"
+                            : t.status === "DONE"
+                              ? "bg-green-100 text-green-800"
+                              : t.status === "CANCELED"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {t.status === "OPEN"
                         ? "Open"
                         : t.status === "IN_PROGRESS"
-                        ? "In Progress"
-                        : t.status === "DONE"
-                        ? "Done"
-                        : t.status === "CANCELED"
-                        ? "Canceled"
-                        : t.status}
+                          ? "In Progress"
+                          : t.status === "DONE"
+                            ? "Done"
+                            : t.status === "CANCELED"
+                              ? "Canceled"
+                              : t.status}
                     </span>
                   </td>
                   {/* line-clamp-3 */}
@@ -443,10 +443,10 @@ export const TaskList: React.FC<TaskListProps> = ({
                   </td>
                   <td className="px-4 py-3 text-sm flex space-x-2">
                     <button
-                      className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer ${
+                      className={`bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition ${
                         !t.allowUserUpdate && !isOurTask
                           ? "opacity-50 cursor-not-allowed"
-                          : ""
+                          : "cursor-pointer"
                       }`}
                       onClick={() => handleEdit(t.id)}
                       disabled={!t.allowUserUpdate && !isOurTask}
@@ -500,14 +500,14 @@ export const TaskList: React.FC<TaskListProps> = ({
           <button
             onClick={() => onPageChange(Math.max(0, page - 1))}
             disabled={page === 0 || !hasPrevious}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 cursor-pointer"
+            className={`px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 ${page === 0 || !hasPrevious ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
             Previous
           </button>
           <button
             onClick={() => onPageChange(page + 1)}
             disabled={!hasNext}
-            className="px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 cursor-pointer"
+            className={`px-3 py-1 bg-blue-500 text-white rounded disabled:opacity-50 ${!hasNext ? "cursor-not-allowed" : "cursor-pointer"}`}
           >
             Next
           </button>

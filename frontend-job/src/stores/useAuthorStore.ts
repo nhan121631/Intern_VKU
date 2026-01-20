@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>()(
                 false,
                 { type: '@AUTH/LOGIN/SUCCESS' }
               );
-              navigate('/home');
+              navigate('/');
             } catch (error) {
               set({ error, access_token: undefined, refresh_token: undefined, loggedInUser: undefined, loading: false }, false, {
                 type: '@AUTH/LOGIN/ERROR',
@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthState>()(
                 false,
                 { type: '@AUTH/GOOGLE_LOGIN/SUCCESS' }
               );
-              navigate('/home');
+              navigate('/');
             } catch (error) {
               set({ error, access_token: undefined, refresh_token: undefined, loggedInUser: undefined, loading: false }, false, {
                 type: '@AUTH/GOOGLE_LOGIN/ERROR',

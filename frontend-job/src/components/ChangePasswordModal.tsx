@@ -78,7 +78,7 @@ export default function ChangePasswordModal({
               onClick={() => {
                 if (!saving) onClose();
               }}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -141,7 +141,7 @@ export default function ChangePasswordModal({
               onClick={() => {
                 if (!saving) onClose();
               }}
-              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium"
+              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium cursor-pointer"
               disabled={saving}
             >
               Cancel
@@ -150,7 +150,7 @@ export default function ChangePasswordModal({
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium disabled:opacity-50"
+              className="px-5 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
                 <>

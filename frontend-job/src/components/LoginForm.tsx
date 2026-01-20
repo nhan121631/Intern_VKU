@@ -91,7 +91,7 @@ export default function LoginForm({ onSubmit, loginWithGoogle }: Props) {
       <div className="flex justify-center flex-col items-center">
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 w-1/2"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 w-1/2 cursor-pointer"
         >
           Login
         </button>

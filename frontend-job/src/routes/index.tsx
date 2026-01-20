@@ -36,7 +36,7 @@ const routes = [
     roles: [],
   },
   {
-    path: "/home",
+    path: "/",
     showOnMenu: true,
     isPublic: true,
     name: "Home",

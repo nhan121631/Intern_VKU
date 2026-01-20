@@ -34,7 +34,7 @@ const schema = yup.object({
     // at least one uppercase letter, one lowercase letter, one number, and one special character
     .matches(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     )
     .required("Password is required"),
   repeatPassword: yup
@@ -139,7 +139,7 @@ export default function RegisterForm({ onSubmit }: Props) {
       <div className="flex justify-center">
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 w-1/2"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 w-1/2 cursor-pointer"
         >
           Register
         </button>

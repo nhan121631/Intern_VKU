@@ -118,7 +118,7 @@ export default function EditTaskModal({
 
     // Tìm fullName của user được chọn từ dropdown
     const selectedUser = userFullNames.find(
-      (user) => user.id === Number(data.assignedUserId)
+      (user) => user.id === Number(data.assignedUserId),
     );
 
     const payload: UpdateTaskData = {
@@ -169,7 +169,7 @@ export default function EditTaskModal({
               onClick={() => {
                 if (!saving) onClose();
               }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X className="w-6 h-6" />
             </button>
@@ -281,7 +281,7 @@ export default function EditTaskModal({
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
-              className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+              className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
               onClick={() => {
                 if (!saving) onClose();
               }}
@@ -293,7 +293,7 @@ export default function EditTaskModal({
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+              className="px-6 py-2.5 rounded-lg font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer"
             >
               {saving ? (
                 <>
