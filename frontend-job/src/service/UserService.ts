@@ -61,7 +61,10 @@ export async function getNameUser(): Promise<NameUserResponse> {
 // change user password
 export async function changeUserPassword(oldPassword: string, newPassword: string) {
   try {
-    const res = await apiClient.patch(`/users/change-password?oldPassword=${oldPassword}&newPassword=${newPassword}`);
+    const res = await apiClient.patch(`/users/change-password`,{
+      oldPassword,
+      newPassword,
+    });
     return res;
   }
   catch (e) {

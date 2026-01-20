@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.vku.job.dtos.PaginatedResponseDto;
+import com.vku.job.dtos.auth.ChangePassRequestDto;
 import com.vku.job.dtos.auth.GoogleLoginRequestDto;
 import com.vku.job.dtos.auth.LoginRequestDto;
 import com.vku.job.dtos.auth.LoginResponseDto;
@@ -316,24 +317,16 @@ public class UserService {
         }
 
         // change password
-        public void changePassword(Long userId, String oldPassword, String newPassword) {
+        public void changePassword(Long userId, ChangePassRequestDto changePassRequest) {
                 User user = userJpaRepository.findById(userId)
                                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                if (!passwordEncoder.matches(changePassRequest.getOldPassword(), user.getPassword())) {
                         throw new IllegalArgumentException("Old password is incorrect");
                 }
-                if (newPassword.length() < 8) {
-                        throw new IllegalArgumentException("New password must be at least 8 characters long");
-                }
-                if (!newPassword.matches(
-                                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$")) {
-                        throw new IllegalArgumentException(
-                                        "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
-                }
-                if (oldPassword.equals(newPassword)) {
+                if (changePassRequest.getOldPassword().equals(changePassRequest.getNewPassword())) {
                         throw new IllegalArgumentException("New password must be different from old password");
                 }
-                user.setPassword(passwordEncoder.encode(newPassword));
+                user.setPassword(passwordEncoder.encode(changePassRequest.getNewPassword()));
                 userJpaRepository.save(user);
         }
 

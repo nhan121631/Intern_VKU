@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vku.job.dtos.PaginatedResponseDto;
+import com.vku.job.dtos.auth.ChangePassRequestDto;
 import com.vku.job.dtos.user.FullNameUserResponse;
 import com.vku.job.dtos.user.NameUserResponse;
 import com.vku.job.dtos.user.UserResponse;
@@ -98,11 +100,10 @@ public class UserController {
     @PatchMapping("/change-password")
     public ResponseEntity<Void> changePassword(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam("oldPassword") String oldPassword,
-            @RequestParam("newPassword") String newPassword) {
+            @RequestBody @Valid ChangePassRequestDto changePassRequest) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtService.extractUserIdFromToken(token);
-        userService.changePassword(userId, oldPassword, newPassword);
+        userService.changePassword(userId, changePassRequest);
         return ResponseEntity.ok().build();
     }
 
