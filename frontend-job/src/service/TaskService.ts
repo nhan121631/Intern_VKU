@@ -1,5 +1,5 @@
 import apiClient from "../lib/apt-client-sp";
-import type { CreateTaskData, UpdateTaskData } from "../types/type";
+import type { CreateTaskData, FilterTaskData, UpdateTaskData } from "../types/type";
 
 // get all task
 export async function getTasks(page: number = 0, size: number = 10, sortBy: string = "id", order: string = "asc") {
@@ -36,30 +36,12 @@ export async function searchTasks(page: number = 0, size: number = 10, query: st
 }
 // get filters status
 export async function getTaskStatus(
-  page: number = 0,
-  size: number = 10,
-  status?: string,
-  userId?: number | null,
-  sortBy: string = "id",
-  order: string = "asc"
+filterData: FilterTaskData
 ) {
   try {
-    const params = new URLSearchParams();
+    console.log("test:", filterData);
 
-    params.append("page", page.toString());
-    params.append("size", size.toString());
-    params.append("sortBy", sortBy);
-    params.append("order", order);
-    console.log("status" + status);
-    if (status) {
-      params.append("status", status);
-    }
-
-    if (userId !== null && userId !== undefined) {
-      params.append("userId", userId.toString());
-    }
-
-    const res = await apiClient.get(`/tasks/filter-by-status?${params.toString()}`);
+    const res = await apiClient.post("/tasks/filter-by-status", filterData);
     return res;
   } catch (e) {
     console.error("Error filtering tasks:", e);

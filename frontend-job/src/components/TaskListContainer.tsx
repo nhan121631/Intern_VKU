@@ -2,16 +2,16 @@
 import { useEffect, useState } from "react";
 import {
   deleteTask,
+  getTaskById,
   getTasks,
   getTaskStatus,
   searchTasks,
-  getTaskById,
   updateTask,
 } from "../service/TaskService";
 import type { Task } from "../types/type";
-import TaskList from "./TaskList";
 import EditTaskModal from "./EditTaskModal";
 import Notification from "./Notification";
+import TaskList from "./TaskList";
 
 type Props = {
   newTask?: Task | null;
@@ -19,6 +19,8 @@ type Props = {
 type Filters = {
   status?: string;
   userId?: number | null;
+  createdFrom?: string;
+  createdTo?: string;
 };
 
 const TaskListContainer = ({ newTask }: Props = {}) => {
@@ -46,6 +48,8 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
   const [lastQuery, setLastQuery] = useState<string>("");
   const [lastStatus, setLastStatus] = useState<string>("");
   const [lastUserId, setLastUserId] = useState<number | null>(null);
+  const [lastCreatedFrom, setLastCreatedFrom] = useState<string>("");
+  const [lastCreatedTo, setLastCreatedTo] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
 
@@ -57,14 +61,26 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
       if (mode === "search") {
         res = await searchTasks(page, size, lastQuery, sortBy, order);
       } else if (mode === "filter") {
-        res = await getTaskStatus(
+        console.log("Loading filtered tasks with:", {
           page,
           size,
-          lastStatus,
-          lastUserId,
+          status: lastStatus,
+          userId: lastUserId,
+          createAtFrom: lastCreatedFrom,
+          createAtTo: lastCreatedTo,
           sortBy,
-          order
-        );
+          order,
+        });
+        res = await getTaskStatus({
+          page,
+          size,
+          status: lastStatus,
+          userId: lastUserId,
+          createAtFrom: lastCreatedFrom,
+          createAtTo: lastCreatedTo,
+          sortBy,
+          order,
+        });
       } else {
         res = await getTasks(page, size, sortBy, order);
       }
@@ -74,7 +90,7 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
         setHasNext(Boolean(res.hasNext));
         setHasPrevious(Boolean(res.hasPrevious));
         setTotalPages(
-          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size))
+          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size)),
         );
       } else if (Array.isArray(res)) {
         setTasks(res as Task[]);
@@ -95,7 +111,18 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
   useEffect(() => {
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size, mode, lastQuery, lastStatus, lastUserId, sortBy, order]);
+  }, [
+    page,
+    size,
+    mode,
+    lastQuery,
+    lastStatus,
+    lastUserId,
+    sortBy,
+    order,
+    lastCreatedFrom,
+    lastCreatedTo,
+  ]);
 
   // Prepend a newly created task (from parent) without refetching
   useEffect(() => {
@@ -126,11 +153,18 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
 
   const handleFilters = async (filters: Filters) => {
     // Không filter gì → list
-    console.log("Filters received in container:", filters);
-    if ((filters.status === "all" || !filters.status) && !filters.userId) {
+    console.log("aaaa:", filters.createdFrom);
+    if (
+      (filters.status === "all" || !filters.status) &&
+      !filters.userId &&
+      !filters.createdFrom &&
+      !filters.createdTo
+    ) {
       setMode("list");
       setLastStatus("");
       setLastUserId(null); // nếu có state userId
+      setLastCreatedFrom("");
+      setLastCreatedTo("");
       setPage(0);
       return;
     }
@@ -150,6 +184,20 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
       setLastUserId(filters.userId);
     } else {
       setLastUserId(null);
+    }
+    // Created From
+    if (filters.createdFrom) {
+      console.log("Set createdFrom to:", filters.createdFrom);
+      setLastCreatedFrom(filters.createdFrom);
+    } else {
+      setLastCreatedFrom("");
+    }
+    // Created To
+    if (filters.createdTo) {
+      console.log("Set createdTo to:", filters.createdTo);
+      setLastCreatedTo(filters.createdTo);
+    } else {
+      setLastCreatedTo("");
     }
   };
 
@@ -189,7 +237,7 @@ const TaskListContainer = ({ newTask }: Props = {}) => {
 
       // Update task in list with server data
       setTasks((prev) =>
-        prev.map((t) => (t.id === updated.id ? updatedTask : t))
+        prev.map((t) => (t.id === updated.id ? updatedTask : t)),
       );
       setIsEditOpen(false);
       setSelectedTask(null);

@@ -1,5 +1,7 @@
 package com.vku.job.services;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.task.CreateTaskRequestDto;
+import com.vku.job.dtos.task.FilterTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
 import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
@@ -190,7 +193,7 @@ public class TaskService {
             int size,
             String sortBy,
             String order) {
-        // 1️⃣ Chỉ cho phép sort theo các field hợp lệ
+
         sortBy = switch (sortBy) {
             case "id", "title", "createdAt", "deadline" -> sortBy;
             default -> "id";
@@ -251,46 +254,61 @@ public class TaskService {
                 tasks.hasPrevious());
     }
 
-    public PaginatedResponseDto<TaskResponseDto> filterTasks(
-            Long userId,
-            String status,
-            int page,
-            int size,
-            String sortBy,
-            String order) {
-        if (userId == null && (status == null || status.isBlank())) {
-            throw new RuntimeException("userId or status is required");
+    public PaginatedResponseDto<TaskResponseDto> filterTasks(FilterTaskRequestDto dto) {
+
+        // 1. Validate: ít nhất 1 điều kiện
+        if (dto.getUserId() == null
+                && (dto.getStatus() == null || dto.getStatus().isBlank())
+                && (dto.getCreateAtFrom() == null || dto.getCreateAtFrom().isBlank())
+                && (dto.getCreateAtTo() == null || dto.getCreateAtTo().isBlank())) {
+            throw new RuntimeException("At least one filter condition is required");
         }
 
+        // 2. Validate date range
+        if (dto.getCreateAtFrom() != null && !dto.getCreateAtFrom().isBlank()
+                && dto.getCreateAtTo() != null && !dto.getCreateAtTo().isBlank()) {
+            if (dto.getCreateAtFrom().compareTo(dto.getCreateAtTo()) > 0) {
+                throw new RuntimeException("createAtFrom cannot be after createAtTo");
+            }
+        }
+
+        // 3. Parse status
         TaskStatus taskStatus = null;
-        if (status != null && !status.isBlank()) {
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
             try {
-                taskStatus = TaskStatus.valueOf(status.toUpperCase());
+                taskStatus = TaskStatus.valueOf(dto.getStatus().toUpperCase());
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException("Invalid task status");
             }
         }
 
-        sortBy = switch (sortBy) {
-            case "id", "title", "createdAt", "deadline" -> sortBy;
+        // 4. Sort whitelist
+        String sortBy = switch (dto.getSortBy()) {
+            case "id", "title", "createdAt", "deadline" -> dto.getSortBy();
             default -> "id";
         };
 
-        Sort sort = order.equalsIgnoreCase("desc")
+        Sort sort = "desc".equalsIgnoreCase(dto.getOrder())
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize(), sort);
 
-        Page<Task> tasks;
+        // 5. Normalize date
+        LocalDateTime from = dto.getCreateAtFrom() != null && !dto.getCreateAtFrom().isBlank()
+                ? LocalDate.parse(dto.getCreateAtFrom()).atStartOfDay()
+                : null;
 
-        if (userId != null && taskStatus != null) {
-            tasks = taskRepository.findByAssignedUserIdAndStatus(userId, taskStatus, pageable);
-        } else if (userId != null) {
-            tasks = taskRepository.findByAssignedUserId(userId, pageable);
-        } else {
-            tasks = taskRepository.findByStatus(taskStatus, pageable);
-        }
+        LocalDateTime to = dto.getCreateAtTo() != null && !dto.getCreateAtTo().isBlank()
+                ? LocalDate.parse(dto.getCreateAtTo()).atTime(23, 59, 59)
+                : null;
+
+        Page<Task> tasks = taskRepository.filterTasks(
+                dto.getUserId(),
+                taskStatus,
+                from,
+                to,
+                pageable);
 
         return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),
@@ -338,31 +356,60 @@ public class TaskService {
 
     // get tasks by user id and status with pagination
     public PaginatedResponseDto<TaskResponseDto> getTasksByUserAndStatus(
-            Long userId,
-            String status,
-            int page,
-            int size,
-            String sortBy,
-            String order) {
-        TaskStatus taskStatus;
-        try {
-            taskStatus = TaskStatus.valueOf(status.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid task status");
+            FilterTaskRequestDto dto) {
+        // 1. Validate: ít nhất 1 điều kiện
+        if (dto.getUserId() == null
+                && (dto.getStatus() == null || dto.getStatus().isBlank())
+                && (dto.getCreateAtFrom() == null || dto.getCreateAtFrom().isBlank())
+                && (dto.getCreateAtTo() == null || dto.getCreateAtTo().isBlank())) {
+            throw new RuntimeException("At least one filter condition is required");
         }
 
-        sortBy = switch (sortBy) {
-            case "id", "title", "createdAt", "deadline" -> sortBy;
+        // 2. Validate date range
+        if (dto.getCreateAtFrom() != null && !dto.getCreateAtFrom().isBlank()
+                && dto.getCreateAtTo() != null && !dto.getCreateAtTo().isBlank()) {
+            if (dto.getCreateAtFrom().compareTo(dto.getCreateAtTo()) > 0) {
+                throw new RuntimeException("createAtFrom cannot be after createAtTo");
+            }
+        }
+
+        // 3. Parse status
+        TaskStatus taskStatus = null;
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
+            try {
+                taskStatus = TaskStatus.valueOf(dto.getStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid task status");
+            }
+        }
+
+        // 4. Sort whitelist
+        String sortBy = switch (dto.getSortBy()) {
+            case "id", "title", "createdAt", "deadline" -> dto.getSortBy();
             default -> "id";
         };
 
-        Sort sort = order.equalsIgnoreCase("desc")
+        Sort sort = "desc".equalsIgnoreCase(dto.getOrder())
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize(), sort);
 
-        Page<Task> tasks = taskRepository.findByAssignedUserIdAndStatus(userId, taskStatus, pageable);
+        // 5. Normalize date
+        LocalDateTime from = dto.getCreateAtFrom() != null && !dto.getCreateAtFrom().isBlank()
+                ? LocalDate.parse(dto.getCreateAtFrom()).atStartOfDay()
+                : null;
+
+        LocalDateTime to = dto.getCreateAtTo() != null && !dto.getCreateAtTo().isBlank()
+                ? LocalDate.parse(dto.getCreateAtTo()).atTime(23, 59, 59)
+                : null;
+
+        Page<Task> tasks = taskRepository.filterTasks(
+                dto.getUserId(),
+                taskStatus,
+                from,
+                to,
+                pageable);
 
         return new PaginatedResponseDto<>(
                 tasks.map(this::convertToDto).getContent(),

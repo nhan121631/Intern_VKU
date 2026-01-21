@@ -73,6 +73,8 @@ public class SecurityConfig {
                                                 .hasAnyRole("Administrators")
                                                 .requestMatchers("/api/task-histories/**")
                                                 .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/statistics/**")
+                                                .hasAnyRole("Administrators")
                                                 .anyRequest().authenticated())
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
                 return http.build();

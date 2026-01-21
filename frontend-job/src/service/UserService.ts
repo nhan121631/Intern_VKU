@@ -5,7 +5,7 @@ import type { NameUserResponse } from "../types/type";
 export async function getUserFullName() {
   try {
     const res = await apiClient.get(`/users/get-name`);
-    return res;
+    return res.data || res;
   }
   catch (e) {
     console.error(`Error fetching user full names:`, e);

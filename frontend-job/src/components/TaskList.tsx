@@ -35,6 +35,8 @@ interface TaskListProps {
 type Filters = {
   status?: string;
   userId?: number | null;
+  createdFrom?: string;
+  createdTo?: string;
 };
 export const TaskList: React.FC<TaskListProps> = ({
   tasks,
@@ -58,6 +60,9 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [dataSearch, setDataSearch] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterUserId, setFilterUserId] = useState<number | null>(null);
+  const [filterCreateAt, setFilterCreateAt] = useState<string>("");
+  const [filterCreatedTo, setFilterCreatedTo] = useState<string>("");
+  const [dateError, setDateError] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [taskId, setTaskId] = useState<number | null>(null);
 
@@ -99,11 +104,17 @@ export const TaskList: React.FC<TaskListProps> = ({
     onSearch(dataSearch);
     setFilterStatus("all");
   };
-  const handleFilters = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleFilters = (
+    e:
+      | React.ChangeEvent<HTMLSelectElement>
+      | React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const { name, value } = e.target;
 
     let newStatus = filterStatus;
     let newUserId = filterUserId;
+    let newCreatedFrom = filterCreateAt;
+    let newCreatedTo = filterCreatedTo;
 
     if (name === "status") {
       newStatus = value;
@@ -114,12 +125,27 @@ export const TaskList: React.FC<TaskListProps> = ({
       newUserId = value ? Number(value) : null;
       setFilterUserId(newUserId);
     }
+    if (name === "createdFrom") {
+      newCreatedFrom = value;
+      setFilterCreateAt(newCreatedFrom);
+    }
+    if (name === "createdTo") {
+      newCreatedTo = value;
+      setFilterCreatedTo(newCreatedTo);
+    }
+    if (newCreatedFrom && newCreatedTo && newCreatedFrom > newCreatedTo) {
+      setDateError("'Created From' cannot be later than 'Created To'");
+      return;
+    } else {
+      setDateError(null);
+    }
 
     setDataSearch("");
-
     onFilters({
       status: newStatus === "all" ? undefined : newStatus,
       userId: newUserId,
+      createdFrom: newCreatedFrom || undefined,
+      createdTo: newCreatedTo || undefined,
     });
   };
 
@@ -161,6 +187,30 @@ export const TaskList: React.FC<TaskListProps> = ({
     setHistoryOpen(true);
   };
 
+  // const handleFiltersCreateAt = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
+  //   setFilterCreateAt(value);
+  //   // validate: createdFrom must not be after createdTo
+  //   if (filterCreatedTo && value > filterCreatedTo) {
+  //     setDateError("'Created From' cannot be later than 'Created To'");
+  //   } else {
+  //     setDateError(null);
+  //   }
+  //   console.log("Filter created at:", value);
+  // };
+
+  // const handleFiltersCreatedTo = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { value } = e.target;
+  //   setFilterCreatedTo(value);
+  //   // validate: createdTo must not be before createdFrom
+  //   if (filterCreateAt && value < filterCreateAt) {
+  //     setDateError("'Created To' cannot be earlier than 'Created From'");
+  //   } else {
+  //     setDateError(null);
+  //   }
+  //   console.log("Filter created to:", value);
+  // };
+
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
     <div>
@@ -183,37 +233,84 @@ export const TaskList: React.FC<TaskListProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <label>Filters:</label>
-            <select
-              name="status"
-              className="border rounded px-2 py-1"
-              value={filterStatus}
-              onChange={handleFilters}
-            >
-              <option value="all">All</option>
-              <option value="OPEN">Open</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="DONE">Done</option>
-              <option value="CANCELED">Canceled</option>
-            </select>
+          <div className="flex flex-col gap-4 text-sm">
+            <div className="font-medium text-gray-700">Filters</div>
 
-            {isOurTask && (
-              <select
-                name="userId"
-                className="border rounded px-2 py-1"
-                value={filterUserId ?? ""}
-                onChange={handleFilters}
-              >
-                <option value="">All Users</option>
-                {userFullNames.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.fullName}
-                  </option>
-                ))}
-              </select>
+            {/* Row 1 */}
+            <div className="flex flex-wrap gap-6">
+              {/* Status */}
+              <div className="flex items-center gap-1">
+                <label className="w-20 text-gray-600">Status:</label>
+                <select
+                  name="status"
+                  value={filterStatus}
+                  onChange={handleFilters}
+                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                >
+                  <option value="all">All</option>
+                  <option value="OPEN">Open</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="DONE">Done</option>
+                  <option value="CANCELED">Canceled</option>
+                </select>
+              </div>
+
+              {/* Assignee */}
+              {isOurTask && (
+                <div className="flex items-center gap-1">
+                  <label className="w-20 text-gray-600">Assignee:</label>
+                  <select
+                    name="userId"
+                    value={filterUserId ?? ""}
+                    onChange={handleFilters}
+                    className="h-10 w-40 border rounded px-3 cursor-pointer"
+                  >
+                    <option value="">All Users</option>
+                    {userFullNames.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.fullName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            {/* Row 2 */}
+            <div className="flex flex-wrap gap-6">
+              {/* Created */}
+              <div className="flex items-center gap-1">
+                <label className="w-20 text-gray-600">Created From:</label>
+                <input
+                  type="date"
+                  name="createdFrom"
+                  value={filterCreateAt}
+                  onChange={handleFilters}
+                  max={filterCreatedTo || undefined}
+                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                />
+              </div>
+
+              {/* Deadline */}
+              <div className="flex items-center gap-1">
+                <label className="w-20 text-gray-600">Created to:</label>
+                <input
+                  type="date"
+                  name="createdTo"
+                  value={filterCreatedTo}
+                  onChange={handleFilters}
+                  min={filterCreateAt || undefined}
+                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                />
+              </div>
+            </div>
+            {dateError && (
+              <div className="w-full">
+                <div className="text-sm text-red-600 mt-1">{dateError}</div>
+              </div>
             )}
           </div>
+
           <div className="flex items-center space-x-2">
             <label>Page size:</label>
             <select
@@ -222,7 +319,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onSizeChange(Number(e.target.value));
                 onPageChange(0);
               }}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 cursor-pointer"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>

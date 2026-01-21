@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // task type
 export interface Task {
     assignedUserId: number;
@@ -39,6 +40,18 @@ export interface CreateTaskData
     assignedUserId: number;
     assignedFullName?: string;
     allowUserUpdate: boolean;
+}
+// filter task 
+export interface FilterTaskData
+{
+    page: number,
+  size: number,
+  status?: string,
+  userId?: number | null,
+  createAtFrom?: string,
+  createAtTo?: string,
+  sortBy: string,
+  order: string
 }
 
 // user type
@@ -100,4 +113,17 @@ export interface UpdateUserProfileData {
     phoneNumber?: string;
     address?: string;
 
+}
+
+// statistics task summary type
+export interface TaskSummary {
+    status: string;
+    value: number;
+    [key: string]: any;
+}
+
+// statistics task for user type
+export interface TaskForUser {
+    user: string;
+    total: number;
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vku.job.dtos.PaginatedResponseDto;
 import com.vku.job.dtos.task.CreateTaskRequestDto;
+import com.vku.job.dtos.task.FilterTaskRequestDto;
 import com.vku.job.dtos.task.TaskResponseDto;
 import com.vku.job.dtos.task.UpdateTaskByUserRequestDto;
 import com.vku.job.dtos.task.UpdateTaskRequestDto;
@@ -113,16 +114,15 @@ public class TaskController {
         return ResponseEntity.ok(tasksByUserAndTitle);
     }
 
-    @GetMapping("/by-user/filter-status")
+    @PostMapping("/by-user/filter-status")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndStatus(
-            @RequestParam("userId") Long userId,
-            @RequestParam("status") String status,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
-            @RequestParam(name = "order", defaultValue = "asc") String order) {
-        PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(userId, status,
-                page, size, sortBy, order);
+            @RequestBody FilterTaskRequestDto filterTaskRequestDto,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserIdFromToken(token);
+        filterTaskRequestDto.setUserId(userId);
+        PaginatedResponseDto<TaskResponseDto> tasksByUserAndStatus = taskService.getTasksByUserAndStatus(
+                filterTaskRequestDto);
         return ResponseEntity.ok(tasksByUserAndStatus);
     }
 
@@ -137,19 +137,13 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @GetMapping("/filter-by-status")
+    @PostMapping("/filter-by-status")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> filterTasks(
-            @RequestParam(name = "status", required = false) String status,
-            @RequestParam(name = "userId", required = false) Long userId,
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam(name = "sortBy", defaultValue = "id") String sortBy,
-            @RequestParam(name = "order", defaultValue = "asc") String order) {
+            @RequestBody FilterTaskRequestDto filterTaskRequestDto) {
 
-        System.out.println("Filtering tasks with status: " + status + " and userId: " + userId);
-        PaginatedResponseDto<TaskResponseDto> tasks = taskService.filterTasks(userId, status, page, size,
-                sortBy,
-                order);
+        System.out.println(filterTaskRequestDto);
+
+        PaginatedResponseDto<TaskResponseDto> tasks = taskService.filterTasks(filterTaskRequestDto);
         return ResponseEntity.ok(tasks);
     }
 

@@ -1,3 +1,4 @@
+import DashboardPage from "../page/DashboardPage";
 import ForgotPasswordPage from "../page/ForgotPasswordPasge";
 import HomePage from "../page/HomePage";
 import LoginPage from "../page/LoginPage";
@@ -51,6 +52,15 @@ const routes = [
     name: "Our Task",
     index: true,
     element: <OurTaskPage />,
+    roles: ["administrators"],
+  },
+  {
+    path: "/dashboard",
+    showOnMenu: true,
+    isPublic: false,
+    name: "Dashboard",
+    index: true,
+    element: <DashboardPage />,
     roles: ["administrators"],
   },
   {

@@ -17,6 +17,8 @@ import {
 type Filters = {
   status?: string;
   userId?: number | null;
+  createdFrom?: string;
+  createdTo?: string;
 };
 const MyTaskListContainer = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -46,6 +48,8 @@ const MyTaskListContainer = () => {
   const [mode, setMode] = useState<"list" | "search" | "filter">("list");
   const [lastQuery, setLastQuery] = useState<string>("");
   const [lastStatus, setLastStatus] = useState<string>("");
+  const [lastCreatedFrom, setLastCreatedFrom] = useState<string>("");
+  const [lastCreatedTo, setLastCreatedTo] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("");
   const [order, setOrder] = useState<"asc" | "desc">("asc");
 
@@ -58,14 +62,15 @@ const MyTaskListContainer = () => {
       if (mode === "search") {
         res = await searchMyTasks(page, size, lastQuery, userId, sortBy, order);
       } else if (mode === "filter") {
-        res = await getMyTaskStatus(
+        res = await getMyTaskStatus({
           page,
           size,
-          lastStatus,
-          userId,
+          status: lastStatus,
+          createAtFrom: lastCreatedFrom,
+          createAtTo: lastCreatedTo,
           sortBy,
-          order
-        );
+          order,
+        });
       } else {
         res = await getMyTasks(page, size, userId, sortBy, order);
       }
@@ -75,7 +80,7 @@ const MyTaskListContainer = () => {
         setHasNext(Boolean(res.hasNext));
         setHasPrevious(Boolean(res.hasPrevious));
         setTotalPages(
-          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size))
+          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size)),
         );
       } else if (Array.isArray(res)) {
         setTasks(res as Task[]);
@@ -94,7 +99,6 @@ const MyTaskListContainer = () => {
   };
 
   useEffect(() => {
-    // load appropriate page based on current mode (list/search/filter)
     loadPage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -104,6 +108,8 @@ const MyTaskListContainer = () => {
     lastQuery,
     lastStatus,
     loggedInUser?.id,
+    lastCreatedFrom,
+    lastCreatedTo,
     sortBy,
     order,
   ]);
@@ -127,16 +133,43 @@ const MyTaskListContainer = () => {
   };
 
   const handleFilters = async (filters: Filters) => {
-    if (!filters.status || filters.status === "all") {
+    if (
+      (filters.status === "all" || !filters.status) &&
+      !filters.userId &&
+      !filters.createdFrom &&
+      !filters.createdTo
+    ) {
       setMode("list");
       setLastStatus("");
+      setLastCreatedFrom("");
+      setLastCreatedTo("");
       setPage(0);
       return;
     }
 
-    setLastStatus(filters.status);
     setMode("filter");
     setPage(0);
+
+    // Status
+    if (filters.status && filters.status !== "all") {
+      setLastStatus(filters.status);
+    } else {
+      setLastStatus("");
+    }
+    // Created From
+    if (filters.createdFrom) {
+      console.log("Set createdFrom to:", filters.createdFrom);
+      setLastCreatedFrom(filters.createdFrom);
+    } else {
+      setLastCreatedFrom("");
+    }
+    // Created To
+    if (filters.createdTo) {
+      console.log("Set createdTo to:", filters.createdTo);
+      setLastCreatedTo(filters.createdTo);
+    } else {
+      setLastCreatedTo("");
+    }
   };
 
   const handleEdit = async (taskId: number) => {
@@ -175,7 +208,7 @@ const MyTaskListContainer = () => {
 
       // Update task in list with server data
       setTasks((prev) =>
-        prev.map((t) => (t.id === updated.id ? updatedTask : t))
+        prev.map((t) => (t.id === updated.id ? updatedTask : t)),
       );
       setIsEditOpen(false);
       setSelectedTask(null);

@@ -62,6 +62,9 @@ dependencies {
     // Apache POI (Excel handling)
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
+    //pdf
+	implementation 'com.itextpdf:itext7-core:7.2.5'
+
     // Spring Boot Test Slices
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'

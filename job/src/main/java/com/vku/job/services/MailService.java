@@ -1,10 +1,16 @@
 package com.vku.job.services;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class MailService {
@@ -47,6 +53,28 @@ public class MailService {
         } catch (Exception e) {
             System.err.println("Failed to send email to " + to);
             e.printStackTrace();
+        }
+    }
+
+    @Async
+    public void sendPdfReport(String to, byte[] pdfBytes, String subject, String body) {
+        try {
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, false); // false = text, true = HTML
+            helper.setSentDate(new Date());
+
+            // attach PDF
+            ByteArrayResource pdfResource = new ByteArrayResource(pdfBytes);
+            helper.addAttachment("weekly-task-report.pdf", pdfResource);
+
+            emailSender.send(message);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send PDF report email", e);
         }
     }
 }
