@@ -43,7 +43,7 @@ public class TaskService {
     @Autowired
     private TaskHistoryJpaRepository taskHistoryRepository;
 
-    private TaskResponseDto convertToDto(Task task) {
+    public TaskResponseDto convertToDto(Task task) {
         return TaskResponseDto.builder()
                 .id(task.getId())
                 .title(task.getTitle())
@@ -58,7 +58,7 @@ public class TaskService {
                 .build();
     }
 
-    private UpdateTaskHistoryResponseDto toTaskHistoryDto(Task task) {
+    public UpdateTaskHistoryResponseDto toTaskHistoryDto(Task task) {
         return UpdateTaskHistoryResponseDto.builder()
                 .id(task.getId())
                 .title(task.getTitle())
@@ -254,6 +254,7 @@ public class TaskService {
                 tasks.hasPrevious());
     }
 
+    // filter tasks with pagination
     public PaginatedResponseDto<TaskResponseDto> filterTasks(FilterTaskRequestDto dto) {
 
         // 1. Validate: ít nhất 1 điều kiện

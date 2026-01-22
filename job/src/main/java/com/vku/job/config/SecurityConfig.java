@@ -73,6 +73,8 @@ public class SecurityConfig {
                                                 .hasAnyRole("Administrators")
                                                 .requestMatchers("/api/task-histories/**")
                                                 .hasAnyRole("Administrators")
+                                                .requestMatchers("/api/statistics/summary-me")
+                                                .hasAnyRole("Users", "Administrators")
                                                 .requestMatchers("/api/statistics/**")
                                                 .hasAnyRole("Administrators")
                                                 .anyRequest().authenticated())

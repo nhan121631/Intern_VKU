@@ -28,6 +28,7 @@ import com.vku.job.repositories.projection.TaskSummaryProjection;
 
 @Service
 public class StatisticsService {
+        private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         @Autowired
         private TaskJpaRepository taskJpaRepository;
@@ -38,20 +39,18 @@ public class StatisticsService {
         @Autowired
         private UserJpaRepository userJpaRepository;
 
-        private TaskSummaryResponse toTaskSummaryDto(TaskSummaryProjection projection) {
+        public TaskSummaryResponse toTaskSummaryDto(TaskSummaryProjection projection) {
                 return new TaskSummaryResponse(projection.getStatus(), projection.getCount());
         }
 
-        private TaskForUserResponse toTaskForUserDto(TaskForUserProjection projection) {
+        public TaskForUserResponse toTaskForUserDto(TaskForUserProjection projection) {
                 TaskForUserResponse dto = new TaskForUserResponse();
                 dto.setUser(projection.getFullName());
                 dto.setTotal(projection.getCount());
                 return dto;
         }
 
-        private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        private LocalDate parseDate(String dateStr, String fieldName) {
+        public LocalDate parseDate(String dateStr, String fieldName) {
                 if (dateStr == null || dateStr.isBlank()) {
                         return null;
                 }
@@ -217,7 +216,7 @@ public class StatisticsService {
 
         }
 
-        private List<TaskSummaryResponse> getTaskSummaryByStatusBetween(
+        public List<TaskSummaryResponse> getTaskSummaryByStatusBetween(
                         LocalDateTime start, LocalDateTime end) {
 
                 List<TaskSummaryProjection> raw = taskJpaRepository.countTasksByStatusBetween(start, end);
@@ -233,7 +232,7 @@ public class StatisticsService {
                                 .toList();
         }
 
-        private List<TaskForUserResponse> getTaskSummaryByUserBetween(
+        public List<TaskForUserResponse> getTaskSummaryByUserBetween(
                         LocalDateTime start, LocalDateTime end) {
 
                 return taskJpaRepository.countTasksByUserBetween(start, end)

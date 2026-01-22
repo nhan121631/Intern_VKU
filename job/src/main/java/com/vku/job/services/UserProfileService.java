@@ -19,7 +19,7 @@ public class UserProfileService {
     private UserProfileJpaRepository userProfileJpaRepository;
 
     // convert entity to dto
-    private UserProfileResponse convertToDto(UserProfile userProfile) {
+    public UserProfileResponse convertToDto(UserProfile userProfile) {
         UserProfileResponse response = new UserProfileResponse();
         response.setId(userProfile.getId());
         response.setFullName(userProfile.getFullName());

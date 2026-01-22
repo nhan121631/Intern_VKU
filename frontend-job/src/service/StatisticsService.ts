@@ -35,3 +35,15 @@ export async function getTasksByUserId(userId: string, createdAtFrom?: string, c
     throw e;
   }
 }
+
+export async function getTaskMe(createdAtFrom?: string, createdAtTo?: string) {
+  try {
+    const res = await apiClient.get(`/statistics/summary-me`, {
+      params: { createdAtFrom, createdAtTo }
+    });
+    return res.data || res;
+  } catch (e) {
+    console.error("Error fetching my task statistics:", e);
+    throw e; 
+  }
+}

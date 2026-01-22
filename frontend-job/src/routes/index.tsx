@@ -7,6 +7,7 @@ import MyTaskPage from "../page/MyTaskPage";
 import OurTaskPage from "../page/OurTaskPage";
 import ProfilePage from "../page/ProfilePage";
 import RegisterPage from "../page/RegisterPage";
+import UserDashboardPage from "../page/UserDashboardPage";
 
 const routes = [
   {
@@ -53,6 +54,15 @@ const routes = [
     index: true,
     element: <OurTaskPage />,
     roles: ["administrators"],
+  },
+  {
+    path: "/user-dashboard",
+    showOnMenu: true,
+    isPublic: false,
+    name: "User Dashboard",
+    index: true,
+    element: <UserDashboardPage />,
+    roles: ["users"],
   },
   {
     path: "/dashboard",

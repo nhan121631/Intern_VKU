@@ -1,26 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
-  BarChart,
   Bar,
-  PieChart,
+  BarChart,
+  Cell,
   Pie,
+  PieChart,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  ResponsiveContainer,
-  Cell,
 } from "recharts";
-import type { TaskForUser, TaskSummary, UserFullName } from "../types/type";
 import {
   getTasksByUser,
   getTasksByUserId,
   getTaskStatistics,
 } from "../service/StatisticsService";
-import { Loader2 } from "lucide-react";
 import { getUserFullName } from "../service/UserService";
+import type { TaskForUser, TaskSummary, UserFullName } from "../types/type";
 
-/* ================== CONSTANTS ================== */
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "#facc15",
   IN_PROGRESS: "#3b82f6",
@@ -28,7 +27,6 @@ const STATUS_COLORS: Record<string, string> = {
   CANCELED: "#ef4444",
 };
 
-/* ================== PAGE ================== */
 export default function DashboardPage() {
   const [userId, setUserId] = useState<number>(1);
   const [users, setUsers] = useState<UserFullName[]>([]);
@@ -82,7 +80,6 @@ export default function DashboardPage() {
     fetchStatistics();
   }, [createdAtFrom, createdAtTo]);
 
-  // Fetch users for the dropdown
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -99,20 +96,17 @@ export default function DashboardPage() {
     fetchUsers();
   }, []);
 
-  // Fetch user detail when userId or date range changes
   useEffect(() => {
     const shouldFetchUnfiltered = !createdAtFrom && !createdAtTo;
     const oneDateMissing =
       (createdAtFrom && !createdAtTo) || (!createdAtFrom && createdAtTo);
 
     if (oneDateMissing) {
-      // Wait until both dates are provided; clear any previous error.
       setError(null);
       return;
     }
 
     if (!shouldFetchUnfiltered) {
-      // Both dates provided -> validate order
       if (createdAtFrom > createdAtTo) {
         setError("'Created From' must not be after 'Created To'.");
         return;
@@ -148,8 +142,6 @@ export default function DashboardPage() {
     }
   };
 
-  // NOTE: We no longer block the whole page while stats are loading.
-  // Individual sections show their own spinners (`loadingStats`, `loadingUserDetail`).
   if (error) {
     return (
       <div className="flex items-center justify-center p-6 text-red-600">
@@ -158,7 +150,6 @@ export default function DashboardPage() {
     );
   }
 
-  // Custom tick renderer for XAxis to support rotation and avoid TS type errors
   const CustomizedAxisTick = (props: any) => {
     const { x, y, payload } = props;
     return (

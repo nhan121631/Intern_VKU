@@ -28,6 +28,7 @@ import com.vku.job.dtos.statistics.WeeklyReportData;
 public class TaskPdfService {
 
     // report task to pdf weekly
+    @SuppressWarnings("null")
     public byte[] exportWeeklyTaskReportPdf(WeeklyReportData data) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 

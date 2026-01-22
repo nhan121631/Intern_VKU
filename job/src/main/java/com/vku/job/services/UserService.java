@@ -54,12 +54,13 @@ public class UserService {
         @Autowired
         private MailService emailService;
 
-        private final RestTemplate restTemplate = new RestTemplate();
+        @Autowired
+        private RestTemplate restTemplate;
 
         private static final SecureRandom secureRandom = new SecureRandom();
 
         // conver User entity to UserResponse dto
-        private UserResponse convertToDto(User user) {
+        public UserResponse convertToDto(User user) {
                 UserResponse dto = new UserResponse();
                 dto.setId(user.getId());
                 dto.setUsername(user.getUsername());
@@ -159,7 +160,8 @@ public class UserService {
                         profile.setFullName(payload.get("name").toString());
                         profile.setUser(user);
                         user.setProfile(profile);
-                        Role userRole = roleJpaRepository.findByName("Users").orElseThrow();
+                        Role userRole = roleJpaRepository.findByName("Users").orElseThrow(
+                                        () -> new RuntimeException("Role USER not found"));
                         user.setRoles(List.of(userRole));
                         userJpaRepository.save(user);
                 }
@@ -189,7 +191,7 @@ public class UserService {
         }
 
         // generate otp for email verification
-        private String generateOtp() {
+        public String generateOtp() {
                 int otp = secureRandom.nextInt(900000) + 100000;
                 return String.valueOf(otp);
         }
@@ -315,7 +317,7 @@ public class UserService {
                 response.setFullName(user.getProfile().getFullName());
                 return response;
         }
-
+//======================== PASSWORD MANAGEMENT ========================
         // change password
         public void changePassword(Long userId, ChangePassRequestDto changePassRequest) {
                 User user = userJpaRepository.findById(userId)

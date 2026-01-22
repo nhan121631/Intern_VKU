@@ -16,6 +16,7 @@ public class TaskHistoryService {
     @Autowired
     private TaskHistoryJpaRepository taskHistoryJpaRepository;
 
+    // Get task history detail by id
     public TaskHistoryDetailResponseDto getTaskHistoriesDetailById(Long id) {
         TaskHistory taskHistory = taskHistoryJpaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task history not found"));
