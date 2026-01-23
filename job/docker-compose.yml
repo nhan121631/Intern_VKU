@@ -12,7 +12,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/job_management
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root_password
-      SPRING_SQL_INIT_MODE: never
+      SPRING_SQL_INIT_MODE: always
       # SPRING_DATASOURCE_URL: jdbc:mysql://server.aptech.io:3307/ants
       # SPRING_DATASOURCE_USERNAME: ants_user
       # SPRING_DATASOURCE_PASSWORD: ants_password
