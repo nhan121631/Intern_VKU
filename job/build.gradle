@@ -65,6 +65,8 @@ dependencies {
     //pdf
 	implementation 'com.itextpdf:itext7-core:7.2.5'
 
+    runtimeOnly 'com.h2database:h2'
+
     // Spring Boot Test Slices
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
