@@ -13,16 +13,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root_password
       SPRING_SQL_INIT_MODE: always
-      # SPRING_DATASOURCE_URL: jdbc:mysql://server.aptech.io:3307/ants
-      # SPRING_DATASOURCE_USERNAME: ants_user
-      # SPRING_DATASOURCE_PASSWORD: ants_password
-      # SPRING_REDIS_HOST: 165.22.245.241
-      # SPRING_REDIS_PORT: 6379
-      # SPRING_REDIS_PASSWORD: redis_password
-      # SPRING_REDIS_HOST: native-adder-5325.upstash.io
-      # SPRING_REDIS_PORT: 6379
-      # SPRING_REDIS_PASSWORD: ARTNAAImcDJiYzMwNjlmYWMzMjE0YjcxYTZhZmJjMzE1YWEwZGM5ZXAyNTMyNQ
-
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
     depends_on:
       db:
         condition: service_healthy
