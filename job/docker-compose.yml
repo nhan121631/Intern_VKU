@@ -9,7 +9,7 @@ services:
     ports:
       - '8080:8080'
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/job_management
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/job_management
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root_password
       SPRING_SQL_INIT_MODE: never
