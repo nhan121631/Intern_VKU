@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy toàn bộ mã nguồn từ máy host vào thư mục /app trong container.
 COPY . .
 # Chạy lệnh Gradle để build file jar của ứng dụng Spring Boot.
-RUN gradle clean bootJar --no-daemon
+RUN ./gradlew clean bootJar --no-daemon
 
 # ---- Run Stage ----
 # Sử dụng image Amazon Corretto JDK 21 để chạy ứng dụng.
