@@ -7,7 +7,8 @@ import apiClient from '../lib/apt-client-sp';
 
 export interface LoggedInUser {
   id: string | number;
-  fullName: string;
+  email: string;
+  username: string;
   isActive: boolean;
   roles: [
     {

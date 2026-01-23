@@ -8,3 +8,18 @@
 *:focus-visible {
     outline: none;
 }
+
+/* Ẩn thông tin Hệ điều hành & Trình duyệt (Windows, Edge...) */
+.wl-sys {
+    display: none !important;
+}
+
+/* Ẩn thông tin Vị trí (Hà Nội, VN...) */
+.wl-addr {
+    display: none !important;
+}
+
+/* (Tùy chọn) Ẩn luôn cái nhãn Admin/Mod nếu muốn */
+.wl-badge {
+    display: none !important;
+}

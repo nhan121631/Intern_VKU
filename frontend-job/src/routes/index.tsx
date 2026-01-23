@@ -55,15 +55,7 @@ const routes = [
     element: <OurTaskPage />,
     roles: ["administrators"],
   },
-  {
-    path: "/user-dashboard",
-    showOnMenu: true,
-    isPublic: false,
-    name: "User Dashboard",
-    index: true,
-    element: <UserDashboardPage />,
-    roles: ["users"],
-  },
+
   {
     path: "/dashboard",
     showOnMenu: true,
@@ -72,6 +64,15 @@ const routes = [
     index: true,
     element: <DashboardPage />,
     roles: ["administrators"],
+  },
+  {
+    path: "/user-dashboard",
+    showOnMenu: true,
+    isPublic: false,
+    name: "My Dashboard",
+    index: true,
+    element: <UserDashboardPage />,
+    roles: ["users"],
   },
   {
     path: "/my-task",

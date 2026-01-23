@@ -1,8 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
-import type { Task, UserFullName } from "../types/type";
-import ConfirmModal from "./ConfirmModal";
-import TaskHistoryModal from "./TaskHistoryModal";
 import {
   AlertCircle,
   ArrowDown,
@@ -11,7 +7,12 @@ import {
   ChevronsUpDown,
   HistoryIcon,
 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { getUserFullName } from "../service/UserService";
+import type { Task, UserFullName } from "../types/type";
+import ConfirmModal from "./ConfirmModal";
+import WalineModal from "./WalineModal";
+import TaskHistoryModal from "./TaskHistoryModal";
 
 interface TaskListProps {
   tasks: Task[];
@@ -187,29 +188,13 @@ export const TaskList: React.FC<TaskListProps> = ({
     setHistoryOpen(true);
   };
 
-  // const handleFiltersCreateAt = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value } = e.target;
-  //   setFilterCreateAt(value);
-  //   // validate: createdFrom must not be after createdTo
-  //   if (filterCreatedTo && value > filterCreatedTo) {
-  //     setDateError("'Created From' cannot be later than 'Created To'");
-  //   } else {
-  //     setDateError(null);
-  //   }
-  //   console.log("Filter created at:", value);
-  // };
+  const [commentsOpen, setCommentsOpen] = useState<boolean>(false);
+  const [commentTaskId, setCommentTaskId] = useState<number | null>(null);
 
-  // const handleFiltersCreatedTo = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { value } = e.target;
-  //   setFilterCreatedTo(value);
-  //   // validate: createdTo must not be before createdFrom
-  //   if (filterCreateAt && value < filterCreateAt) {
-  //     setDateError("'Created To' cannot be earlier than 'Created From'");
-  //   } else {
-  //     setDateError(null);
-  //   }
-  //   console.log("Filter created to:", value);
-  // };
+  const handleCommentsOpen = (taskId: number) => {
+    setCommentTaskId(taskId);
+    setCommentsOpen(true);
+  };
 
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
@@ -565,6 +550,13 @@ export const TaskList: React.FC<TaskListProps> = ({
                         <HistoryIcon size={16} />
                       </button>
                     )}
+                    <button
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-1.5 rounded-full text-sm shadow-sm transition cursor-pointer"
+                      title="Discuss"
+                      onClick={() => handleCommentsOpen(t.id)}
+                    >
+                      Discuss
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -587,6 +579,12 @@ export const TaskList: React.FC<TaskListProps> = ({
         open={historyOpen}
         onClose={() => setHistoryOpen(false)}
         taskId={taskId}
+      />
+
+      <WalineModal
+        open={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        taskId={commentTaskId}
       />
 
       <div className="flex items-center justify-between mt-4">
