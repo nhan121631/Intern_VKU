@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -7,6 +8,7 @@ type Props = {
   subtitle?: string;
   onClose: () => void;
   onSubmit: (code: string) => void;
+  isLoading?: boolean;
 };
 
 export default function InputOTPModal({
@@ -16,6 +18,7 @@ export default function InputOTPModal({
   subtitle = "Please enter the 6-digit code sent to your email.",
   onClose,
   onSubmit,
+  isLoading = false,
 }: Props) {
   const [values, setValues] = useState<string[]>(() => Array(length).fill(""));
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
@@ -143,20 +146,24 @@ export default function InputOTPModal({
         <div className="flex justify-end space-x-3">
           <button
             onClick={onClose}
-            className="px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer"
+            disabled={isLoading}
+            className={`px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 ${
+              isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!valuesFilled()}
-            className={`px-3 py-1.5 rounded text-white ${
-              valuesFilled()
+            disabled={!valuesFilled() || isLoading}
+            className={`px-3 py-1.5 rounded text-white flex items-center gap-2 ${
+              valuesFilled() && !isLoading
                 ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                 : "bg-gray-300 cursor-not-allowed"
             }`}
           >
-            Verify
+            {isLoading && <Loader2 className="animate-spin h-4 w-4" />}
+            {isLoading ? "Verifying..." : "Verify"}
           </button>
         </div>
       </div>

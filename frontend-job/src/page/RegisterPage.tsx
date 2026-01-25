@@ -46,11 +46,13 @@ export default function RegisterPage() {
 
   const [showOtp, setShowOtp] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleVerify = async (code: string) => {
     if (!pendingEmail) return;
     console.log(pendingEmail, code);
 
+    setIsVerifying(true);
     try {
       await verifyEmail({ email: pendingEmail, otp: code });
       setShowOtp(false);
@@ -62,6 +64,8 @@ export default function RegisterPage() {
         message: e.message || e.errors?.[0] || "Verification failed",
         type: "error",
       });
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -84,6 +88,7 @@ export default function RegisterPage() {
         open={showOtp}
         onClose={() => setShowOtp(false)}
         onSubmit={handleVerify}
+        isLoading={isVerifying}
       />
     </div>
   );

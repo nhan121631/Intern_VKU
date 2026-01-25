@@ -49,11 +49,13 @@ export default function ForgotPasswordPage() {
   const [otpCode, setOtpCode] = useState("");
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [optIsTrue, setOtpIsTrue] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleVerify = async (code: string) => {
     if (!pendingEmail) return;
     console.log(pendingEmail, code);
 
+    setIsVerifying(true);
     try {
       await checkResetPasswordOTP({ email: pendingEmail, otp: code });
       setShowOtp(false);
@@ -71,6 +73,8 @@ export default function ForgotPasswordPage() {
         message: e.message || e.errors?.[0] || "Verification failed",
         type: "error",
       });
+    } finally {
+      setIsVerifying(false);
     }
   };
   const handleResetPassword = async (data: { newPassword: string }) => {
@@ -115,6 +119,7 @@ export default function ForgotPasswordPage() {
         open={showOtp}
         onClose={() => setShowOtp(false)}
         onSubmit={handleVerify}
+        isLoading={isVerifying}
       />
     </div>
   );
