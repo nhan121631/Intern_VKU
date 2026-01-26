@@ -66,15 +66,6 @@ const routes = [
     roles: ["administrators"],
   },
   {
-    path: "/user-dashboard",
-    showOnMenu: true,
-    isPublic: false,
-    name: "My Dashboard",
-    index: true,
-    element: <UserDashboardPage />,
-    roles: ["users"],
-  },
-  {
     path: "/my-task",
     showOnMenu: true,
     isPublic: false,
@@ -83,6 +74,16 @@ const routes = [
     element: <MyTaskPage />,
     roles: ["administrators", "users"],
   },
+  {
+    path: "/user-dashboard",
+    showOnMenu: true,
+    isPublic: false,
+    name: "My Dashboard",
+    index: true,
+    element: <UserDashboardPage />,
+    roles: ["users"],
+  },
+
   {
     path: "/manage-user",
     showOnMenu: true,
