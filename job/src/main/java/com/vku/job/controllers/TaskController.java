@@ -26,10 +26,15 @@ import com.vku.job.services.TaskExportService;
 import com.vku.job.services.TaskService;
 import com.vku.job.services.auth.JwtService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "APIs for task management")
+@SecurityRequirement(name = "bearerAuth")
 public class TaskController {
 
     @Autowired
@@ -42,6 +47,7 @@ public class TaskController {
     private JwtService jwtService;
 
     @PostMapping
+    @Operation(summary = "Create Task", description = "Create a new task with the provided details")
     public ResponseEntity<TaskResponseDto> createTask(@RequestBody @Valid CreateTaskRequestDto createTaskRequestDto) {
 
         TaskResponseDto taskResponseDto = taskService.addTask(createTaskRequestDto);
@@ -49,6 +55,7 @@ public class TaskController {
     }
 
     @GetMapping
+    @Operation(summary = "Get All Tasks", description = "Retrieve a paginated list of all tasks with optional sorting")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasks(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
@@ -59,18 +66,21 @@ public class TaskController {
     }
 
     @GetMapping("/get-by-id")
+    @Operation(summary = "Get Task by ID", description = "Retrieve task details by its ID")
     public ResponseEntity<TaskResponseDto> getTaskById(@RequestParam("id") Long id) {
         TaskResponseDto task = taskService.getTaskById(id);
         return ResponseEntity.ok(task);
     }
 
     @DeleteMapping
+    @Operation(summary = "Delete Task", description = "Delete a task by its ID")
     public ResponseEntity<Void> deleteTask(@RequestParam("id") Long id) {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping
+    @Operation(summary = "Update Task", description = "Update task details by its ID")
     public ResponseEntity<TaskResponseDto> updateTask(@RequestBody @Valid UpdateTaskRequestDto updateTaskRequestDto,
             @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
@@ -80,6 +90,7 @@ public class TaskController {
     }
 
     @GetMapping("/by-user")
+    @Operation(summary = "Get Tasks by User", description = "Retrieve a paginated list of tasks assigned to a specific user with optional sorting")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUser(
             @RequestParam("userId") Long userId,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -92,6 +103,7 @@ public class TaskController {
     }
 
     @PatchMapping("/by-user/update")
+    @Operation(summary = "Update Task by User", description = "Allow a user to update their own task details")
     public ResponseEntity<TaskResponseDto> updateTaskByUser(
             @RequestBody @Valid UpdateTaskByUserRequestDto updateTaskRequestDto,
             @RequestHeader("Authorization") String authHeader) {
@@ -102,6 +114,7 @@ public class TaskController {
     }
 
     @GetMapping("/by-user/search-title")
+    @Operation(summary = "Get Tasks by User and Title", description = "Retrieve a paginated list of tasks for a specific user filtered by title with optional sorting")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndTitle(
             @RequestParam("userId") Long userId,
             @RequestParam("title") String title,
@@ -115,6 +128,7 @@ public class TaskController {
     }
 
     @PostMapping("/by-user/filter-status")
+    @Operation(summary = "Get Tasks by User and Status", description = "Retrieve a paginated list of tasks for the authenticated user filtered by status and other criteria")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> getTasksByUserAndStatus(
             @RequestBody FilterTaskRequestDto filterTaskRequestDto,
             @RequestHeader("Authorization") String authHeader) {
@@ -127,6 +141,7 @@ public class TaskController {
     }
 
     @GetMapping("/search-by-title")
+    @Operation(summary = "Search Tasks by Title", description = "Search for tasks by title with pagination and sorting")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> searchTasksByTitle(
             @RequestParam("title") String title,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -138,6 +153,7 @@ public class TaskController {
     }
 
     @PostMapping("/filter-by-status")
+    @Operation(summary = "Filter Tasks by Status", description = "Filter tasks by status and other criteria with pagination")
     public ResponseEntity<PaginatedResponseDto<TaskResponseDto>> filterTasks(
             @RequestBody FilterTaskRequestDto filterTaskRequestDto) {
 
@@ -149,6 +165,7 @@ public class TaskController {
 
     // export tasks to excel
     @GetMapping("/export")
+    @Operation(summary = "Export Tasks to Excel", description = "Export all tasks to an Excel file")
     public ResponseEntity<byte[]> exportTasks() {
         List<TaskResponseDto> tasks = taskService.getTasksForExport();
 
@@ -162,6 +179,7 @@ public class TaskController {
     }
 
     @GetMapping("/export-by-user")
+    @Operation(summary = "Export User's Tasks to Excel", description = "Export tasks assigned to the authenticated user to an Excel file")
     public ResponseEntity<byte[]> exportTasksByUser(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtService.extractUserIdFromToken(token);

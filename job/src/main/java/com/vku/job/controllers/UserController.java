@@ -26,10 +26,15 @@ import com.vku.job.services.UserProfileService;
 import com.vku.job.services.UserService;
 import com.vku.job.services.auth.JwtService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "Users", description = "APIs for user management")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -41,12 +46,14 @@ public class UserController {
     private JwtService jwtService;
 
     @GetMapping("/get-name")
+    @Operation(summary = "Get All User Names", description = "Retrieve a list of all users' full names")
     public ResponseEntity<List<FullNameUserResponse>> getUserName() {
         List<FullNameUserResponse> result = userService.getAllFullNameUsers();
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/get-all")
+    @Operation(summary = "Get All Users", description = "Retrieve a paginated list of all users")
     public ResponseEntity<PaginatedResponseDto<UserResponse>> getAllUsers(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
@@ -55,6 +62,7 @@ public class UserController {
 
     // change user status
     @PatchMapping("/change-status")
+    @Operation(summary = "Change User Status", description = "Activate or deactivate a user account")
     public ResponseEntity<Void> changeUserStatus(@RequestParam("userId") Long userId,
             @RequestParam("isActive") int isActive) {
         userService.changeUserStatus(userId, isActive);
@@ -63,6 +71,7 @@ public class UserController {
 
     // get name user by id from token
     @GetMapping("/get-name-by-id")
+    @Operation(summary = "Get My Name", description = "Retrieve the name of the authenticated user")
     public ResponseEntity<NameUserResponse> getNameUserById(
             @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
@@ -73,6 +82,7 @@ public class UserController {
 
     // get profile user by id from token
     @GetMapping("/get-profile")
+    @Operation(summary = "Get My Profile", description = "Retrieve the profile of the authenticated user")
     public ResponseEntity<UserProfileResponse> getProfileUserById(
             @RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
@@ -83,6 +93,7 @@ public class UserController {
 
     // update profile user by id from token
     @PatchMapping(value = "/update-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update My Profile", description = "Update the profile of the authenticated user, including avatar upload")
     public ResponseEntity<UserProfileResponse> updateProfileUserById(
             @RequestHeader("Authorization") String authHeader,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar,
@@ -98,6 +109,7 @@ public class UserController {
 
     // change password
     @PatchMapping("/change-password")
+    @Operation(summary = "Change My Password", description = "Change the password of the authenticated user")
     public ResponseEntity<Void> changePassword(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody @Valid ChangePassRequestDto changePassRequest) {
