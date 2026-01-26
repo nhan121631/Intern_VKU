@@ -166,7 +166,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-4 overflow-y-auto max-h-96">
           {loading ? (
             <div className="py-12 text-center text-gray-500">Loading...</div>
           ) : error ? (
@@ -176,7 +176,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
               No history available.
             </div>
           ) : (
-            <div className="overflow-y-auto max-h-80">
+            <div>
               <table className="min-w-full bg-white divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -215,7 +215,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           )}
         </div>
         {detail && (
-          <div className="p-4 border-t bg-gray-50">
+          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-80">
             <h4 className="text-sm font-medium mb-2">Update details</h4>
             <div className="text-xs text-gray-600 mb-2">
               Updated by: {detail.updateBy || detail.updatedByName}
