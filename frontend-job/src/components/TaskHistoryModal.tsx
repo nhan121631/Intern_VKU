@@ -144,7 +144,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
         onClick={handleClose}
       />
 
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
@@ -166,7 +166,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           </button>
         </div>
 
-        <div className="p-4 overflow-y-auto max-h-96">
+        <div className="p-4 overflow-y-auto max-h-96 flex-1">
           {loading ? (
             <div className="py-12 text-center text-gray-500">Loading...</div>
           ) : error ? (
@@ -215,7 +215,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           )}
         </div>
         {detail && (
-          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-80">
+          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-60 flex-shrink-0">
             <h4 className="text-sm font-medium mb-2">Update details</h4>
             <div className="text-xs text-gray-600 mb-2">
               Updated by: {detail.updateBy || detail.updatedByName}
@@ -310,7 +310,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
             })()}
           </div>
         )}
-        <div className="flex justify-end gap-2 p-4 border-t">
+        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
           <button
             onClick={handleClose}
             className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
