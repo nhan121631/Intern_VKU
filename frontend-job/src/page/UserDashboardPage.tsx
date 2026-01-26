@@ -93,7 +93,7 @@ export default function UserDashboardPage() {
               value={createdAtFrom}
               onChange={handleDateChange}
               max={createdAtTo || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
           <div className="flex gap-2 items-center justify-center">
@@ -104,7 +104,7 @@ export default function UserDashboardPage() {
               value={createdAtTo}
               onChange={handleDateChange}
               min={createdAtFrom || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
         </div>

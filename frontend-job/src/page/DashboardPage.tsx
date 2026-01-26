@@ -184,7 +184,7 @@ export default function DashboardPage() {
               value={createdAtFrom}
               onChange={handleDateChange}
               max={createdAtTo || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
           <div className="flex gap-2 items-center justify-center">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
               value={createdAtTo}
               onChange={handleDateChange}
               min={createdAtFrom || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
         </div>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
               <select
                 value={userId}
                 onChange={(e) => setUserId(Number(e.target.value))}
-                className="border rounded-lg px-3 py-2 w-60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border rounded-lg px-3 py-2 w-60 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
               >
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>

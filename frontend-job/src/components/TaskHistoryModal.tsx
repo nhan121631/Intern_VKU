@@ -215,7 +215,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           )}
         </div>
         {detail && (
-          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-60 flex-shrink-0">
+          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-60 shrink-0">
             <h4 className="text-sm font-medium mb-2">Update details</h4>
             <div className="text-xs text-gray-600 mb-2">
               Updated by: {detail.updateBy || detail.updatedByName}
@@ -310,7 +310,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
             })()}
           </div>
         )}
-        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
+        <div className="flex justify-end gap-2 p-4 border-t shrink-0">
           <button
             onClick={handleClose}
             className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"

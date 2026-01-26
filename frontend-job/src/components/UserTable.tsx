@@ -61,7 +61,7 @@ const UserTable: React.FC<Props> = ({
         <select
           value={size ?? 10}
           onChange={(e) => onSizeChange && onSizeChange(Number(e.target.value))}
-          className="border rounded px-2 py-1"
+          className="border rounded px-2 py-1 cursor-pointer"
         >
           <option value={5}>5</option>
           <option value={10}>10</option>

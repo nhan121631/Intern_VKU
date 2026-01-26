@@ -36,7 +36,6 @@ export default function MyTaskPage() {
   return (
     <div className="p-6">
       {/* Success Message */}
-      {/* Success Message */}
       {successMessage && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <CheckCircle className="w-5 h-5" />
