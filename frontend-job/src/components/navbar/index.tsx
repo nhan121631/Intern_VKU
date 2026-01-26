@@ -8,7 +8,6 @@ import type { NameUserResponse } from "../../types/type";
 import { Bell, Menu, X } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/vi";
 import {
   collection,
   doc,
@@ -22,7 +21,7 @@ import { db } from "../../lib/fire-base";
 import Notification from "../Notification";
 
 dayjs.extend(relativeTime);
-dayjs.locale("vi");
+dayjs.locale("en");
 
 type Notification = {
   id: string;
