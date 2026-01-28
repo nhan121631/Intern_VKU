@@ -1,11 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router";
-import routes from "../../routes";
-import { useAuthStore } from "../../stores/useAuthorStore";
-import { getNameUser } from "../../service/UserService";
-import type { NameUserResponse } from "../../types/type";
-import { Bell, Menu, X } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -17,8 +10,15 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { Bell, Sun, Moon } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { db } from "../../lib/fire-base";
+import { getNameUser } from "../../service/UserService";
+import { useAuthStore } from "../../stores/useAuthorStore";
+import type { NameUserResponse } from "../../types/type";
 import Notification from "../Notification";
+import { ThemeContext } from "../../context/ThemeContext";
 
 dayjs.extend(relativeTime);
 dayjs.locale("en");
@@ -34,7 +34,6 @@ type Notification = {
 };
 
 export const NavBar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
   const loggedInUser = useAuthStore((state) => state.loggedInUser);
   const logOut = useAuthStore((state) => state.logOut);
   const [fullName, setFullName] = useState<string>("");
@@ -48,18 +47,16 @@ export const NavBar = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const notificationsPerPage = 5;
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-
+  const { isDark, setIsDark } = useContext(ThemeContext);
   const [notif, setNotif] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
-
+  const handleClick = () => {
+    setIsDark(!isDark);
+    localStorage.setItem("theme", isDark ? "light" : "dark");
+  };
   const navigate = useNavigate();
-
-  const userRoles: string[] =
-    loggedInUser?.roles?.map((role: any) =>
-      typeof role === "string" ? role.toLowerCase() : role.code?.toLowerCase(),
-    ) || [];
 
   useEffect(() => {
     if (!loggedInUser) return;
@@ -122,7 +119,7 @@ export const NavBar = () => {
   const handleLogout = () => {
     setTimeout(() => {
       logOut();
-      window.location.href = "/login";
+      navigate("/");
     }, 900);
   };
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -266,84 +263,35 @@ export const NavBar = () => {
   );
 
   return (
-    <nav
-      className="text-white px-6 py-4 shadow-lg rounded-b-xl "
-      style={{
-        background: "linear-gradient(to right, #7f7fd5, #86a8e7, #91eae4)",
-      }}
-    >
+    <nav className="bg-[#86a8e7] dark:bg-[#1f2937] text-white px-6 py-4 shadow-lg dark:shadow-gray-900 transition-colors duration-300">
       <div className="flex justify-between items-center">
         {/* Logo */}
         <div className="text-2xl font-bold tracking-wide">Task Management</div>
 
-        {/* Hamburger Icon */}
-        <div className="md:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)}>
-            {menuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
-          </button>
-        </div>
-
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-6">
-          {routes.map((route) => {
-            if (route.showOnMenu === false) {
-              return null;
-            }
-            const routeRoles: string[] =
-              route.roles?.map((role: string) => role?.toLowerCase()) || [];
-
-            const hasAccess =
-              route.isPublic ||
-              routeRoles.length === 0 ||
-              userRoles.some((role: string) => {
-                return (
-                  role === "administrators" ||
-                  routeRoles.includes(role?.toLowerCase())
-                );
-              });
-            if (!hasAccess) {
-              return null;
-            }
-            return (
-              <li key={route.path}>
-                <NavLink
-                  to={route.path}
-                  className={({ isActive }) =>
-                    `block px-4 py-2 rounded-full text-base font-medium transition-all duration-300
-                   ${
-                     isActive
-                       ? "bg-white text-[#7f7fd5] shadow-md"
-                       : "hover:bg-white hover:text-[#7f7fd5] hover:shadow"
-                   }`
-                  }
-                >
-                  {route.name}
-                </NavLink>
-              </li>
-            );
-          })}
-        </ul>
-
-        {/* Auth Buttons - Desktop */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Right Section */}
+        <div className="flex items-center gap-4">
+          <div className="">
+            <button
+              onClick={handleClick}
+              className="text-white dark:text-gray-200 hover:text-yellow-300 dark:hover:text-yellow-400 transition"
+            >
+              {isDark ? (
+                <Sun className="h-6 w-6" />
+              ) : (
+                <Moon className="h-6 w-6" />
+              )}
+            </button>
+          </div>
+          {/* Notification */}
           {loggedInUser && (
             <div className="relative">
               <button
                 onClick={() => setNotificationOpen((prev) => !prev)}
                 className="relative focus:outline-none"
               >
-                <Bell className="w-6 h-6 text-white hover:text-blue-200 transition cursor-pointer" />
-
+                <Bell className="w-6 h-6 text-white dark:text-gray-200 hover:text-blue-200 dark:hover:text-blue-300 transition" />
                 {unreadCount > 0 && (
-                  <span
-                    className="absolute -top-1 -right-1 min-w-4.5 h-4.5
-            px-1 text-xs bg-red-500 text-white rounded-full
-            flex items-center justify-center"
-                  >
+                  <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 text-xs bg-red-500 dark:bg-red-600 text-white rounded-full flex items-center justify-center font-bold shadow-md">
                     {unreadCount}
                   </span>
                 )}
@@ -363,20 +311,23 @@ export const NavBar = () => {
             </div>
           )}
 
+          {/* User Info & Auth */}
           {loggedInUser ? (
-            <div>
-              <span className="mr-4">Hello, {fullName}</span>
+            <div className="flex items-center gap-4">
+              <span className="font-medium text-white dark:text-gray-200">
+                Hello, {fullName}
+              </span>
               <button
                 onClick={handleLogout}
-                className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
+                className="bg-white dark:bg-gray-700 text-[#7f7fd5] dark:text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-50 dark:hover:bg-gray-600 transition shadow-sm"
               >
                 Log Out
               </button>
             </div>
           ) : (
             <button
-              onClick={() => (window.location.href = "/login")}
-              className="bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
+              onClick={() => navigate("/login")}
+              className="bg-white dark:bg-gray-700 text-[#7f7fd5] dark:text-white px-4 py-2 rounded-full font-semibold hover:bg-blue-50 dark:hover:bg-gray-600 transition shadow-sm"
             >
               Log In
             </button>
@@ -384,84 +335,6 @@ export const NavBar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="mt-4 md:hidden space-y-2">
-          {/* {menuItems.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={() => setMenuOpen(false)}
-              className={({ isActive }) =>
-                `block w-full px-4 py-2 rounded-full text-base font-medium transition-all duration-300
-                 ${
-                   isActive
-                     ? "bg-white text-[#7f7fd5] shadow-md"
-                     : "hover:bg-white hover:text-[#7f7fd5] hover:shadow"
-                 }`
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))} */}
-          <ul className="md:flex space-x-6">
-            {routes.map((route) => {
-              if (route.showOnMenu === false) {
-                return null;
-              }
-              const routeRoles: string[] =
-                route.roles?.map((role: string) => role?.toLowerCase()) || [];
-
-              const hasAccess =
-                route.isPublic ||
-                routeRoles.length === 0 ||
-                userRoles.some((role: string) => {
-                  return (
-                    role === "administrators" ||
-                    routeRoles.includes(role?.toLowerCase())
-                  );
-                });
-              if (!hasAccess) {
-                return null;
-              }
-              return (
-                <li key={route.path}>
-                  <NavLink
-                    to={route.path}
-                    className={({ isActive }) =>
-                      `block px-4 py-2 rounded-full text-base font-medium transition-all duration-300
-                   ${
-                     isActive
-                       ? "bg-white text-[#7f7fd5] shadow-md"
-                       : "hover:bg-white hover:text-[#7f7fd5] hover:shadow"
-                   }`
-                    }
-                  >
-                    {route.name}
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* Auth Buttons - Mobile */}
-          {loggedInUser ? (
-            <button
-              onClick={handleLogout}
-              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
-            >
-              Log Out
-            </button>
-          ) : (
-            <button
-              onClick={() => (window.location.href = "/login")}
-              className="w-full bg-white text-[#7f7fd5] px-4 py-2 rounded-full font-semibold hover:bg-blue-100 transition cursor-pointer"
-            >
-              Log In
-            </button>
-          )}
-        </div>
-      )}
       {notif && (
         <Notification
           message={notif.message}

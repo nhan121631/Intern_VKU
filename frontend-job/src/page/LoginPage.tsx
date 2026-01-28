@@ -7,7 +7,7 @@ import { useNavigate } from "react-router";
 
 export default function LoginPage() {
   const { login, loginWithGoogle, error, loggedInUser, loading } = useAuthStore(
-    (state) => state
+    (state) => state,
   );
   const navigate = useNavigate();
   const [notif, setNotif] = useState<{
@@ -25,7 +25,7 @@ export default function LoginPage() {
     const t = setTimeout(() => {
       // Handle both string[] and object[] roles
       const roleNames = loggedInUser.roles.map((r: any) =>
-        typeof r === "string" ? r : r.name
+        typeof r === "string" ? r : r.name,
       );
 
       if (roleNames.includes("Administrators")) {
@@ -63,17 +63,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white">
-      <div className="w-105  p-7 bg-white rounded-xl shadow-lg border border-gray-100 relative">
+    <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white dark:from-gray-900 dark:to-gray-800 bg-linear-to-b">
+      <div className="w-105  p-7 bg-white rounded-xl shadow-lg border border-gray-100 relative dark:bg-gray-800 dark:border-gray-700">
         {loading && (
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl z-10">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl z-10 dark:bg-gray-700 dark:bg-opacity-80 dark:text-white">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
               <span className="text-sm text-gray-600">Loading...</span>
             </div>
           </div>
         )}
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center dark:text-white">
           Login
         </h2>
         <LoginForm

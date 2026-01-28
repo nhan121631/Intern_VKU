@@ -55,7 +55,7 @@ export default function ManageUserPage() {
         setHasNext(Boolean(res.hasNext));
         setHasPrevious(Boolean(res.hasPrevious));
         setTotalPages(
-          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size))
+          Number(res.totalPages ?? Math.ceil((res.totalElements || 0) / size)),
         );
       } else if (Array.isArray(res)) {
         setUsers(res as User[]);
@@ -92,7 +92,7 @@ export default function ManageUserPage() {
         "Changing status for user:",
         userId,
         "Current isActive:",
-        isActive
+        isActive,
       );
 
       setChangingStatusId(userId);
@@ -101,8 +101,8 @@ export default function ManageUserPage() {
       await changeUserStatus(userId, newStatus);
       setUsers((prevUsers) =>
         prevUsers.map((user) =>
-          user.id === userId ? { ...user, isActive: newStatus } : user
-        )
+          user.id === userId ? { ...user, isActive: newStatus } : user,
+        ),
       );
       setNotification({
         type: "success",
@@ -140,16 +140,18 @@ export default function ManageUserPage() {
       )}
 
       {confirmModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Confirm Deactivation</h3>
-            <p className="text-gray-600 mb-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 dark:bg-black/70">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 dark:bg-gray-800">
+            <h3 className="text-lg font-semibold mb-4 dark:text-gray-100">
+              Confirm Deactivation
+            </h3>
+            <p className="text-gray-600 mb-6 dark:text-gray-300">
               Are you sure you want to deactivate this user?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmModal(null)}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
               >
                 Cancel
               </button>
@@ -157,7 +159,7 @@ export default function ManageUserPage() {
                 onClick={() =>
                   performStatusChange(
                     confirmModal.userId,
-                    confirmModal.isActive
+                    confirmModal.isActive,
                   )
                 }
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -171,10 +173,12 @@ export default function ManageUserPage() {
 
       {loading ? (
         <div className="relative">
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded z-10">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded z-10 dark:bg-gray-800/80">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-600">Loading users...</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Loading ...
+              </span>
             </div>
           </div>
           <div className="h-40" />

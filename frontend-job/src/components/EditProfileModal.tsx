@@ -117,19 +117,21 @@ export default function EditProfileModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 dark:bg-black/40">
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm dark:bg-black/60"
         onClick={() => !saving && onClose()}
       />
 
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 dark:bg-gray-800 z-10">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Edit Profile</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            Edit Profile
+          </h3>
           <button
             type="button"
             onClick={() => !saving && onClose()}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer"
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
           >
             <X className="w-5 h-5" />
           </button>
@@ -156,7 +158,7 @@ export default function EditProfileModal({
             </div>
 
             <div className="flex-1">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
                 Avatar
               </label>
               <div className="flex flex-wrap gap-2">
@@ -176,21 +178,16 @@ export default function EditProfileModal({
                 >
                   Choose file
                 </button>
-                {/* <button
-                  type="button"
-                  onClick={handleRemoveAvatar}
-                  className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
-                >
-                  Remove
-                </button> */}
               </div>
-              <p className="text-xs text-gray-500 mt-2">PNG, JPG — up to 2MB</p>
+              <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">
+                PNG, JPG — up to 2MB
+              </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
                 Full name <span className="text-red-500">*</span>
               </label>
               <input
@@ -210,7 +207,7 @@ export default function EditProfileModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
                 Phone
               </label>
               <input
@@ -231,7 +228,7 @@ export default function EditProfileModal({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
               Address
             </label>
             <input
@@ -245,7 +242,7 @@ export default function EditProfileModal({
             <button
               type="button"
               onClick={() => !saving && onClose()}
-              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-600"
               disabled={saving}
             >
               Cancel

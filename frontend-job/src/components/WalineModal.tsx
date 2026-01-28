@@ -24,6 +24,12 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
       }
 
       // 1. Khởi tạo Waline
+      // Detect current page theme (Tailwind 'dark' class or prefers-color-scheme)
+      const isDark =
+        typeof document !== "undefined" &&
+        (document.documentElement.classList.contains("dark") ||
+          window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+
       walineInstanceRef.current = init({
         el: containerRef.current,
         serverURL: SERVER_URL,
@@ -33,7 +39,8 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
           placeholder: "Enter detailed discussion content here...",
         },
         meta: ["nick", "mail"],
-        dark: false,
+        // Follow the current page/theme; Waline accepts boolean for dark
+        dark: Boolean(isDark),
         emoji: [
           "//unpkg.com/@waline/emojis@1.1.0/weibo",
           "//unpkg.com/@waline/emojis@1.1.0/bilibili",
@@ -78,22 +85,22 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
         onClick={onClose}
       />
 
-      <div className="relative bg-white w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-white dark:bg-slate-900 w-full max-w-5xl h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 z-10 shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 z-10 shrink-0">
           <h3 className="text-xl font-bold text-gray-800">
             Discussion (Task #{taskId})
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-red-600 hover:bg-gray-200 rounded-full p-2 transition-colors cursor-pointer"
+            className="text-gray-500 dark:text-gray-300 hover:text-red-600 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full p-2 transition-colors cursor-pointer"
           >
             <X size={20} />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto bg-white p-6 md:p-8">
+        <div className="flex-1 overflow-y-auto bg-white dark:bg-slate-900 text-gray-800 dark:text-gray-100 p-6 md:p-8">
           {/* Container Waline */}
           <div ref={containerRef} className="waline-container" />
         </div>

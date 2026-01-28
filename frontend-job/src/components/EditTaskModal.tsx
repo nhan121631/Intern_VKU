@@ -154,16 +154,18 @@ export default function EditTaskModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity dark:bg-black/60"
         onClick={() => {
           if (!saving) onClose();
         }}
       />
 
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit(submit)} className="p-8">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-gray-800">Edit Task</h3>
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              Edit Task
+            </h3>
             <button
               type="button"
               onClick={() => {
@@ -176,12 +178,12 @@ export default function EditTaskModal({
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
               Title <span className="text-red-500">*</span>
             </label>
             <input
               {...register("title", { required: "Title is required" })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-gray-200"
               placeholder="Enter task title"
             />
             {errors.title && (
@@ -193,31 +195,31 @@ export default function EditTaskModal({
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
               Description
             </label>
             <textarea
               {...register("description")}
               rows={4}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none dark:bg-gray-700 dark:text-gray-200 "
               placeholder="Enter task description (optional)"
             />
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
               Assigned To
             </label>
             {isAssigneeDisabled ? (
               <input
                 readOnly
                 value={selectedAssigneeName}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none transition-all"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-100 focus:outline-none transition-all dark:bg-gray-700 dark:text-gray-200"
               />
             ) : (
               <select
                 {...register("assignedUserId")}
-                className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer`}
+                className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer dark:bg-gray-700 dark:text-gray-200`}
               >
                 <option value="">Select assignee...</option>
                 {(userFullNames || []).map((user) => (
@@ -238,12 +240,12 @@ export default function EditTaskModal({
 
           <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
                 Status
               </label>
               <select
                 {...register("status")}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
               >
                 <option value="OPEN">Open</option>
                 <option value="IN_PROGRESS">In Progress</option>
@@ -253,13 +255,13 @@ export default function EditTaskModal({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2 dark:text-gray-300">
                 Deadline
               </label>
               <input
                 type="date"
                 {...register("deadline")}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all dark:bg-gray-700 dark:text-gray-200"
               />
             </div>
           </div>
@@ -271,7 +273,7 @@ export default function EditTaskModal({
                   {...register("allowUserUpdate")}
                   className="form-checkbox h-5 w-5 text-blue-600"
                 />
-                <span className="ml-2 text-gray-700">
+                <span className="ml-2 text-gray-700 dark:text-gray-300">
                   Allow assigned user to update the task
                 </span>
               </label>
@@ -281,7 +283,7 @@ export default function EditTaskModal({
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
-              className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer"
+              className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               onClick={() => {
                 if (!saving) onClose();
               }}

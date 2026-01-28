@@ -57,7 +57,7 @@ export default function MyTaskPage() {
           className={`px-4 py-2 rounded text-white transition-colors ${
             exportLoading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600 cursor-pointer"
+              : "bg-green-500 hover:bg-green-600 dark:bg-green-700 cursor-pointer"
           }`}
           onClick={handleExport}
           disabled={exportLoading}

@@ -86,6 +86,18 @@ export const TaskList: React.FC<TaskListProps> = ({
     return n.toString().padStart(2, "0");
   }
 
+  // today's date in `YYYY-MM-DD` format for input max validation
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
+    today.getDate(),
+  )}`;
+
+  function minDate(a?: string, b?: string) {
+    if (!a) return b;
+    if (!b) return a;
+    return a <= b ? a : b;
+  }
+
   function formatDate(s?: string) {
     const d = parseToDate(s);
     if (!d) return "";
@@ -134,12 +146,24 @@ export const TaskList: React.FC<TaskListProps> = ({
       newCreatedTo = value;
       setFilterCreatedTo(newCreatedTo);
     }
+    // validate range
     if (newCreatedFrom && newCreatedTo && newCreatedFrom > newCreatedTo) {
       setDateError("'Created From' cannot be later than 'Created To'");
       return;
-    } else {
-      setDateError(null);
     }
+
+    // prevent selecting future dates
+    if (newCreatedFrom && newCreatedFrom > todayStr) {
+      setDateError("'Created From' cannot be in the future");
+      return;
+    }
+
+    if (newCreatedTo && newCreatedTo > todayStr) {
+      setDateError("'Created To' cannot be in the future");
+      return;
+    }
+
+    setDateError(null);
 
     setDataSearch("");
     onFilters({
@@ -199,38 +223,40 @@ export const TaskList: React.FC<TaskListProps> = ({
   const cancelConfirmDelete = () => setDeleteTarget(null);
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Tasks</h2>
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-semibold">Tasks</h2>
+
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-xs">
             <input
               type="text"
               placeholder="Search..."
               value={dataSearch}
               onChange={(e) => setDataSearch(e.target.value)}
-              className="border rounded px-2 py-1"
+              className="border rounded px-2 py-1 text-xs w-32"
             />
             <button
-              className="px-3 py-1 bg-blue-500 text-white rounded cursor-pointer"
+              className="px-2 py-1 bg-blue-500 text-white rounded text-xs cursor-pointer"
               onClick={handleSearch}
             >
               Search
             </button>
           </div>
 
-          <div className="flex flex-col gap-4 text-sm">
-            <div className="font-medium text-gray-700">Filters</div>
-
-            {/* Row 1 */}
-            <div className="flex flex-wrap gap-6">
-              {/* Status */}
+          <div className="bg-gray-50 border border-gray-200 rounded p-1.5 dark:bg-gray-700">
+            <div className="flex items-center gap-2 text-xs mb-1">
+              <span className="text-xs font-medium text-gray-600 dark:text-white">
+                Filters
+              </span>
               <div className="flex items-center gap-1">
-                <label className="w-20 text-gray-600">Status:</label>
+                <label className="text-gray-600 dark:text-gray-300">
+                  Status
+                </label>
                 <select
                   name="status"
                   value={filterStatus}
                   onChange={handleFilters}
-                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                  className="h-7 w-24 border rounded px-1 cursor-pointer text-xs dark:bg-gray-700 dark:text-white"
                 >
                   <option value="all">All</option>
                   <option value="OPEN">Open</option>
@@ -240,15 +266,16 @@ export const TaskList: React.FC<TaskListProps> = ({
                 </select>
               </div>
 
-              {/* Assignee */}
               {isOurTask && (
                 <div className="flex items-center gap-1">
-                  <label className="w-20 text-gray-600">Assignee:</label>
+                  <label className="text-gray-600 dark:text-gray-300">
+                    Assignee
+                  </label>
                   <select
                     name="userId"
                     value={filterUserId ?? ""}
                     onChange={handleFilters}
-                    className="h-10 w-40 border rounded px-3 cursor-pointer"
+                    className="h-7 w-28 border rounded px-1 cursor-pointer text-xs dark:bg-gray-700 dark:text-white"
                   >
                     <option value="">All Users</option>
                     {userFullNames.map((user) => (
@@ -259,74 +286,72 @@ export const TaskList: React.FC<TaskListProps> = ({
                   </select>
                 </div>
               )}
-            </div>
 
-            {/* Row 2 */}
-            <div className="flex flex-wrap gap-6">
-              {/* Created */}
               <div className="flex items-center gap-1">
-                <label className="w-20 text-gray-600">Created From:</label>
+                <label className="text-gray-600 dark:text-gray-300">
+                  Created
+                </label>
                 <input
                   type="date"
                   name="createdFrom"
                   value={filterCreateAt}
                   onChange={handleFilters}
-                  max={filterCreatedTo || undefined}
-                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                  max={minDate(filterCreatedTo, todayStr) || todayStr}
+                  className="h-7 w-28 border rounded px-1 cursor-pointer text-xs"
                 />
-              </div>
-
-              {/* Deadline */}
-              <div className="flex items-center gap-1">
-                <label className="w-20 text-gray-600">Created to:</label>
+                <span className="text-gray-400">—</span>
                 <input
                   type="date"
                   name="createdTo"
                   value={filterCreatedTo}
                   onChange={handleFilters}
                   min={filterCreateAt || undefined}
-                  className="h-10 w-40 border rounded px-3 cursor-pointer"
+                  max={todayStr}
+                  className="h-7 w-28 border rounded px-1 cursor-pointer text-xs"
                 />
               </div>
-            </div>
-            {dateError && (
-              <div className="w-full">
-                <div className="text-sm text-red-600 mt-1">{dateError}</div>
-              </div>
-            )}
-          </div>
 
-          <div className="flex items-center space-x-2">
-            <label>Page size:</label>
-            <select
-              value={size}
-              onChange={(e) => {
-                onSizeChange(Number(e.target.value));
-                onPageChange(0);
-              }}
-              className="border rounded px-2 py-1 cursor-pointer"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-            </select>
+              <div className="flex items-center gap-1 ml-2">
+                <label className="text-gray-600 dark:text-gray-300">
+                  Page size:
+                </label>
+                <select
+                  value={size}
+                  onChange={(e) => {
+                    onSizeChange(Number(e.target.value));
+                    onPageChange(0);
+                  }}
+                  className="h-7 border rounded px-1 py-0.5 cursor-pointer text-xs dark:bg-gray-700 dark:text-white"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                </select>
+              </div>
+            </div>
+
+            {dateError && (
+              <div className="text-xs text-red-600 mt-0.5">{dateError}</div>
+            )}
           </div>
         </div>
       </div>
 
       {loading ? (
         <div className="relative">
-          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded z-10">
+          <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded z-10 dark:bg-gray-800/80">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-600">Loading...</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Loading...
+              </span>
             </div>
           </div>
           <div className="h-40" />
         </div>
       ) : error ? (
         <div className="w-full flex items-center justify-center py-8">
-          <div className="bg-red-50 border border-red-100 text-red-700 px-6 py-4 rounded-lg shadow-sm max-w-xl w-full">
+          <div className="bg-red-50 border border-red-100 text-red-700 px-6 py-4 rounded-lg shadow-sm max-w-xl w-full dark:bg-red-900/30 dark:border-red-800 dark:text-red-300">
             <div className="flex items-center gap-4">
               <div>
                 <AlertCircle className="w-6 h-6" />
@@ -348,8 +373,8 @@ export const TaskList: React.FC<TaskListProps> = ({
         </div>
       ) : tasks.length === 0 ? (
         <div className="w-full flex items-center justify-center py-12">
-          <div className="text-center text-gray-600">
-            <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+          <div className="text-center text-gray-600 dark:text-gray-300">
+            <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-300" />
             <div className="text-lg font-semibold">No tasks yet</div>
             <div className="text-sm mt-2">
               There are currently no tasks to show.
@@ -358,8 +383,8 @@ export const TaskList: React.FC<TaskListProps> = ({
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th
                   onClick={() => {
@@ -369,7 +394,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                       handleSort("id", order === "asc" ? "desc" : "asc");
                     }
                   }}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none dark:text-gray-300"
                 >
                   <div className="flex items-center gap-1">
                     ID
@@ -392,7 +417,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                       handleSort("title", order === "asc" ? "desc" : "asc");
                     }
                   }}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none dark:text-gray-300"
                 >
                   <div className="flex items-center gap-1">
                     Title
@@ -408,13 +433,13 @@ export const TaskList: React.FC<TaskListProps> = ({
                   </div>
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                   Assigned
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                   Status
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                   Descripton
                 </th>
 
@@ -426,7 +451,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                       handleSort("createdAt", order === "asc" ? "desc" : "asc");
                     }
                   }}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none dark:text-gray-300"
                 >
                   <div className="flex items-center gap-1">
                     Created At
@@ -449,7 +474,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                       handleSort("deadline", order === "asc" ? "desc" : "asc");
                     }
                   }}
-                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none dark:text-gray-300"
                 >
                   <div className="flex items-center gap-1">
                     Deadline
@@ -465,26 +490,28 @@ export const TaskList: React.FC<TaskListProps> = ({
                   </div>
                 </th>
 
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
               {tasks.map((t, idx) => (
                 <tr
                   key={t.id}
                   className={
                     idx % 2 === 0
-                      ? "bg-white hover:bg-gray-50"
-                      : "bg-gray-50 hover:bg-gray-100"
+                      ? "bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600"
                   }
                 >
-                  <td className="px-4 py-3 text-sm text-gray-700">{t.id}</td>
-                  <td className="px-4 py-3 text-sm text-gray-800 font-medium">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                    {t.id}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-800 font-medium dark:text-gray-100">
                     {t.title}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     {t.assignedFullName}
                   </td>
                   <td className="px-4 py-3 text-sm">
@@ -513,14 +540,14 @@ export const TaskList: React.FC<TaskListProps> = ({
                     </span>
                   </td>
                   {/* line-clamp-3 */}
-                  <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
+                  <td className="px-4 py-3 text-sm text-gray-700 max-w-xs dark:text-gray-300">
                     {t.description}
                   </td>
 
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {formatDate(t.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     {formatDate(t.deadline)}
                   </td>
                   <td className="px-4 py-3 text-sm flex space-x-2">

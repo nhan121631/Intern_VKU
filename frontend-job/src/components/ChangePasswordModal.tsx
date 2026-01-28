@@ -70,15 +70,17 @@ export default function ChangePasswordModal({
           }}
         />
 
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 dark:bg-gray-800 z-10">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-gray-900">Change Password</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              Change Password
+            </h3>
             <button
               type="button"
               onClick={() => {
                 if (!saving) onClose();
               }}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer"
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors cursor-pointer dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
             >
               <X className="w-5 h-5" />
             </button>
@@ -86,14 +88,14 @@ export default function ChangePasswordModal({
 
           <div className="space-y-5">
             <div>
-              <label className="block mb-2 text-sm font-semibold text-gray-900">
+              <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
                 Current Password
               </label>
               <input
                 type="password"
                 {...register("currentPassword")}
                 placeholder="Enter current password"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
               />
               {errors.currentPassword && (
                 <p className="text-red-500 text-sm mt-1">
@@ -102,14 +104,14 @@ export default function ChangePasswordModal({
               )}
             </div>
             <div>
-              <label className="block mb-2 text-sm font-semibold text-gray-900">
+              <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
                 New Password
               </label>
               <input
                 type="password"
                 {...register("newPassword")}
                 placeholder="Enter new password"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
               />
               {errors.newPassword && (
                 <p className="text-red-500 text-sm mt-1">
@@ -118,14 +120,14 @@ export default function ChangePasswordModal({
               )}
             </div>
             <div>
-              <label className="block mb-2 text-sm font-semibold text-gray-900">
+              <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
                 Confirm New Password
               </label>
               <input
                 type="password"
                 {...register("confirmNewPassword")}
                 placeholder="Confirm new password"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
               />
               {errors.confirmNewPassword && (
                 <p className="text-red-500 text-sm mt-1">
@@ -141,7 +143,7 @@ export default function ChangePasswordModal({
               onClick={() => {
                 if (!saving) onClose();
               }}
-              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors font-medium cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-600"
               disabled={saving}
             >
               Cancel

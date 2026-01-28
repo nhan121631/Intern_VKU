@@ -8,6 +8,14 @@ import OurTaskPage from "../page/OurTaskPage";
 import ProfilePage from "../page/ProfilePage";
 import RegisterPage from "../page/RegisterPage";
 import UserDashboardPage from "../page/UserDashboardPage";
+import {
+  Home,
+  ListTodo,
+  BarChart3,
+  ClipboardList,
+  Users,
+  User,
+} from "lucide-react";
 
 const routes = [
   {
@@ -42,6 +50,7 @@ const routes = [
     showOnMenu: true,
     isPublic: true,
     name: "Home",
+    icon: Home,
     index: true,
     element: <HomePage />,
     roles: [],
@@ -51,6 +60,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "Our Task",
+    icon: ListTodo,
     index: true,
     element: <OurTaskPage />,
     roles: ["administrators"],
@@ -61,6 +71,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "Dashboard",
+    icon: BarChart3,
     index: true,
     element: <DashboardPage />,
     roles: ["administrators"],
@@ -70,6 +81,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "My Task",
+    icon: ClipboardList,
     index: true,
     element: <MyTaskPage />,
     roles: ["administrators", "users"],
@@ -79,6 +91,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "My Dashboard",
+    icon: BarChart3,
     index: true,
     element: <UserDashboardPage />,
     roles: ["users"],
@@ -89,6 +102,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "Manage User",
+    icon: Users,
     index: true,
     element: <ManageUserPage />,
     roles: ["administrators"],
@@ -98,6 +112,7 @@ const routes = [
     showOnMenu: true,
     isPublic: false,
     name: "Profile",
+    icon: User,
     index: true,
     element: <ProfilePage />,
     roles: ["administrators", "users"],

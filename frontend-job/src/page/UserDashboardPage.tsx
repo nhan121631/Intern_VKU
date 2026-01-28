@@ -18,6 +18,14 @@ export default function UserDashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [createdAtFrom, setCreatedAtFrom] = useState<string>("");
   const [createdAtTo, setCreatedAtTo] = useState<string>("");
+  // today's date in `YYYY-MM-DD` format for input max validation
+  function pad(n: number) {
+    return n.toString().padStart(2, "0");
+  }
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(
+    today.getDate(),
+  )}`;
 
   useEffect(() => {
     const shouldFetchUnfiltered = !createdAtFrom && !createdAtTo;
@@ -61,6 +69,13 @@ export default function UserDashboardPage() {
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    // Prevent selecting future dates
+    if (value && value > todayStr) {
+      setError("Date cannot be in the future");
+      return;
+    }
+
+    setError(null);
     if (name === "createdAtFrom") {
       setCreatedAtFrom(value);
     }
@@ -80,30 +95,35 @@ export default function UserDashboardPage() {
   return (
     <div className="p-6 space-y-8">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">My Dashboard</h1>
 
         {/* created from and to */}
         <div className="flex gap-4">
           {/* Future enhancement: Date range picker for filtering statistics */}
           <div className="flex gap-2 items-center justify-center">
-            <label className="text-gray-700 font-semibold">Created From:</label>
+            <label className="text-gray-700 font-semibold dark:text-gray-300">
+              Created From:
+            </label>
             <input
               type="date"
               name="createdAtFrom"
               value={createdAtFrom}
               onChange={handleDateChange}
-              max={createdAtTo || undefined}
+              max={createdAtTo || todayStr}
               className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
           <div className="flex gap-2 items-center justify-center">
-            <label className="text-gray-700 font-semibold">Created To:</label>
+            <label className="text-gray-700 font-semibold dark:text-gray-300">
+              Created To:
+            </label>
             <input
               type="date"
               name="createdAtTo"
               value={createdAtTo}
               onChange={handleDateChange}
               min={createdAtFrom || undefined}
+              max={todayStr}
               className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
           </div>
@@ -111,12 +131,12 @@ export default function UserDashboardPage() {
       </div>
       {/* ================= USER DETAIL & SUMMARY (side-by-side) ================= */}
       <div className="flex justify-center min-w-full">
-        <div className="bg-white rounded-xl p-4 shadow space-y-4 w-full mx-auto max-w-2xl">
+        <div className="bg-white rounded-xl p-4 shadow space-y-4 w-full mx-auto max-w-2xl dark:bg-gray-700">
           <h2 className="font-semibold">User Statistics</h2>
           {loading ? (
             <div className="flex items-center justify-center p-6">
               <Loader2 className="animate-spin mr-2 h-8 w-8 text-blue-600" />
-              <div className="p-6">Loading user details...</div>
+              <div className="p-6 dark:text-gray-300">Loading...</div>
             </div>
           ) : (
             <>
@@ -140,15 +160,17 @@ export default function UserDashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
 
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm w-full max-w-md">
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm w-full max-w-md dark:text-gray-300">
                   {userDetail.map((item) => (
                     <div key={item.status} className="flex items-center gap-2">
                       <span
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: STATUS_COLORS[item.status] }}
                       />
-                      <span className="text-gray-600">{item.status}</span>
-                      <span className="ml-auto font-semibold text-gray-800">
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {item.status}
+                      </span>
+                      <span className="ml-auto font-semibold text-gray-800 dark:text-gray-300">
                         {item.value}
                       </span>
                     </div>

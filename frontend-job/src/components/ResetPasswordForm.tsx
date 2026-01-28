@@ -48,14 +48,14 @@ export default function ResetPasswordForm({ onSubmit }: Props) {
       className="max-w-90 w-full font-sans"
     >
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           New Password
         </label>
         <input
           type="password"
           {...register("newPassword")}
           placeholder="Enter new password"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.newPassword && (
           <p className="text-red-500 text-sm mt-1">
@@ -65,14 +65,14 @@ export default function ResetPasswordForm({ onSubmit }: Props) {
       </div>
 
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Confirm New Password
         </label>
         <input
           type="password"
           {...register("confirmNewPassword")}
           placeholder="Confirm new password"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.confirmNewPassword && (
           <p className="text-red-500 text-sm mt-1">
@@ -90,7 +90,7 @@ export default function ResetPasswordForm({ onSubmit }: Props) {
         </button>
       </div>
 
-      <div className="mt-4 text-center text-sm text-gray-600">
+      <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
         Remembered your password?{" "}
         <a
           onClick={() => {

@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import {
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
+  Legend,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -161,6 +163,7 @@ export default function DashboardPage() {
           textAnchor="end"
           fontSize={12}
           transform="rotate(-30)"
+          fill="currentColor"
         >
           {payload.value}
         </text>
@@ -173,29 +176,31 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Dashboard</h1>
 
-        {/* created from and to */}
         <div className="flex gap-4">
-          {/* Future enhancement: Date range picker for filtering statistics */}
-          <div className="flex gap-2 items-center justify-center">
-            <label className="text-gray-700 font-semibold">Created From:</label>
+          <div className="flex gap-2 items-center justify-center dark:text-gray-300">
+            <label className="text-gray-700 font-semibold dark:text-gray-300">
+              Created From:
+            </label>
             <input
               type="date"
               name="createdAtFrom"
               value={createdAtFrom}
               onChange={handleDateChange}
               max={createdAtTo || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer dark:text-gray-300"
             />
           </div>
           <div className="flex gap-2 items-center justify-center">
-            <label className="text-gray-700 font-semibold">Created To:</label>
+            <label className="text-gray-700 font-semibold dark:text-gray-300">
+              Created To:
+            </label>
             <input
               type="date"
               name="createdAtTo"
               value={createdAtTo}
               onChange={handleDateChange}
               min={createdAtFrom || undefined}
-              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              className="border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer dark:text-gray-300"
             />
           </div>
         </div>
@@ -203,35 +208,44 @@ export default function DashboardPage() {
       {/* ================= USER DETAIL & SUMMARY (side-by-side) ================= */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* -------- Pie chart (Tasks by Status) -------- */}
-        <div className="bg-white rounded-xl p-5 shadow">
-          <h2 className="font-semibold mb-4">Tasks by Status</h2>
+        <div className="bg-white rounded-xl p-5 shadow dark:bg-gray-700">
+          <h2 className="font-semibold mb-4 dark:text-white">
+            Tasks by Status
+          </h2>
 
           {loadingStats ? (
             <div className="flex items-center justify-center p-6">
               <Loader2 className="animate-spin mr-2 h-8 w-8 text-blue-600" />
-              <div className="p-6">Loading statistics...</div>
+              <div className="p-6 dark:text-gray-300">Loading ...</div>
             </div>
           ) : (
             <>
-              <ResponsiveContainer width="100%" height={240}>
-                <PieChart>
-                  <Pie
-                    data={taskSummary}
-                    dataKey="value"
-                    nameKey="status"
-                    innerRadius={55}
-                    outerRadius={85}
-                  >
-                    {taskSummary.map((item) => (
-                      <Cell
-                        key={item.status}
-                        fill={STATUS_COLORS[item.status]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="text-gray-700 dark:text-gray-300">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie
+                      data={taskSummary}
+                      dataKey="value"
+                      nameKey="status"
+                      innerRadius={55}
+                      outerRadius={85}
+                    >
+                      {taskSummary.map((item) => (
+                        <Cell
+                          key={item.status}
+                          fill={STATUS_COLORS[item.status]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#0f172a",
+                        color: "#cbd5e1",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
 
               {/* Legend */}
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
@@ -241,8 +255,10 @@ export default function DashboardPage() {
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: STATUS_COLORS[item.status] }}
                     />
-                    <span className="text-gray-600">{item.status}</span>
-                    <span className="ml-auto font-semibold text-gray-800">
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {item.status}
+                    </span>
+                    <span className="ml-auto font-semibold text-gray-800 dark:text-gray-200">
                       {item.value}
                     </span>
                   </div>
@@ -253,19 +269,19 @@ export default function DashboardPage() {
         </div>
 
         {/* -------- User Statistics (select + pie) -------- */}
-        <div className="bg-white rounded-xl p-5 shadow space-y-4">
-          <h2 className="font-semibold">User Statistics</h2>
+        <div className="bg-white rounded-xl p-5 shadow space-y-4 dark:bg-gray-700">
+          <h2 className="font-semibold dark:text-white">User Statistics</h2>
           {loadingUserDetail ? (
             <div className="flex items-center justify-center p-6">
               <Loader2 className="animate-spin mr-2 h-8 w-8 text-blue-600" />
-              <div className="p-6">Loading user details...</div>
+              <div className="p-6 dark:text-gray-300">Loading ...</div>
             </div>
           ) : (
             <>
               <select
                 value={userId}
                 onChange={(e) => setUserId(Number(e.target.value))}
-                className="border rounded-lg px-3 py-2 w-60 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                className="border rounded-lg px-3 py-2 w-60 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer dark:text-gray-300 bg-white dark:bg-gray-800"
               >
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
@@ -275,34 +291,43 @@ export default function DashboardPage() {
               </select>
 
               <div>
-                <ResponsiveContainer width="100%" height={240}>
-                  <PieChart>
-                    <Pie
-                      data={userDetail[userId] ?? []}
-                      dataKey="value"
-                      nameKey="status"
-                      outerRadius={85}
-                    >
-                      {(userDetail[userId] ?? []).map((item) => (
-                        <Cell
-                          key={item.status}
-                          fill={STATUS_COLORS[item.status]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="text-gray-700 dark:text-gray-300">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={userDetail[userId] ?? []}
+                        dataKey="value"
+                        nameKey="status"
+                        outerRadius={85}
+                      >
+                        {(userDetail[userId] ?? []).map((item) => (
+                          <Cell
+                            key={item.status}
+                            fill={STATUS_COLORS[item.status]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "#0f172a",
+                          color: "#cbd5e1",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm dark:text-gray-300">
                   {(userDetail[userId] ?? []).map((item) => (
                     <div key={item.status} className="flex items-center gap-2">
                       <span
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: STATUS_COLORS[item.status] }}
                       />
-                      <span className="text-gray-600">{item.status}</span>
-                      <span className="ml-auto font-semibold text-gray-800">
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {item.status}
+                      </span>
+                      <span className="ml-auto font-semibold text-gray-800 dark:text-gray-200">
                         {item.value}
                       </span>
                     </div>
@@ -315,28 +340,41 @@ export default function DashboardPage() {
       </div>
 
       {/* -------- Bar chart full width -------- */}
-      <div className="bg-white rounded-xl p-5 shadow">
-        <h2 className="font-semibold mb-4">Tasks by User</h2>
+      <div className="bg-white rounded-xl p-5 shadow dark:bg-gray-700">
+        <h2 className="font-semibold mb-4 dark:text-white">Tasks by User</h2>
 
         {loadingStats ? (
           <div className="flex items-center justify-center p-6">
             <Loader2 className="animate-spin mr-2 h-8 w-8 text-blue-600" />
-            <div className="p-6">Loading statistics...</div>
+            <div className="p-6 dark:text-gray-300">Loading ...</div>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart data={tasksByUser} margin={{ bottom: 40 }}>
-              <XAxis
-                dataKey="user"
-                interval={0}
-                height={60}
-                tick={<CustomizedAxisTick />}
-              />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="total" fill="#3b82f6" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="text-gray-700 dark:text-gray-300">
+            <ResponsiveContainer width="100%" height={320}>
+              <BarChart data={tasksByUser} margin={{ bottom: 40 }}>
+                <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="user"
+                  interval={0}
+                  height={60}
+                  tick={<CustomizedAxisTick />}
+                  axisLine={{ stroke: "#64748b" }}
+                />
+                <YAxis
+                  tick={{ fill: "currentColor" }}
+                  axisLine={{ stroke: "#64748b" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#0f172a",
+                    color: "#cbd5e1",
+                  }}
+                />
+                <Legend wrapperStyle={{ color: "#cbd5e1" }} />
+                <Bar dataKey="total" fill="#3b82f6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>

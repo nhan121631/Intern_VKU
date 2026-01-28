@@ -36,17 +36,17 @@ export default function HomePage() {
     }
   };
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section */}
       <section className="container mx-auto px-6 py-20 text-center">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 dark:text-white">
             Manage Your Tasks{" "}
             <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
               Effortlessly
             </span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto dark:text-gray-300">
             Streamline your workflow, collaborate with your team, and achieve
             more with our intuitive task management platform.
           </p>
@@ -69,47 +69,47 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="container mx-auto px-6 py-20">
-        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+        <h2 className="text-3xl font-bold text-center text-gray-900 mb-12 dark:text-white">
           Why Choose Our Platform?
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {/* Feature 1 */}
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
               <ClipboardList className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">
               Task Organization
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Create, assign, and track tasks with ease. Keep everything
               organized in one place.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4">
               <Users className="w-8 h-8 text-purple-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">
               Team Collaboration
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Work together seamlessly. Assign tasks to team members and track
               progress.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+          <div className="bg-white rounded-xl p-8 shadow-lg hover:shadow-xl transition-shadow dark:bg-gray-800">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <BarChart3 className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">
               Track Progress
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Monitor task status, view history, and export reports to stay on
               top of everything.
             </p>
@@ -119,7 +119,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="container mx-auto px-6 py-20">
-        <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-12 text-center text-white">
+        <div className="bg-linear-to-r from-blue-600 to-purple-600 dark:from-gray-400 dark:to-gray-600 rounded-2xl p-12 text-center text-white">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Ready to Get Started?
           </h2>
@@ -128,7 +128,7 @@ export default function HomePage() {
           </p>
           <a
             onClick={() => navigate("/register")}
-            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+            className="inline-block bg-white dark:bg-gray-900 dark:text-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
           >
             Create Your Account
           </a>

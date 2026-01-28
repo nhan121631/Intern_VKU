@@ -132,7 +132,7 @@ export default function CreateTaskForm({
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow dark:bg-gray-900 dark:text-white">
       <h2 className="text-2xl font-semibold mb-4">Create Task</h2>
       {error && <div className="mb-4 text-red-600">{error}</div>}
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -144,7 +144,7 @@ export default function CreateTaskForm({
             onClose={() => setSuccess(null)}
           />
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -160,7 +160,7 @@ export default function CreateTaskForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
               Created At
             </label>
             <input
@@ -173,7 +173,7 @@ export default function CreateTaskForm({
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
             Description
           </label>
           <textarea
@@ -184,7 +184,7 @@ export default function CreateTaskForm({
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300 ">
             Assigned To
           </label>
           <select
@@ -207,7 +207,7 @@ export default function CreateTaskForm({
 
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
               Status
             </label>
             <select
@@ -221,7 +221,7 @@ export default function CreateTaskForm({
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
               Deadline
             </label>
             <input
@@ -243,7 +243,7 @@ export default function CreateTaskForm({
               {...register("allowUserUpdate")}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span className="ml-2 text-gray-700">
+            <span className="ml-2 text-gray-700 dark:text-gray-300">
               Allow assigned user to update the task
             </span>
           </label>

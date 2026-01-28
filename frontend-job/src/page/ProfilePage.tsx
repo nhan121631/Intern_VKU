@@ -86,13 +86,13 @@ export default function ProfilePage() {
       )}
 
       {error && (
-        <div className="text-red-500 text-center bg-red-50 py-3 px-4 rounded-lg">
+        <div className="text-red-500 text-center bg-red-50 py-3 px-4 rounded-lg dark:bg-red-900 dark:text-red-200">
           {error}
         </div>
       )}
 
       {profile && (
-        <div className="bg-white shadow-lg rounded-xl p-8 bg-linear-to-t from-sky-400 to-indigo-400">
+        <div className="bg-white shadow-lg rounded-xl p-8 bg-linear-to-t from-sky-400 to-indigo-400 dark:from-transparent dark:to-transparent dark:bg-gray-700 text-gray-900 dark:text-gray-100">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <img
               src={
@@ -101,25 +101,25 @@ export default function ProfilePage() {
                   : "./../assets/default-avatar.jpg"
               }
               alt="Avatar"
-              className="w-32 h-32 rounded-full border-4 border-gray-100 shadow-md object-cover"
+              className="w-32 h-32 rounded-full border-4 border-gray-100 dark:border-gray-700 shadow-md object-cover"
             />
 
             <div className="flex-1 space-y-4 w-full">
               <div className="flex justify-between items-center gap-10">
-                <h2 className="text-2xl font-bold mb-4 text-white">
+                <h2 className="text-2xl font-bold mb-4 text-white dark:text-gray-100">
                   Profile Information
                 </h2>
                 <div className="flex justify-end mb-4 gap-3">
                   <button
                     onClick={handleEdit}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
                   >
                     <Edit2 className="w-4 h-4" />
                     Edit
                   </button>
                   <button
                     onClick={() => setIsChangeOpen(true)}
-                    className="flex items-center px-4 gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+                    className="flex items-center px-4 gap-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors cursor-pointer dark:bg-blue-600 dark:hover:bg-blue-700"
                   >
                     <Lock className="w-4 h-4" />
                     Change Pass
@@ -128,40 +128,42 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center shrink-0 dark:bg-blue-900">
+                  <User className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-white font-medium text-sm">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
                     Full Name
                   </span>
-                  <p className="text-white font-semibold">
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
                     {profile.fullName || "Not Available"}
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5 text-green-600" />
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center shrink-0 dark:bg-green-900">
+                  <Phone className="w-5 h-5 text-green-600 dark:text-green-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-white font-medium text-sm">Phone</span>
-                  <p className="text-white font-semibold">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                    Phone
+                  </span>
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
                     {profile.phoneNumber || "Not Available"}
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0">
-                  <MapPin className="w-5 h-5 text-purple-600" />
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center shrink-0 dark:bg-purple-900">
+                  <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-white font-medium text-sm">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
                     Address
                   </span>
-                  <p className="text-white font-semibold">
+                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
                     {profile.address || "Not Available"}
                   </p>
                 </div>

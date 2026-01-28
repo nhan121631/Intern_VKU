@@ -57,62 +57,69 @@ const UserTable: React.FC<Props> = ({
   return (
     <div>
       <div className="flex items-center justify-end mb-3">
-        <label className="mr-2 text-sm text-gray-600">Page size:</label>
+        <label className="mr-2 text-sm text-gray-600 dark:text-gray-300">
+          Page size:
+        </label>
         <select
           value={size ?? 10}
           onChange={(e) => onSizeChange && onSizeChange(Number(e.target.value))}
-          className="border rounded px-2 py-1 cursor-pointer"
+          className="border rounded px-2 py-1 cursor-pointer dark:bg-gray-700 dark:text-gray-100"
         >
           <option value={5}>5</option>
           <option value={10}>10</option>
           <option value={15}>15</option>
         </select>
       </div>
-      <div className="overflow-x-auto bg-white rounded shadow">
+      <div className="overflow-x-auto bg-white rounded shadow dark:bg-gray-800">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-700 dark:text-gray-300">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 ID
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 Username
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 Full name
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 Created At
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 Active
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                 Action
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
+          <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
             {users.length === 0 ? (
               <tr>
                 <td
                   colSpan={6}
-                  className="px-4 py-6 text-center text-sm text-gray-500"
+                  className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-300"
                 >
                   No users found.
                 </td>
               </tr>
             ) : (
               users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-700">{u.id}</td>
-                  <td className="px-4 py-3 text-sm text-gray-800">
+                <tr
+                  key={u.id}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                    {u.id}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-300 ">
                     {u.username}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                     {u.fullName}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
+                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                     {formatDate(u.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-sm">

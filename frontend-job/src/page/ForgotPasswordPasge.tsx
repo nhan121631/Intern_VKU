@@ -100,9 +100,9 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white">
-      <div className="w-105 p-7 bg-white rounded-xl shadow-lg border border-gray-100">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center">
+    <div className="min-h-[70vh] flex items-center justify-center p-6 from-sky-50 to-white dark:from-gray-900">
+      <div className="w-105 p-7 bg-white rounded-xl shadow-lg border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 text-center dark:text-gray-300">
           Forgot Password
         </h2>
         {!optIsTrue && <ForgotPassForm onSubmit={handleForgotPassword} />}

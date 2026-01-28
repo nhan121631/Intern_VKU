@@ -144,15 +144,15 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
         onClick={handleClose}
       />
 
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col dark:bg-gray-800 z-10">
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+            <div className="w-10 h-10 rounded-full bg-blue-600 text-white dark:text-gray-100 flex items-center justify-center font-semibold">
               H
             </div>
             <div>
               <h3 className="text-lg font-semibold">Task History</h3>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-300">
                 Recent updates and who performed them
               </p>
             </div>
@@ -177,34 +177,34 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
             </div>
           ) : (
             <div>
-              <table className="min-w-full bg-white divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                       STT
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                       Updated By
                     </th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
                       Updated At
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
+                <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
                   {history.map((h) => (
                     <tr
                       key={h.id}
-                      className="hover:bg-gray-50 cursor-pointer"
+                      className="hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-700"
                       onClick={() => handleFetchDetail(h.id)}
                     >
-                      <td className="px-4 py-3 text-sm text-gray-700">
+                      <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                         {history.indexOf(h) + 1}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-800">
+                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-300">
                         {h.updateBy || h.updatedByName}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                         {fmtDate(h.updatedAt)}
                       </td>
                     </tr>
@@ -215,13 +215,13 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
           )}
         </div>
         {detail && (
-          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-60 shrink-0">
+          <div className="p-4 border-t bg-gray-50 overflow-y-auto max-h-60 shrink-0 dark:bg-gray-700">
             <h4 className="text-sm font-medium mb-2">Update details</h4>
-            <div className="text-xs text-gray-600 mb-2">
+            <div className="text-xs text-gray-600 mb-2 dark:text-gray-300">
               Updated by: {detail.updateBy || detail.updatedByName}
             </div>
             {detail.roles && (
-              <div className="text-xs text-gray-600 mb-2">
+              <div className="text-xs text-gray-600 mb-2 dark:text-gray-300">
                 Roles: {detail.roles.join(", ")}
               </div>
             )}
@@ -238,14 +238,18 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
                 return (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-xs font-semibold mb-1">Old</div>
-                      <div className="text-sm text-gray-800">
+                      <div className="text-xs font-semibold mb-1 dark:text-gray-300">
+                        Old
+                      </div>
+                      <div className="text-sm text-gray-800 dark:text-gray-300">
                         {renderValue(oldObj)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-semibold mb-1">New</div>
-                      <div className="text-sm text-gray-800">
+                      <div className="text-xs font-semibold mb-1 dark:text-gray-300">
+                        New
+                      </div>
+                      <div className="text-sm text-gray-800 dark:text-gray-300">
                         {renderValue(newObj)}
                       </div>
                     </div>
@@ -264,7 +268,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
                 <div className="overflow-auto">
                   <table className="min-w-full text-sm">
                     <thead>
-                      <tr className="text-left text-xs text-gray-500">
+                      <tr className="text-left text-xs text-gray-500 dark:text-gray-300 border-b">
                         <th className="px-2 py-1">Field</th>
                         <th className="px-2 py-1">Old</th>
                         <th className="px-2 py-1">New</th>
@@ -279,13 +283,17 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
                         return (
                           <tr
                             key={k}
-                            className={changed ? "bg-white" : "bg-transparent"}
+                            className={
+                              changed
+                                ? "bg-white dark:bg-gray-800"
+                                : "bg-transparent dark:bg-gray-700"
+                            }
                           >
-                            <td className="px-2 py-2 font-medium text-gray-700">
+                            <td className="px-2 py-2 font-medium text-gray-700 dark:text-gray-300">
                               {k}
                             </td>
                             <td
-                              className={`px-2 py-2 text-gray-700 ${
+                              className={`px-2 py-2 text-gray-700 dark:text-gray-300 ${
                                 changed ? "line-through text-red-500" : ""
                               }`}
                             >
@@ -295,7 +303,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
                               className={`px-2 py-2 ${
                                 changed
                                   ? "text-green-700 font-semibold"
-                                  : "text-gray-700"
+                                  : "text-gray-700 dark:text-gray-300"
                               }`}
                             >
                               {renderValue(nv)}
@@ -313,7 +321,7 @@ const TaskHistoryModal: React.FC<Props> = ({ open, onClose, taskId }) => {
         <div className="flex justify-end gap-2 p-4 border-t shrink-0">
           <button
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer"
+            className="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             Close
           </button>

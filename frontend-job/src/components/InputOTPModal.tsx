@@ -119,8 +119,11 @@ export default function InputOTPModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="bg-white rounded-lg shadow-lg z-10 max-w-md w-full p-6">
+      <div
+        className="absolute inset-0 bg-black/40 dark:bg-black/40"
+        onClick={onClose}
+      />
+      <div className="bg-white rounded-lg shadow-lg z-10 max-w-md w-full p-6 dark:bg-gray-800">
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
         <p className="text-sm text-gray-600 mb-4">{subtitle}</p>
 
@@ -147,7 +150,7 @@ export default function InputOTPModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className={`px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 ${
+            className={`px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 ${
               isLoading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
           >
@@ -158,8 +161,8 @@ export default function InputOTPModal({
             disabled={!valuesFilled() || isLoading}
             className={`px-3 py-1.5 rounded text-white flex items-center gap-2 ${
               valuesFilled() && !isLoading
-                ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
-                : "bg-gray-300 cursor-not-allowed"
+                ? "bg-indigo-600 hover:bg-indigo-700 cursor-pointer dark:bg-indigo-500 dark:hover:bg-indigo-600"
+                : "bg-gray-300 cursor-not-allowed dark:bg-gray-600"
             }`}
           >
             {isLoading && <Loader2 className="animate-spin h-4 w-4" />}

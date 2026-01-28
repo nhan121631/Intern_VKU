@@ -2,49 +2,69 @@ package com.vku.job.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.MailSendException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
+import com.vku.job.config.EnvLoader;
 import com.vku.job.services.MailService;
-
-import jakarta.mail.internet.MimeMessage;
 
 @ExtendWith(MockitoExtension.class)
 public class MailServiceTest {
 
     @Mock
-    private JavaMailSender emailSender;
+    private RestTemplate restTemplate;
 
-    @Mock
-    private MimeMessage mimeMessage;
-
-    @InjectMocks
     private MailService mailService;
 
+    private MockedStatic<EnvLoader> envLoaderStatic;
+
     @BeforeEach
-    void setUp() {
-        org.mockito.Mockito.lenient()
-                .when(emailSender.createMimeMessage()).thenReturn(mimeMessage);
+    void setUp() throws Exception {
+        // Mock EnvLoader static to return a dummy API key
+        envLoaderStatic = Mockito.mockStatic(EnvLoader.class);
+        envLoaderStatic.when(() -> EnvLoader.get("BREVO_API_KEY")).thenReturn("dummy-api-key");
+
+        // use real MailService instance and inject mocked RestTemplate via reflection
+        mailService = new MailService();
+        Field restField = MailService.class.getDeclaredField("restTemplate");
+        restField.setAccessible(true);
+        restField.set(mailService, restTemplate);
+
+        // default successful response (lenient to avoid unnecessary stubbing errors)
+        Mockito.lenient()
+                .when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(String.class)))
+                .thenReturn(new ResponseEntity<>("ok", HttpStatus.OK));
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (envLoaderStatic != null) {
+            envLoaderStatic.close();
+        }
     }
 
     // ====== SEND VERIFICATION CODE TESTS ======
 
-    // send verification code - success
     @Test
     void sendVerificationCode_success() {
         // given
@@ -55,35 +75,38 @@ public class MailServiceTest {
         mailService.sendVerificationCode(to, code);
 
         // then
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
+        verify(restTemplate).postForEntity(eq("https://api.brevo.com/v3/smtp/email"), captor.capture(),
+                eq(String.class));
 
-        verify(emailSender).send(captor.capture());
-
-        SimpleMailMessage message = captor.getValue();
-        assertEquals(to, message.getTo()[0]);
-        assertEquals("Your Verification Code for registeration", message.getSubject());
-        assertTrue(message.getText().contains(code));
+        Object body = captor.getValue().getBody();
+        assertTrue(body instanceof java.util.Map);
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) body;
+        java.util.List<?> toList = (java.util.List<?>) map.get("to");
+        java.util.Map<?, ?> toEntry = (java.util.Map<?, ?>) toList.get(0);
+        assertEquals(to, toEntry.get("email"));
+        assertEquals("Your Verification Code for Registration", map.get("subject"));
+        assertTrue(((String) map.get("htmlContent")).contains(code));
     }
 
-    // send verification code - exception handling
     @Test
     void sendVerificationCode_whenException_shouldNotThrow() {
         // given
         String to = "test@example.com";
         String code = "123456";
 
-        doThrow(new MailSendException("error"))
-                .when(emailSender).send(any(SimpleMailMessage.class));
+        doThrow(new RuntimeException("error"))
+                .when(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
 
         // when & then (no exception expected)
         assertDoesNotThrow(() -> mailService.sendVerificationCode(to, code));
 
-        verify(emailSender).send(any(SimpleMailMessage.class));
+        verify(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
     }
 
     // ====== SEND PASSWORD RESET CODE TESTS ======
 
-    // send password reset code - success
     @Test
     void sendPasswordResetCode_success() {
         // given
@@ -94,35 +117,38 @@ public class MailServiceTest {
         mailService.sendPasswordResetCode(to, code);
 
         // then
-        ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+        ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
+        verify(restTemplate).postForEntity(eq("https://api.brevo.com/v3/smtp/email"), captor.capture(),
+                eq(String.class));
 
-        verify(emailSender).send(captor.capture());
-
-        SimpleMailMessage message = captor.getValue();
-        assertEquals(to, message.getTo()[0]);
-        assertEquals("Your Password Reset Code", message.getSubject());
-        assertTrue(message.getText().contains(code));
+        Object body = captor.getValue().getBody();
+        assertTrue(body instanceof java.util.Map);
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) body;
+        java.util.List<?> toList = (java.util.List<?>) map.get("to");
+        java.util.Map<?, ?> toEntry = (java.util.Map<?, ?>) toList.get(0);
+        assertEquals(to, toEntry.get("email"));
+        assertEquals("Your Password Reset Code", map.get("subject"));
+        assertTrue(((String) map.get("htmlContent")).contains(code));
     }
 
-    // send password reset code - exception handling
     @Test
     void sendPasswordResetCode_whenException_shouldNotThrow() {
         // given
         String to = "test@example.com";
         String code = "654321";
 
-        doThrow(new MailSendException("error"))
-                .when(emailSender).send(any(SimpleMailMessage.class));
+        doThrow(new RuntimeException("error"))
+                .when(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
 
         // when & then (no exception expected)
         assertDoesNotThrow(() -> mailService.sendPasswordResetCode(to, code));
 
-        verify(emailSender).send(any(SimpleMailMessage.class));
+        verify(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
     }
 
     // ====== SEND PDF REPORT TESTS ======
 
-    // send PDF report - success
     @Test
     void sendPdfReport_success() {
         // given
@@ -135,33 +161,29 @@ public class MailServiceTest {
         mailService.sendPdfReport(to, pdfBytes, subject, body);
 
         // then
-        verify(emailSender).send(mimeMessage);
+        ArgumentCaptor<HttpEntity> captor = ArgumentCaptor.forClass(HttpEntity.class);
+        verify(restTemplate).postForEntity(eq("https://api.brevo.com/v3/smtp/email"), captor.capture(),
+                eq(String.class));
+
+        Object requestBody = captor.getValue().getBody();
+        assertTrue(requestBody instanceof java.util.Map);
+        @SuppressWarnings("unchecked")
+        java.util.Map<String, Object> map = (java.util.Map<String, Object>) requestBody;
+        assertEquals(subject, map.get("subject"));
+        assertTrue(map.containsKey("attachment"));
+        java.util.List<?> attachments = (java.util.List<?>) map.get("attachment");
+        java.util.Map<?, ?> att = (java.util.Map<?, ?>) attachments.get(0);
+        assertEquals("weekly-task-report.pdf", att.get("name"));
     }
 
-    // send PDF report - exception handling
     @Test
-    void sendPdfReport_whenCreateMimeMessageFails_shouldThrowException() {
-        // given
-        when(emailSender.createMimeMessage())
-                .thenThrow(new RuntimeException("create message error"));
-
-        // when & then
-        assertThrows(RuntimeException.class, () -> mailService.sendPdfReport(
-                "admin@example.com",
-                new byte[] { 1, 2, 3 },
-                "Weekly Report",
-                "Body"));
-    }
-
-    // send PDF report - exception handling
-    @Test
-    void sendPdfReport_whenSendFails_shouldThrowException() {
+    void sendPdfReport_whenPostFails_shouldNotThrow() {
         // given
         doThrow(new RuntimeException("send error"))
-                .when(emailSender).send(any(MimeMessage.class));
+                .when(restTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(String.class));
 
-        // when & then
-        assertThrows(RuntimeException.class, () -> mailService.sendPdfReport(
+        // when & then: MailService catches exceptions, so no exception should be thrown
+        assertDoesNotThrow(() -> mailService.sendPdfReport(
                 "admin@example.com",
                 new byte[] { 1, 2, 3 },
                 "Weekly Report",

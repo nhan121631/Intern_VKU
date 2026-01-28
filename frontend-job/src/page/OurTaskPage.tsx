@@ -61,7 +61,7 @@ export default function OurTaskPage() {
         <div className="flex space-x-4">
           <button
             onClick={() => setIsCreateOpen(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer"
+            className="bg-blue-500 dark:bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 dark:hover:bg-blue-800 cursor-pointer"
           >
             Create New Task
           </button>
@@ -70,7 +70,7 @@ export default function OurTaskPage() {
             className={`px-4 py-2 rounded text-white transition-colors ${
               exportLoading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-green-500 hover:bg-green-600 cursor-pointer"
+                : "bg-green-500 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-800 cursor-pointer"
             }`}
             onClick={handleExport}
             disabled={exportLoading}

@@ -63,42 +63,42 @@ export default function RegisterForm({ onSubmit }: Props) {
       className="max-w-90 w-full font-sans"
     >
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Full Name
         </label>
         <input
           type="text"
           {...register("fullName")}
           placeholder="Enter full name"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.fullName && (
           <p className="text-red-500 text-sm mt-1">{errors.fullName.message}</p>
         )}
       </div>
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Email
         </label>
         <input
           type="email"
           {...register("email")}
           placeholder="Enter email"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.email && (
           <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
         )}
       </div>
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Username
         </label>
         <input
           type="text"
           {...register("username")}
           placeholder="Enter username"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.username && (
           <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
@@ -106,14 +106,14 @@ export default function RegisterForm({ onSubmit }: Props) {
       </div>
 
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Password
         </label>
         <input
           type="password"
           {...register("password")}
           placeholder="Enter password"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.password && (
           <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
@@ -121,14 +121,14 @@ export default function RegisterForm({ onSubmit }: Props) {
       </div>
 
       <div className="mb-4">
-        <label className="block mb-2 text-sm font-semibold text-gray-900">
+        <label className="block mb-2 text-sm font-semibold text-gray-900 dark:text-gray-300">
           Confirm Password
         </label>
         <input
           type="password"
           {...register("repeatPassword")}
           placeholder="Enter password again"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200"
         />
         {errors.repeatPassword && (
           <p className="text-red-500 text-sm mt-1">

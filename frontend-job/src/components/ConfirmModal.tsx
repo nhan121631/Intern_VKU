@@ -21,14 +21,19 @@ export default function ConfirmModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onCancel} />
-      <div className="bg-white rounded-lg shadow-lg z-10 max-w-md w-full p-6">
+      <div
+        className="absolute inset-0 bg-black/40 dark:bg-black/40"
+        onClick={onCancel}
+      />
+      <div className="bg-white rounded-lg shadow-lg z-10 max-w-md w-full p-6 dark:bg-gray-800">
         <h3 className="text-lg font-semibold mb-2">{title}</h3>
-        <p className="text-sm text-gray-600 mb-4">{description}</p>
+        <p className="text-sm text-gray-600 mb-4 dark:text-gray-400">
+          {description}
+        </p>
         <div className="flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer"
+            className="px-3 py-1.5 bg-gray-100 rounded hover:bg-gray-200 cursor-pointer dark:bg-gray-700 dark:hover:bg-gray-600"
           >
             {cancelLabel}
           </button>

@@ -1,0 +1,214 @@
+/* Dark-mode overrides for Waline comment widget - ONLY when dark class exists */
+html.dark .waline-container .waline,
+body.dark .waline-container .waline,
+.theme-dark .waline-container .waline,
+.dark .waline-container .waline,
+html.dark .waline-container .waline *,
+body.dark .waline-container .waline *,
+.dark .waline-container .waline * {
+    color: #e6eef8 !important;
+}
+
+/* AGGRESSIVE: Force all backgrounds to dark ONLY when dark class exists */
+html.dark .waline-container *,
+body.dark .waline-container *,
+.dark .waline-container *,
+html.dark .waline-container *::before,
+html.dark .waline-container *::after,
+body.dark .waline-container *::before,
+body.dark .waline-container *::after,
+.dark .waline-container *::before,
+.dark .waline-container *::after {
+    background-color: transparent !important;
+    color: #e6eef8 !important;
+}
+
+/* Specific dark backgrounds for form elements - ONLY in dark mode */
+html.dark .waline-container input,
+html.dark .waline-container textarea,
+html.dark .waline-container label,
+body.dark .waline-container input,
+body.dark .waline-container textarea,
+body.dark .waline-container label,
+.dark .waline-container input,
+.dark .waline-container textarea,
+.dark .waline-container label {
+    background-color: rgba(51, 65, 85, 1) !important;
+    color: #e6eef8 !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+}
+
+/* Make the form background blend with modal dark background - ONLY in dark mode */
+html.dark .waline-container .wl-form,
+html.dark .waline-container form,
+html.dark .waline-container .wl-form-wrap,
+body.dark .waline-container .wl-form,
+body.dark .waline-container form,
+.dark .waline-container .wl-form,
+.dark .waline-container form {
+    background: rgba(15, 23, 42, 0.6) !important;
+    color: #e6eef8 !important;
+    border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Labels for NickName, E-Mail, etc. - ONLY in dark mode */
+html.dark .waline-container label,
+html.dark .waline-container .wl-label,
+html.dark .waline-container .wl-input-label,
+body.dark .waline-container label,
+.dark .waline-container label {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+    color: #e6eef8 !important;
+    border-color: rgba(148, 163, 184, 0.12) !important;
+}
+
+/* Ultra-specific: target NickName and E-Mail input fields - ONLY in dark mode */
+html.dark .waline-container input[type="text"],
+html.dark .waline-container input[name="nick"],
+html.dark .waline-container input[name="mail"],
+html.dark .waline-container input[name="link"],
+body.dark .waline-container input[type="text"],
+.dark .waline-container input[type="text"] {
+    background-color: rgba(51, 65, 85, 0.95) !important;
+    color: #e6eef8 !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+/* Target the main textarea (comment input) - ONLY in dark mode */
+html.dark .waline-container textarea.wl-textarea,
+html.dark .waline-container textarea[placeholder*="detailed"],
+html.dark .waline-container textarea[placeholder*="discussion"],
+html.dark .waline-container textarea,
+body.dark .waline-container textarea,
+.dark .waline-container textarea {
+    background-color: rgba(51, 65, 85, 0.95) !important;
+    color: #e6eef8 !important;
+    border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+html.dark .waline-container textarea::placeholder,
+html.dark .waline-container input::placeholder,
+body.dark .waline-container textarea::placeholder,
+body.dark .waline-container input::placeholder,
+.dark .waline-container textarea::placeholder,
+.dark .waline-container input::placeholder {
+    color: rgba(226, 232, 240, 0.5) !important;
+}
+
+/* Buttons and badges - ONLY in dark mode */
+html.dark .waline-container button,
+html.dark .waline-container .wl-submit,
+html.dark .waline-container .wl-btn,
+body.dark .waline-container button,
+.dark .waline-container button {
+    color: #e6eef8 !important;
+}
+
+/* Comment card background and borders - ONLY in dark mode */
+html.dark .waline-container .wl-comment,
+html.dark .waline-container .waline-comment,
+html.dark .waline-container .wl-list,
+body.dark .waline-container .wl-comment,
+.dark .waline-container .wl-comment {
+    background: transparent !important;
+    border-color: rgba(148, 163, 184, 0.06) !important;
+}
+
+/* Make avatars and meta text visible - ONLY in dark mode */
+html.dark .waline-container .wl-meta,
+html.dark .waline-container .wl-author,
+body.dark .waline-container .wl-meta,
+.dark .waline-container .wl-meta {
+    color: #cfe6ff !important;
+}
+
+/* Ensure separators are subtle - ONLY in dark mode */
+html.dark .waline-container hr,
+html.dark .waline-container .wl-divider,
+body.dark .waline-container hr,
+.dark .waline-container hr {
+    border-color: rgba(148, 163, 184, 0.06) !important;
+}
+
+/* Comment content, links, quotes and code - ONLY in dark mode */
+html.dark .waline-container .wl-content,
+html.dark .waline-container .wl-content p,
+html.dark .waline-container .wl-comment .wl-content,
+html.dark .waline-container .wl-comment .content,
+html.dark .waline-container .waline-comment .content,
+html.dark .waline-container blockquote,
+html.dark .waline-container .wl-quote,
+body.dark .waline-container .wl-content,
+.dark .waline-container .wl-content {
+    color: #dbeefd !important;
+}
+
+html.dark .waline-container a,
+html.dark .waline-container .wl-mention,
+body.dark .waline-container a,
+.dark .waline-container a {
+    color: #7ee787 !important;
+}
+
+html.dark .waline-container code,
+html.dark .waline-container pre,
+body.dark .waline-container code,
+.dark .waline-container code {
+    color: #ffd580 !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+html.dark .waline-container .wl-reply .wl-content,
+body.dark .waline-container .wl-reply .wl-content,
+.dark .waline-container .wl-reply .wl-content {
+    color: #cfe6ff !important;
+}
+
+/* Icons and input text styling inside Waline's form - ONLY in dark mode */
+html.dark .waline-container .wl-form .wl-input input,
+html.dark .waline-container .wl-form input,
+html.dark .waline-container textarea,
+html.dark .waline-container .wl-form .wl-input input[type="text"],
+body.dark .waline-container .wl-form input,
+body.dark .waline-container textarea,
+.dark .waline-container .wl-form input,
+.dark .waline-container textarea {
+    color: #e6eef8 !important;
+}
+
+html.dark .waline-container .wl-form .wl-input input::placeholder,
+html.dark .waline-container input::placeholder,
+html.dark .waline-container textarea::placeholder,
+body.dark .waline-container input::placeholder,
+body.dark .waline-container textarea::placeholder,
+.dark .waline-container input::placeholder,
+.dark .waline-container textarea::placeholder {
+    color: rgba(230, 238, 248, 0.48) !important;
+}
+
+/* Toolbar / action icons color - ONLY in dark mode */
+html.dark .waline-container .wl-toolbar button,
+html.dark .waline-container .wl-icons button,
+html.dark .waline-container .wl-emoji-button,
+html.dark .waline-container .wl-form .wl-btn,
+body.dark .waline-container .wl-toolbar button,
+.dark .waline-container .wl-toolbar button {
+    color: rgba(174, 203, 255, 0.95) !important;
+    opacity: 0.95;
+}
+
+/* Ensure SVG icons use currentColor - ONLY in dark mode */
+html.dark .waline-container svg,
+body.dark .waline-container svg,
+.dark .waline-container svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+html.dark .waline-container .wl-toolbar button:hover,
+html.dark .waline-container .wl-icons button:hover,
+body.dark .waline-container .wl-toolbar button:hover,
+.dark .waline-container .wl-toolbar button:hover {
+    color: #9fd0ff !important;
+}

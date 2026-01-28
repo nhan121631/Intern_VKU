@@ -60,10 +60,10 @@ jobs:
         run: chmod +x ./job/gradlew
       
       # Bước 5: Tạo file .env từ GitHub Secrets
-      - name: Create .env file from secrets
-        run: |
-          echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> job/.env
-          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> job/.env
+      # - name: Create .env file from secrets
+      #   run: |
+      #     echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> job/.env
+      #     echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> job/.env
 
       # Bước 6: Chạy unit tests (hiện tại đang bị comment)
       # Nên bỏ comment để đảm bảo code quality trước khi deploy
