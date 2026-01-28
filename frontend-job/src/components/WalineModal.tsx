@@ -94,7 +94,7 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto bg-white p-6 md:p-8">
-          {/* Container chứa Waline */}
+          {/* Container Waline */}
           <div ref={containerRef} className="waline-container" />
         </div>
       </div>

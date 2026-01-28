@@ -61,8 +61,8 @@ jobs:
 
       # Bước 5: Chạy unit tests (hiện tại đang bị comment)
       # Nên bỏ comment để đảm bảo code quality trước khi deploy
-      # - name: Run tests
-      #   run: cd job && ./gradlew test
+      - name: Run tests
+        run: cd job && ./gradlew test
 
       # Bước 6: Build ứng dụng Spring Boot thành file JAR
       - name: Build with Gradle
