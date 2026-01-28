@@ -58,31 +58,32 @@ jobs:
       # Bước 4: Cấp quyền thực thi cho file gradlew (Gradle Wrapper)
       - name: Make gradlew executable
         run: chmod +x ./job/gradlew
-
-      # Bước 5: Chạy unit tests (hiện tại đang bị comment)
-      # Nên bỏ comment để đảm bảo code quality trước khi deploy
-      - name: Run tests
-        run: cd job && ./gradlew test
-
-      # Bước 6: Build ứng dụng Spring Boot thành file JAR
-      - name: Build with Gradle
-        run: cd job && ./gradlew clean bootJar --no-daemon
-
-      # Bước 6.1: Tạo file .env từ GitHub Secrets
+      
+      # Bước 5: Tạo file .env từ GitHub Secrets
       - name: Create .env file from secrets
         run: |
           echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> job/.env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> job/.env
+
+      # Bước 6: Chạy unit tests (hiện tại đang bị comment)
+      # Nên bỏ comment để đảm bảo code quality trước khi deploy
+      - name: Run tests
+        run: cd job && ./gradlew test
+
+      # Bước 7: Build ứng dụng Spring Boot thành file JAR
+      - name: Build with Gradle
+        run: cd job && ./gradlew clean bootJar --no-daemon
+
         # clean: xóa thư mục build cũ
         # bootJar: tạo file JAR có thể chạy độc lập (executable JAR)
         # --no-daemon: không sử dụng Gradle daemon để tránh memory leak
 
-      # Bước 7: Thiết lập Docker Buildx (công cụ build Docker nâng cao)
+      # Bước 8: Thiết lập Docker Buildx (công cụ build Docker nâng cao)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         # Buildx hỗ trợ build multi-platform và các tính năng nâng cao
 
-      # Bước 8: Đăng nhập vào Docker Hub
+      # Bước 9: Đăng nhập vào Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -90,7 +91,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Bước 9: Tạo metadata cho Docker image (tags và labels)
+      # Bước 10: Tạo metadata cho Docker image (tags và labels)
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -105,7 +106,7 @@ jobs:
             # Tag 'latest' nếu là branch mặc định (main)
             type=raw,value=latest,enable={{is_default_branch}}
 
-      # Bước 10: Build và push Docker image lên Docker Hub
+      # Bước 11: Build và push Docker image lên Docker Hub
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -125,6 +126,6 @@ jobs:
           # Build cho cả 2 kiến trúc CPU (Intel/AMD và ARM)
           platforms: linux/amd64,linux/arm64
 
-      # Bước 11: In ra digest của image vừa build (để tracking)
+      # Bước 12: In ra digest của image vừa build (để tracking)
       - name: Image digest
         run: echo ${{ steps.build.outputs.digest }}
