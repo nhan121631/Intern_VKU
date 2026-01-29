@@ -69,7 +69,9 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-xl z-10 dark:bg-gray-700 dark:bg-opacity-80 dark:text-white">
             <div className="flex flex-col items-center gap-2">
               <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-600">Loading...</span>
+              <span className="text-sm text-gray-600 dark:text-gray-300">
+                Loading...
+              </span> 
             </div>
           </div>
         )}
