@@ -15,10 +15,10 @@ interface WalineModalProps {
 const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
   // Use relative URL to go through Vercel serverless proxy
   // This avoids 403 CORS/auth issues when calling Waline directly
-  const SERVER_URL = import.meta.env.DEV 
-    ? import.meta.env.VITE_WALINE_SERVER_URL 
-    : '/api'; // In production, use Vercel serverless function
-    
+  const SERVER_URL = import.meta.env.DEV
+    ? import.meta.env.VITE_WALINE_SERVER_URL
+    : "/api"; // In production, use Vercel serverless function
+
   const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
   const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
