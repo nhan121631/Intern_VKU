@@ -93,12 +93,12 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
 
             if (payload.new && payload.new.url === currentPath) {
               console.log("✅ Comment mới cho task này!");
-              
+
               // Clear timeout cũ nếu có
               if (debounceTimerRef.current) {
                 window.clearTimeout(debounceTimerRef.current);
               }
-              
+
               // Debounce 2s để Waline có thời gian clear form sau submit
               debounceTimerRef.current = window.setTimeout(() => {
                 if (walineInstanceRef.current) {
@@ -139,9 +139,9 @@ const WalineModal: React.FC<WalineModalProps> = ({ open, onClose, taskId }) => {
                     }, 500);
                   }
                 }
-              }, 2000); // Chờ 2 giây để Waline tự clear form
+              }, 2000);
             } else {
-              console.log("❌ Comment không phải cho task này, bỏ qua");
+              console.log("Comment không phải cho task này, bỏ qua");
             }
           },
         )
