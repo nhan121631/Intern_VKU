@@ -58,12 +58,12 @@ jobs:
       # Bước 4: Cấp quyền thực thi cho file gradlew (Gradle Wrapper)
       - name: Make gradlew executable
         run: chmod +x ./job/gradlew
-      
+
       # Bước 5: Tạo file .env từ GitHub Secrets
-      # - name: Create .env file from secrets
-      #   run: |
-      #     echo "MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}" >> job/.env
-      #     echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> job/.env
+      - name: Create .env file from secrets
+        run: |
+          echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> ./job/.env
+          echo "BREVO_API_URL=${{ secrets.BREVO_API_URL }}" >> ./job/.env
 
       # Bước 6: Chạy unit tests (hiện tại đang bị comment)
       # Nên bỏ comment để đảm bảo code quality trước khi deploy
