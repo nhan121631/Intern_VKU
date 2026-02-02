@@ -33,49 +33,64 @@ PASSWORD = os.getenv("MYSQL_PASSWORD", "root_password")
 # Global SSH tunnel
 ssh_tunnel = None
 
+def init_ssh_tunnel():
+    """Initialize SSH tunnel on app startup"""
+    global ssh_tunnel
+    
+    if not USE_SSH_TUNNEL:
+        return
+    
+    try:
+        print(f"[INFO] Initializing SSH tunnel to {SSH_HOST} using key: {SSH_KEY_PATH}")
+        
+        # Xử lý path: nếu relative, tính từ thư mục chứa script
+        import os.path
+        if not os.path.isabs(SSH_KEY_PATH):
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            key_path = os.path.join(script_dir, SSH_KEY_PATH)
+        else:
+            key_path = SSH_KEY_PATH
+        
+        key_path = os.path.abspath(key_path)
+        
+        if not os.path.exists(key_path):
+            print(f"[ERROR] Private key not found: {key_path}")
+            raise FileNotFoundError(f"Private key not found: {key_path}")
+        
+        ssh_tunnel = SSHTunnelForwarder(
+            (SSH_HOST, 22),
+            ssh_username=SSH_USER,
+            ssh_pkey=key_path,
+            allow_agent=False,
+            host_pkey_directories=[],
+            remote_bind_address=('127.0.0.1', DB_PORT),
+            local_bind_address=('127.0.0.1', 0),
+            set_keepalive=10
+        )
+        ssh_tunnel.start()
+        print(f"[SUCCESS] SSH tunnel active on local port {ssh_tunnel.local_bind_port}")
+        
+    except Exception as e:
+        print(f"[WARNING] Failed to initialize SSH tunnel: {e}")
+        print(f"[INFO] Will attempt direct connection on first request")
+        ssh_tunnel = None
+
 def get_db_connection():
     """Create database connection with or without SSH tunnel"""
     global ssh_tunnel
     
     if USE_SSH_TUNNEL:
         try:
-            # Kết nối qua SSH tunnel
+            # Kiểm tra và dùng lại tunnel đã tạo sẵn
             if ssh_tunnel is None or not ssh_tunnel.is_active:
-                print(f"[INFO] Starting SSH tunnel to {SSH_HOST} using key: {SSH_KEY_PATH}")
-                
-                # Đảm bảo sử dụng absolute path cho private key
-                import os.path
-                key_path = os.path.abspath(SSH_KEY_PATH)
-                
-                if not os.path.exists(key_path):
-                    print(f"[ERROR] Private key not found: {key_path}")
-                    raise FileNotFoundError(f"Private key not found: {key_path}")
-                
-                ssh_tunnel = SSHTunnelForwarder(
-                    (SSH_HOST, 22),
-                    ssh_username=SSH_USER,
-                    ssh_pkey=key_path,
-                    allow_agent=False,
-                    host_pkey_directories=[],
-                    remote_bind_address=('127.0.0.1', DB_PORT),
-                    local_bind_address=('127.0.0.1', 0),
-                    set_keepalive=10
-                )
-                ssh_tunnel.start()
-                print(f"[INFO] SSH tunnel active on local port {ssh_tunnel.local_bind_port}")
+                print(f"[WARNING] SSH tunnel not active, reinitializing...")
+                init_ssh_tunnel()
             
-            # Kết nối qua tunnel với timeout
+            if ssh_tunnel is None:
+                raise Exception("SSH tunnel initialization failed")
+            
+            # Kết nối qua tunnel
             print(f"[DEBUG] Connecting to MySQL via tunnel on port {ssh_tunnel.local_bind_port}...")
-            
-            import socket
-            # Test port trước khi connect MySQL
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(2)
-            result = sock.connect_ex(('127.0.0.1', ssh_tunnel.local_bind_port))
-            sock.close()
-            
-            if result != 0:
-                raise Exception(f"Port {ssh_tunnel.local_bind_port} not accessible")
             
             conn = mysql.connector.connect(
                 host='127.0.0.1',
@@ -176,11 +191,6 @@ def jwt_required(f):
 # TASK CACHE (phân biệt theo userId và admin/user)
 # =========================
 
-task_cache = {
-    'admin': {'result': None, 'columns': None, 'last_update': None},
-    'users': {}  # {userId: {result, columns, last_update}}
-}
-
 def build_task_objects(result, columns):
     """Convert DB rows to JSON task objects"""
     tasks = []
@@ -219,27 +229,9 @@ def get_roles(userId):
     
 
 def get_tasks(userId):
-    now = datetime.datetime.now()
     
     roles = get_roles(userId)
     is_admin = any(role.upper() in ['ADMIN', 'ADMINISTRATORS'] for role in roles)
-    
-    # Kiểm tra cache riêng cho admin hoặc user
-    if is_admin:
-        cache_key = 'admin'
-        cache_data = task_cache['admin']
-    else:
-        cache_key = userId
-        if userId not in task_cache['users']:
-            task_cache['users'][userId] = {'result': None, 'columns': None, 'last_update': None}
-        cache_data = task_cache['users'][userId]
-    
-    # Sử dụng cache nếu còn hiệu lực
-    if cache_data['result'] and cache_data['last_update']:
-        delta = now - cache_data['last_update']
-        if delta.total_seconds() < 900:
-            print(f"[DEBUG] Using cache for {'admin' if is_admin else f'user {userId}'}")
-            return cache_data['result'], cache_data['columns']
     
     # Query database
     if is_admin:
@@ -260,11 +252,7 @@ join user_profiles up on u.profile_id = up.id where u.id = {userId}'''
         cursor.close()
         conn.close()
 
-        # Lưu cache riêng cho admin hoặc user
-        cache_data['result'] = result
-        cache_data['columns'] = columns
-        cache_data['last_update'] = now
-        print(f"[DEBUG] Cache updated for {'admin' if is_admin else f'user {userId}'} - {len(result)} tasks")
+        print(f"[DEBUG] Fetched {len(result)} tasks for {'admin' if is_admin else f'user {userId}'}")
 
         return result, columns
 
@@ -464,6 +452,9 @@ def cleanup(exception=None):
 
 if __name__ == '__main__':
     try:
+        # Khởi tạo SSH tunnel trước khi start app
+        init_ssh_tunnel()
+        
         app.run(host="0.0.0.0", port=5001, debug=True)
     finally:
         if ssh_tunnel and ssh_tunnel.is_active:
