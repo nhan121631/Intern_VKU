@@ -6,4 +6,4 @@
 // PRODUCTION
 export const API_URL = "https://nhantasks.duckdns.org/api"
 export const IMAGE_URL = "https://nhantasks.duckdns.org"
-export const GEMINI_URL = "https://178.128.124.51/ai_chatbot"
+export const GEMINI_URL = "https://berkeley-educated-employee-cloud.trycloudflare.com/ai_chatbot"
