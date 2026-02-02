@@ -18,12 +18,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
+# Copy application file
 COPY gemini.py .
-COPY .env .
-COPY my-backend-key.pem .
 
-# Set proper permissions for SSH key
-RUN chmod 600 my-backend-key.pem
+# NOTE: Do NOT copy `.env` or private keys into the image. Use bind-mounts or `--env-file` at runtime
+# to provide sensitive files (see docker-compose.yml which mounts .env and my-backend-key.pem).
 
 # Expose port
 EXPOSE 5001

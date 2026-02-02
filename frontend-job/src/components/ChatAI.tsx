@@ -128,7 +128,7 @@ function ChatAI() {
         text: typeof msg.text === "string" ? msg.text : "[Task List]",
       }));
 
-      const response = await fetch(`${GEMINI_URL}/api/ai_chatbot`, {
+      const response = await fetch(`${GEMINI_URL}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
