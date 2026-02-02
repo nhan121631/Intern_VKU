@@ -110,6 +110,7 @@ export const useAuthStore = create<AuthState>()(
           },
 
           logOut: async () => {
+            sessionStorage.removeItem('chatHistory');
             set({ access_token: undefined, refresh_token: undefined, loggedInUser: undefined });
           },
         };

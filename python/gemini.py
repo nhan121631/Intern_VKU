@@ -15,85 +15,116 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-# SSH Tunnel and MySQL Configuration
- 
+# =========================
+# SSH TUNNEL & DATABASE CONFIG
+# =========================
+
 USE_SSH_TUNNEL = os.getenv("USE_SSH_TUNNEL", "false").lower() == "true"
-
-SSH_HOST = os.getenv("SSH_HOST", "")
-SSH_PORT = 22
+SSH_HOST = os.getenv("SSH_HOST", "18.143.194.168")
 SSH_USER = os.getenv("SSH_USER", "ec2-user")
-PRIVATE_KEY_PATH = os.getenv("PRIVATE_KEY_PATH", "./python/my-backend-key.pem")
+SSH_KEY_PATH = os.getenv("PRIVATE_KEY_PATH", "./my-backend-key.pem")
 
-# Convert to absolute path
-if PRIVATE_KEY_PATH and not os.path.isabs(PRIVATE_KEY_PATH):
-    PRIVATE_KEY_PATH = os.path.abspath(PRIVATE_KEY_PATH)
-
-if USE_SSH_TUNNEL:
-    print(f"[CONFIG] SSH Tunnel enabled - Key: {PRIVATE_KEY_PATH}")
-    DB_HOST = "127.0.0.1"  # MySQL through tunnel
-else:
-    print(f"[CONFIG] Direct connection mode")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-
-DB_PORT = int(os.getenv("DB_PORT", 3306))
-DATABASE = os.getenv("DB_NAME")
-MYSQL_USER = os.getenv("MYSQL_USER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = int(os.getenv("DB_PORT", "3306"))
+DATABASE = os.getenv("DB_NAME", "job_management")
+USER = os.getenv("MYSQL_USER", "root")
+PASSWORD = os.getenv("MYSQL_PASSWORD", "root_password")
 
 # Global SSH tunnel
 ssh_tunnel = None
 
-def get_ssh_tunnel():
-    """Create or return existing SSH tunnel"""
+def get_db_connection():
+    """Create database connection with or without SSH tunnel"""
     global ssh_tunnel
     
-    if ssh_tunnel is None or not ssh_tunnel.is_active:
-        print(f"[SSH] Creating tunnel to {SSH_HOST}:{SSH_PORT}...")
-        print(f"[SSH] Using key: {PRIVATE_KEY_PATH}")
-        
-        if not os.path.exists(PRIVATE_KEY_PATH):
-            raise FileNotFoundError(f"Private key not found: {PRIVATE_KEY_PATH}")
-        
-        ssh_tunnel = SSHTunnelForwarder(
-            (SSH_HOST, SSH_PORT),
-            ssh_username=SSH_USER,
-            ssh_pkey=PRIVATE_KEY_PATH,
-            remote_bind_address=('localhost', DB_PORT),  # MySQL on EC2
-            local_bind_address=('127.0.0.1', 0)  # Random local port
-        )
-        ssh_tunnel.start()
-        print(f"[SSH] Tunnel active on local port {ssh_tunnel.local_bind_port}")
-    
-    return ssh_tunnel
-
-def get_db_connection():
-    """Get MySQL connection (with or without SSH tunnel)"""
     if USE_SSH_TUNNEL:
-        tunnel = get_ssh_tunnel()
-        host = '127.0.0.1'
-        port = tunnel.local_bind_port
-        print(f"[DB] Connecting via SSH tunnel on port {port}...")
+        try:
+            # Kết nối qua SSH tunnel
+            if ssh_tunnel is None or not ssh_tunnel.is_active:
+                print(f"[INFO] Starting SSH tunnel to {SSH_HOST} using key: {SSH_KEY_PATH}")
+                
+                # Đảm bảo sử dụng absolute path cho private key
+                import os.path
+                key_path = os.path.abspath(SSH_KEY_PATH)
+                
+                if not os.path.exists(key_path):
+                    print(f"[ERROR] Private key not found: {key_path}")
+                    raise FileNotFoundError(f"Private key not found: {key_path}")
+                
+                ssh_tunnel = SSHTunnelForwarder(
+                    (SSH_HOST, 22),
+                    ssh_username=SSH_USER,
+                    ssh_pkey=key_path,
+                    allow_agent=False,
+                    host_pkey_directories=[],
+                    remote_bind_address=('127.0.0.1', DB_PORT),
+                    local_bind_address=('127.0.0.1', 0),
+                    set_keepalive=10
+                )
+                ssh_tunnel.start()
+                print(f"[INFO] SSH tunnel active on local port {ssh_tunnel.local_bind_port}")
+            
+            # Kết nối qua tunnel với timeout
+            print(f"[DEBUG] Connecting to MySQL via tunnel on port {ssh_tunnel.local_bind_port}...")
+            
+            import socket
+            # Test port trước khi connect MySQL
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(2)
+            result = sock.connect_ex(('127.0.0.1', ssh_tunnel.local_bind_port))
+            sock.close()
+            
+            if result != 0:
+                raise Exception(f"Port {ssh_tunnel.local_bind_port} not accessible")
+            
+            conn = mysql.connector.connect(
+                host='127.0.0.1',
+                port=ssh_tunnel.local_bind_port,
+                user=USER,
+                password=PASSWORD,
+                database=DATABASE,
+                connect_timeout=5,
+                autocommit=True,
+                use_pure=True
+            )
+            print(f"[INFO] MySQL connection via tunnel successful")
+            return conn
+            
+        except Exception as e:
+            print(f"[ERROR] SSH tunnel connection failed: {e}")
+            print(f"[INFO] Attempting direct connection to {SSH_HOST}:{DB_PORT}...")
+            # Fallback: thử kết nối trực tiếp đến EC2
+            try:
+                conn = mysql.connector.connect(
+                    host=SSH_HOST,
+                    port=DB_PORT,
+                    user=USER,
+                    password=PASSWORD,
+                    database=DATABASE,
+                    connect_timeout=5,
+                    autocommit=True
+                )
+                print(f"[INFO] Direct connection to EC2 successful")
+                return conn
+            except Exception as e2:
+                print(f"[ERROR] Direct connection also failed: {e2}")
+                raise Exception(f"Both tunnel and direct connection failed. Tunnel: {e}, Direct: {e2}")
     else:
-        host = DB_HOST
-        port = DB_PORT
-        print(f"[DB] Direct connection to {host}:{port}...")
-    
-    print(f"[DB] MySQL user: '{MYSQL_USER}', database: '{DATABASE}'")
-    try:
-        conn = mysql.connector.connect(
-            host=host,
-            port=port,
-            user=MYSQL_USER,
-            password=MYSQL_PASSWORD,
-            database=DATABASE,
-            connect_timeout=10
+        # Kết nối trực tiếp local/remote
+        return mysql.connector.connect(
+            host=DB_HOST,
+            port=DB_PORT,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE
         )
-        print(f"[DB] ✅ MySQL connected successfully!")
-        return conn
-    except mysql.connector.Error as err:
-        print(f"[DB] ❌ MySQL Error: {err}")
-        print(f"[DB] Details - Code: {err.errno}, Msg: {err.msg}")
-        raise
+
+# =========================
+# JWT CONFIG (Spring Compatible)
+# =========================
+
+HOST = DB_HOST
+PORT = DB_PORT
     
 
 def get_jwt_secret_bytes():
@@ -258,7 +289,6 @@ def ai_chatbot():
     history = data.get("history", [])
 
     result, columns = get_tasks(user_id)
-    print ("Task data:", result)
 
 
     if not result or columns is None:
@@ -279,62 +309,63 @@ def ai_chatbot():
     
     if not history or '# VAI TRÒ' not in str(history[0]):
         initial_prompt = f"""# VAI TRÒ
-            Bạn là **TaskManagement Assistant** - chuyên gia quản lý và tư vấn công việc, với khả năng phân tích dữ liệu task và đưa ra giải pháp tối ưu.
+        Bạn là **TaskManagement Assistant** - chuyên gia quản lý và tư vấn công việc, với khả năng phân tích dữ liệu task và đưa ra giải pháp tối ưu.
 
-            # MỤC TIÊU
-            - **Tìm kiếm & Lọc**: Xác định chính xác các công việc theo yêu cầu người dùng (theo người thực hiện, trạng thái, deadline, từ khóa)
-            - **Tư vấn**: Đưa ra lời khuyên về quản lý công việc, ưu tiên task, phân bổ thời gian
-            - **Phân tích**: Thống kê và phân tích tình trạng công việc
+        # MỤC TIÊU
+        - **Tìm kiếm & Lọc**: Xác định chính xác các công việc theo yêu cầu người dùng (theo người thực hiện, trạng thái, deadline, từ khóa)
+        - **Tư vấn**: Đưa ra lời khuyên về quản lý công việc, ưu tiên task, phân bổ thời gian
+        - **Phân tích**: Thống kê và phân tích tình trạng công việc
 
-            # BỐI CẢNH
-            Người dùng đang làm việc với hệ thống quản lý task. Dữ liệu công việc bao gồm:
-            - **ID**: Mã định danh công việc
-            - **Title**: Tiêu đề công việc
-            - **Description**: Mô tả chi tiết
-            - **Status**: Trạng thái (OPEN, IN_PROGRESS, DONE, CANCELED)
-            - **Deadline**: Hạn hoàn thành
-            - **Assigned User**: Người được gán
-            - **AllowUpdate**: Cho phép người dùng cập nhật hay không
-            - **CreatedAt**: Ngày tạo
+        # BỐI CẢNH
+        Người dùng đang làm việc với hệ thống quản lý task. Dữ liệu công việc bao gồm:
+        - **ID**: Mã định danh công việc
+        - **Title**: Tiêu đề công việc
+        - **Description**: Mô tả chi tiết
+        - **Status**: Trạng thái (OPEN, IN_PROGRESS, DONE, CANCELED)
+        - **Deadline**: Hạn hoàn thành
+        - **Assigned User**: Người được gán
+        - **AllowUpdate**: Cho phép người dùng cập nhật hay không
+        - **CreatedAt**: Ngày tạo
 
-            # CẤU TRÚC TRẢ LỜI
+        # CẤU TRÚC TRẢ LỜI
 
-            ## 1. Yêu cầu TÌM/LIỆT KÊ/LỌC công việc cụ thể:
-            **Format bắt buộc**: `TASK_IDS:[1,2,3,5]`
+        ## 1. Yêu cầu TÌM/LIỆT KÊ/LỌC công việc cụ thể:
+        **Format bắt buộc**: `TASK_IDS:[1,2,3,5]`
 
-            **Ví dụ câu hỏi**:
-            - "Tìm công việc của Nguyễn Văn A"
-            - "Liệt kê task đang IN_PROGRESS"
-            - "Công việc nào hết hạn hôm nay?"
-            - "Cho tôi xem task có deadline trong tuần này"
+        **Ví dụ câu hỏi**:
+        - "Tìm công việc của Nguyễn Văn A"
+        - "Liệt kê task đang IN_PROGRESS"
+        - "Công việc nào hết hạn hôm nay?"
+        - "Cho tôi xem task có deadline trong tuần này"
 
-            **Cách trả lời**: Phân tích bảng dữ liệu → Lọc ID phù hợp → Trả về `TASK_IDS:[...]`
+        **Cách trả lời**: Phân tích bảng dữ liệu → Lọc ID phù hợp → Trả về `TASK_IDS:[...]`
 
-            ## 2. Yêu cầu TƯ VẤN/GIẢI THÍCH/PHÂN TÍCH:
-            **Format**: Văn bản thông thường, thân thiện, ngắn gọn (2-4 câu)
+        ## 2. Yêu cầu TƯ VẤN/GIẢI THÍCH/PHÂN TÍCH:
+        **Format**: Văn bản thông thường, thân thiện, ngắn gọn (2-4 câu)
 
-            **Ví dụ câu hỏi**:
-            - "Làm thế nào để quản lý task hiệu quả?"
-            - "Task nào tôi nên làm trước?"
-            - "Tại sao task này quan trọng?"
-            - "Giải thích trạng thái IN_PROGRESS"
+        **Ví dụ câu hỏi**:
+        - "Làm thế nào để quản lý task hiệu quả?"
+        - "Task nào tôi nên làm trước?"
+        - "Tại sao task này quan trọng?"
+        - "Giải thích trạng thái IN_PROGRESS"
 
-            **Cách trả lời**: Đưa ra lời khuyên dựa trên dữ liệu (nếu có) hoặc kinh nghiệm quản lý công việc
+        **Cách trả lời**: Đưa ra lời khuyên dựa trên dữ liệu (nếu có) hoặc kinh nghiệm quản lý công việc
 
-            # GIỚI HẠN & QUY TẮC
-            1. **KHÔNG** trả lời câu hỏi không liên quan đến quản lý công việc
-            2. **CHỈ** sử dụng dữ liệu từ bảng bên dưới, không bịa đặt thông tin
-            3. **PHẢI** trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp
-            4. Nếu không tìm thấy kết quả → Thông báo rõ ràng và gợi ý cách tìm khác
-            5. Khi lọc task → Ưu tiên độ chính xác, chỉ trả về ID thực sự khớp yêu cầu
+        # GIỚI HẠN & QUY TẮC
+        1. ❌ **KHÔNG** trả lời câu hỏi không liên quan đến quản lý công việc
+        2. ✅ **CHỈ** sử dụng dữ liệu từ bảng bên dưới, không bịa đặt thông tin
+        3. ✅ **PHẢI** trả lời bằng tiếng Việt, thân thiện và chuyên nghiệp
+        4. ✅ Nếu không tìm thấy kết quả → Thông báo rõ ràng và gợi ý cách tìm khác
+        5. ✅ Khi lọc task → Ưu tiên độ chính xác, chỉ trả về ID thực sự khớp yêu cầu
 
-            # DỮ LIỆU CÔNG VIỆC
-            ```
-            {task_table}
-            ```
-            ---
-            **Hãy phân tích kỹ yêu cầu người dùng và chọn format trả lời phù hợp!**
-            """
+        # DỮ LIỆU CÔNG VIỆC
+        ```
+        {task_table}
+        ```
+
+        ---
+        **Hãy phân tích kỹ yêu cầu người dùng và chọn format trả lời phù hợp!**
+        """
 
         history = [{'role': 'user', 'text': initial_prompt}] + history
     else:
@@ -423,27 +454,18 @@ def ai_chatbot():
 
 # =========================
 
-if __name__ == '__main__':
-    print("="*60)
-    print("Starting Flask Application...")
-    print("="*60)
-    
-    # Test database connection before starting server
-    try:
-        
-        if USE_SSH_TUNNEL:
-            tunnel = get_ssh_tunnel()
-        
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM tasks")
-        count = cursor.fetchone()[0]
-        cursor.close()
-        conn.close()
-        
-        
-    except Exception as e:
-        print(f"Database connection failed: {e}")
+@app.teardown_appcontext
+def cleanup(exception=None):
+    """Close SSH tunnel when app shuts down"""
+    global ssh_tunnel
+    if ssh_tunnel and ssh_tunnel.is_active:
+        print("[INFO] Closing SSH tunnel...")
+        ssh_tunnel.stop()
 
-    
-    app.run(host="0.0.0.0", port=5001, debug=True)
+if __name__ == '__main__':
+    try:
+        app.run(host="0.0.0.0", port=5001, debug=True)
+    finally:
+        if ssh_tunnel and ssh_tunnel.is_active:
+            ssh_tunnel.stop()
+            print("[INFO] SSH tunnel closed")

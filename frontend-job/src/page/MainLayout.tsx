@@ -3,6 +3,8 @@ import { Outlet } from "react-router";
 import { Sidebar } from "../components/Sidebar";
 import { NavBar } from "../components/navbar";
 import { ThemeContext } from "../context/ThemeContext";
+import ChatAI from "../components/ChatAI";
+import { useAuthStore } from "../stores/useAuthorStore";
 
 export const MainLayout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -11,6 +13,7 @@ export const MainLayout = () => {
     return localStorage.getItem("theme") === "dark";
   });
 
+  const loggedInUser = useAuthStore((state) => state.loggedInUser);
   return (
     <ThemeContext.Provider
       value={{ isDark: isDarkMode, setIsDark: setIsDarkMode }}
@@ -31,6 +34,7 @@ export const MainLayout = () => {
             </div>
           </div>
         </div>
+        {loggedInUser && <ChatAI />}
       </div>
     </ThemeContext.Provider>
   );

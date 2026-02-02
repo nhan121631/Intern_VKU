@@ -46,7 +46,8 @@ public class MailService {
     private void sendBrevoApi(String to, String subject, String htmlContent, String base64File, String fileName) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set("api-key", EnvLoader.get("BREVO_API_KEY"));
+            String apiKey = EnvLoader.get("BREVO_API_KEY");
+            headers.set("api-key", apiKey);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             Map<String, Object> requestBody = new HashMap<>();
