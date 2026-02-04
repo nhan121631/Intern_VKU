@@ -92,7 +92,7 @@ export default function ProfilePage() {
       )}
 
       {profile && (
-        <div className="bg-white shadow-lg rounded-xl p-8 bg-linear-to-t from-sky-400 to-indigo-400 dark:from-transparent dark:to-transparent dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+        <div className="bg-white shadow-lg rounded-xl p-8 bg-linear-to-t from-sky-400 to-indigo-400 dark:from-transparent dark:to-transparent dark:bg-gray-700 text-white dark:text-gray-100 text- ">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             <img
               src={
@@ -132,10 +132,10 @@ export default function ProfilePage() {
                   <User className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                  <span className="text-white dark:text-gray-300 font-medium text-sm">
                     Full Name
                   </span>
-                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                  <p className="text-white dark:text-gray-100 font-semibold">
                     {profile.fullName || "Not Available"}
                   </p>
                 </div>
@@ -146,10 +146,10 @@ export default function ProfilePage() {
                   <Phone className="w-5 h-5 text-green-600 dark:text-green-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                  <span className="text-white dark:text-gray-300 font-medium text-sm">
                     Phone
                   </span>
-                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                  <p className="text-white dark:text-gray-100 font-semibold">
                     {profile.phoneNumber || "Not Available"}
                   </p>
                 </div>
@@ -160,10 +160,10 @@ export default function ProfilePage() {
                   <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                 </div>
                 <div className="flex-1">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium text-sm">
+                  <span className="text-white dark:text-gray-300 font-medium text-sm">
                     Address
                   </span>
-                  <p className="text-gray-900 dark:text-gray-100 font-semibold">
+                  <p className="text-white dark:text-gray-100 font-semibold">
                     {profile.address || "Not Available"}
                   </p>
                 </div>
