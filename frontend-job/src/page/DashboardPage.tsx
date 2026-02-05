@@ -239,8 +239,8 @@ export default function DashboardPage() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "#0f172a",
-                        color: "#cbd5e1",
+                        backgroundColor: "#ffffff",
+                        color: "#000000",
                       }}
                     />
                   </PieChart>
@@ -309,8 +309,8 @@ export default function DashboardPage() {
                       </Pie>
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: "#0f172a",
-                          color: "#cbd5e1",
+                          backgroundColor: "#ffffff",
+                          color: "#000000",
                         }}
                       />
                     </PieChart>
@@ -366,11 +366,11 @@ export default function DashboardPage() {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#0f172a",
-                    color: "#cbd5e1",
+                    backgroundColor: "#ffffff",
+                    color: "#000000",
                   }}
                 />
-                <Legend wrapperStyle={{ color: "#cbd5e1" }} />
+                <Legend wrapperStyle={{ color: "#000000" }} />
                 <Bar dataKey="total" fill="#3b82f6" />
               </BarChart>
             </ResponsiveContainer>
