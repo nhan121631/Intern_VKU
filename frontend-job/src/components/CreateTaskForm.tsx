@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
 import * as yup from "yup";
@@ -11,6 +11,7 @@ import type { UserFullName, Task } from "../types/type";
 import { Check, Loader2 } from "lucide-react";
 import { createTaskAssignedNotification } from "../service/Notification";
 
+// Hoist schema outside component - it's static and doesn't need to be recreated on every render
 const schema = yup
   .object({
     title: yup.string().required("Title is required"),
@@ -36,7 +37,6 @@ const schema = yup
           if (!value) return false;
           try {
             const d = new Date(value);
-            // normalize to midnight for comparison
             d.setHours(0, 0, 0, 0);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -52,6 +52,9 @@ const schema = yup
 
 type FormValues = yup.InferType<typeof schema>;
 
+// Hoist helper function outside component
+const getTodayDate = () => new Date().toISOString().slice(0, 10);
+
 export default function CreateTaskForm({
   onClose,
   onCreated,
@@ -59,12 +62,14 @@ export default function CreateTaskForm({
   onClose?: () => void;
   onCreated?: (task: Task) => void;
 }) {
-  const today = new Date().toISOString().slice(0, 10); // yyyy-mm-dd
   const navigate = useNavigate();
   const [userFullNames, setUserFullNames] = useState<UserFullName[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Use lazy initialization for today's date
+  const [today] = useState(getTodayDate);
 
   const {
     register,
@@ -83,56 +88,86 @@ export default function CreateTaskForm({
     },
   });
 
+  // Fetch user list on mount
   useEffect(() => {
-    const fetch = async () => {
+    let isMounted = true;
+
+    const fetchUsers = async () => {
       try {
         const res = await getUserFullName();
-        setUserFullNames(Array.isArray(res) ? res : []);
+        if (isMounted) {
+          setUserFullNames(Array.isArray(res) ? res : []);
+        }
       } catch (e) {
         console.error(e);
       }
     };
-    fetch();
+
+    fetchUsers();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const payload = {
-        title: data.title,
-        description: data.description ?? "",
-        deadline: data.deadline,
-        status: data.status,
-        assignedUserId: Number(data.assignedUserId),
-        allowUserUpdate: !!data.allowUserUpdate,
-      };
-      const res: any = await createTask(payload);
-      const created: Task = res?.data ?? res;
-      await createTaskAssignedNotification(
-        String(created.assignedUserId),
-        String(created.id),
-        `You have been assigned a new task: ${created.title}`,
-      );
-      setSuccess("Task created successfully");
-      // give the user a moment to see the toast, then close modal or navigate
-      setTimeout(() => {
-        if (onCreated) onCreated(created);
-        if (onClose) onClose();
-        else navigate("/our-task");
-      }, 900);
-    } catch (e: any) {
-      console.error(e);
-      setError(
-        e?.message || (e?.errors ? e.errors.join(", ") : "Error creating task"),
-      );
-    } finally {
-      setLoading(false);
+  // Memoize submit handler to prevent unnecessary re-renders
+  const onSubmit: SubmitHandler<FormValues> = useCallback(
+    async (data) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const payload = {
+          title: data.title,
+          description: data.description ?? "",
+          deadline: data.deadline,
+          status: data.status,
+          assignedUserId: Number(data.assignedUserId),
+          allowUserUpdate: !!data.allowUserUpdate,
+        };
+
+        // Execute task creation and notification in parallel after we have the task ID
+        const res: any = await createTask(payload);
+        const created: Task = res?.data ?? res;
+
+        // Fire notification (don't await - non-blocking)
+        createTaskAssignedNotification(
+          String(created.assignedUserId),
+          String(created.id),
+          `You have been assigned a new task: ${created.title}`,
+        ).catch(console.error);
+
+        setSuccess("Task created successfully");
+
+        // Delay to show success message
+        setTimeout(() => {
+          if (onCreated) onCreated(created);
+          if (onClose) onClose();
+          else navigate("/our-task");
+        }, 900);
+      } catch (e: any) {
+        console.error(e);
+        setError(
+          e?.message ||
+            (e?.errors ? e.errors.join(", ") : "Error creating task"),
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [navigate, onClose, onCreated],
+  );
+
+  // Memoize cancel handler
+  const handleCancel = useCallback(() => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate(-1);
     }
-  };
+  }, [onClose, navigate]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow dark:bg-gray-900 dark:text-white">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded shadow dark:bg-gray-700 dark:text-gray-200">
       <h2 className="text-2xl font-semibold mb-4">Create Task</h2>
       {error && <div className="mb-4 text-red-600">{error}</div>}
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -150,7 +185,7 @@ export default function CreateTaskForm({
             <input
               {...register("title")}
               placeholder="Enter task title"
-              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
             {errors.title && (
               <p className="text-red-500 text-sm mt-1">
@@ -167,7 +202,7 @@ export default function CreateTaskForm({
               type="date"
               {...register("createdAt")}
               disabled
-              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-gray-50 cursor-not-allowed text-gray-600"
+              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-gray-50 dark:bg-gray-600 dark:text-gray-200 cursor-not-allowed"
             />
           </div>
         </div>
@@ -179,7 +214,7 @@ export default function CreateTaskForm({
           <textarea
             {...register("description")}
             placeholder="This is a short description of the task (optional)"
-            className="w-full border border-gray-200 rounded-md px-4 py-3 min-h-30 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full border border-gray-200 rounded-md px-4 py-3 min-h-30 bg-white dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
           />
         </div>
 
@@ -189,7 +224,7 @@ export default function CreateTaskForm({
           </label>
           <select
             {...register("assignedUserId")}
-            className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+            className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="">Select assignee...</option>
             {userFullNames.map((u) => (
@@ -212,7 +247,7 @@ export default function CreateTaskForm({
             </label>
             <select
               {...register("status")}
-              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value="OPEN">Open</option>
               <option value="IN_PROGRESS">In Progress</option>
@@ -227,7 +262,7 @@ export default function CreateTaskForm({
             <input
               type="date"
               {...register("deadline")}
-              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full border border-gray-200 rounded-md px-4 py-2 bg-white dark:bg-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
             {errors.deadline && (
               <p className="text-red-500 text-sm mt-1">
@@ -254,7 +289,7 @@ export default function CreateTaskForm({
         <div className="flex justify-end items-center space-x-3">
           <button
             type="button"
-            onClick={() => (onClose ? onClose() : navigate(-1))}
+            onClick={handleCancel}
             className="px-4 py-2 rounded-md bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer"
           >
             Cancel
