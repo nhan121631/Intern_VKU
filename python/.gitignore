@@ -1,3 +1,8 @@
 t.py
 test.py
 .env
+docker-compose-copy.yml
+docker-compose.yml
+my-backend-key.pem
+requirements.txt
+Dockerfile

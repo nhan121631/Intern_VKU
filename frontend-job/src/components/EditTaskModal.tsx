@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { getUserFullName } from "../service/UserService";
 import type { UpdateTaskData, UserFullName } from "../types/type";
@@ -7,11 +7,11 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AlertCircle, Check, Loader2, X } from "lucide-react";
 
+// Hoist schema outside component - static definition (rendering-hoist-jsx)
 const schema = yup
   .object({
     title: yup.string().required("Title is required"),
     description: yup.string().notRequired(),
-    // Accept select value as string and transform to number
     assignedUserId: yup
       .number()
       .transform((_value, originalValue) => {
@@ -34,6 +34,24 @@ const schema = yup
 type FormValues = yup.InferType<typeof schema>;
 
 type TaskStatus = "OPEN" | "IN_PROGRESS" | "DONE" | "CANCELED" | string;
+
+// Hoist static status options outside component
+const STATUS_OPTIONS = [
+  { value: "OPEN", label: "Open" },
+  { value: "IN_PROGRESS", label: "In Progress" },
+  { value: "DONE", label: "Done" },
+  { value: "CANCELED", label: "Canceled" },
+] as const;
+
+// Default form values - hoisted for reuse
+const DEFAULT_FORM_VALUES: FormValues = {
+  title: "",
+  description: "",
+  assignedUserId: 0,
+  allowUserUpdate: true,
+  status: "OPEN",
+  deadline: "",
+};
 
 export interface Task {
   id: number;
@@ -70,28 +88,24 @@ export default function EditTaskModal({
     formState: { errors },
   } = useForm<FormValues>({
     resolver: yupResolver(schema) as any,
-    defaultValues: {
-      title: "",
-      description: "",
-      assignedUserId: 0,
-      allowUserUpdate: true,
-      status: "OPEN",
-      deadline: "",
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
   const [userFullNames, setUserFullNames] = useState<UserFullName[]>([]);
 
-  // Disable assignee select only when a specific `userId` prop is provided
-  // (used when creating a task for a fixed user). When editing an existing
-  // task we allow reassigning by keeping the select enabled.
-  const isAssigneeDisabled = Boolean(userId !== undefined);
-  const selectedAssigneeName =
-    task?.assignedFullName ||
-    (userFullNames.find((u) => u.id === Number(task?.assignedUserId))
-      ?.fullName ??
-      "");
+  // Memoize derived state (rerender-derived-state)
+  const isAssigneeDisabled = useMemo(() => userId !== undefined, [userId]);
 
+  const selectedAssigneeName = useMemo(
+    () =>
+      task?.assignedFullName ||
+      userFullNames.find((u) => u.id === Number(task?.assignedUserId))
+        ?.fullName ||
+      "",
+    [task?.assignedFullName, task?.assignedUserId, userFullNames],
+  );
+
+  // Reset form when task changes
   useEffect(() => {
     if (task) {
       reset({
@@ -103,61 +117,74 @@ export default function EditTaskModal({
         deadline: task.deadline ? String(task.deadline).slice(0, 10) : "",
       });
     } else {
-      reset({
-        title: "",
-        description: "",
-        assignedUserId: 0,
-        status: "OPEN",
-        deadline: "",
-      });
+      reset(DEFAULT_FORM_VALUES);
     }
   }, [task, reset]);
 
-  const submit: SubmitHandler<FormValues> = async (data) => {
-    if (!task) return;
+  // Memoize submit handler to prevent unnecessary re-renders (rerender-memo)
+  const submit: SubmitHandler<FormValues> = useCallback(
+    async (data) => {
+      if (!task) return;
 
-    // Tìm fullName của user được chọn từ dropdown
-    const selectedUser = userFullNames.find(
-      (user) => user.id === Number(data.assignedUserId),
-    );
+      // Find fullName của user được chọn từ dropdown
+      const selectedUser = userFullNames.find(
+        (user) => user.id === Number(data.assignedUserId),
+      );
 
-    const payload: UpdateTaskData = {
-      id: task.id,
-      title: data.title,
-      description: data.description ?? "",
-      deadline: data.deadline,
-      status: data.status ?? (task.status as string) ?? "OPEN",
-      allowUserUpdate: data.allowUserUpdate ?? task.allowUserUpdate ?? true,
-      assignedUserId: Number(data.assignedUserId),
-      assignedFullName: selectedUser?.fullName,
-    };
+      const payload: UpdateTaskData = {
+        id: task.id,
+        title: data.title,
+        description: data.description ?? "",
+        deadline: data.deadline,
+        status: data.status ?? (task.status as string) ?? "OPEN",
+        allowUserUpdate: data.allowUserUpdate ?? task.allowUserUpdate ?? true,
+        assignedUserId: Number(data.assignedUserId),
+        assignedFullName: selectedUser?.fullName,
+      };
 
-    await onSave(payload);
-  };
+      await onSave(payload);
+    },
+    [task, userFullNames, onSave],
+  );
+  // Fetch user list with memory leak prevention
   useEffect(() => {
     if (!userId) {
+      let isMounted = true;
+
       const fetchUserFullNames = async () => {
         try {
           const res = await getUserFullName();
-          setUserFullNames(Array.isArray(res) ? res : []);
+          if (isMounted) {
+            setUserFullNames(Array.isArray(res) ? res : []);
+          }
         } catch (error) {
           console.error("Error fetching user full names:", error);
-          setUserFullNames([]);
+          if (isMounted) {
+            setUserFullNames([]);
+          }
         }
       };
 
       fetchUserFullNames();
+      return () => {
+        isMounted = false;
+      };
     }
   }, [userId]);
 
+  // Memoize close handler (rerender-functional-setstate)
+  const handleClose = useCallback(() => {
+    if (!saving) onClose();
+  }, [saving, onClose]);
+
+  // Early return for performance (rendering-conditional-render)
   if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity dark:bg-black/60"
-        onClick={() => {
-          if (!saving) onClose();
-        }}
+        onClick={handleClose}
       />
 
       <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -168,9 +195,7 @@ export default function EditTaskModal({
             </h3>
             <button
               type="button"
-              onClick={() => {
-                if (!saving) onClose();
-              }}
+              onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             >
               <X className="w-6 h-6" />
@@ -247,10 +272,11 @@ export default function EditTaskModal({
                 {...register("status")}
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
               >
-                <option value="OPEN">Open</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="DONE">Done</option>
-                <option value="CANCELED">Canceled</option>
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -284,9 +310,7 @@ export default function EditTaskModal({
             <button
               type="button"
               className="px-6 py-2.5 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors cursor-pointer dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-              onClick={() => {
-                if (!saving) onClose();
-              }}
+              onClick={handleClose}
               disabled={saving}
             >
               Cancel
